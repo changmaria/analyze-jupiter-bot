@@ -1,13 +1,14 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-// import express, { Express, Request, Response } from "express";
-// import bodyParser from "body-parser";
+import dotenv from 'dotenv';
 import { onLogin, onSettings, onStart, onStop, addBot, setATHPercent, setMinimumVolume, setWinRate, showTopTradersMessage, showFallingTokenMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode } from './utils/bot';
 import { isNumber } from './utils/helper';
 import { BotClient, BotStatus, RequestTraderDataType } from './utils/interface';
 import { getClientData, getTokensByATHPercent, getTokensCountByATHPercent, getTradersByWinRate, open, updateClientData } from "./utils/mongodb";
 
-const bot_token = "7832700088:AAH3HUINot15J8A3S7dtHnZIxpQfGvjVrBQ";
+dotenv.config();
+
+const bot_token = process.env.bot_token != undefined ? process.env.bot_token : "";
 const bot = new TelegramBot(bot_token, { polling: true });
 
 const countPerPage = 10;

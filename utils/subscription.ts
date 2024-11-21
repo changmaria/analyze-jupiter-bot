@@ -1,9 +1,12 @@
 import axios from "axios";
+import dotenv from 'dotenv';
 import { defaultATHPercent, defaultMinVolume, defaultWinRate, getClientData, getExsitSubscriptionCode, updateClientData } from "./mongodb";
 import { BotStatus } from "./interface";
 
-const CLIENT_ID = "VCfoezOe279y30mLKuO3PQDzIU10YWhkzo6Q56Dq9AE";
-const CLIENT_SECRET = "jJtU8jUZvpw9eJ_sOo8XQtmzz5GXpg2M0Ngp8cr9HxA";
+dotenv.config();
+
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
 export const verifySubscriptionCode = async (code: string, tgUsername: string, chatId: number) => {
 	try {

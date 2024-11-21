@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@david-lab/sol-lib": "^1.1.76",
     "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.95.3",
     "@upstash/redis": "^1.34.3",
