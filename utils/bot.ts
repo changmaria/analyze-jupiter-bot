@@ -9,7 +9,7 @@ import { addClient, getClientData, updateClientData } from "./mongodb";
 import { verifySubscriptionCode } from "./subscription";
 
 const connection: Connection = new Connection('https://proportionate-distinguished-bush.solana-mainnet.quiknode.pro/23d40a5fef0e147c06129a62e0cc0b975f38fd42');
-const imagePath = path.normalize(`${path.normalize(`${__dirname}/../`)}/assets/swordbanner.png`);
+const imagePath = path.normalize(`${path.normalize(`${__dirname}/../../`)}/assets/swordbanner.png`);
 
 export const getUserSolBalance = async (address: string) => {
 	try {
