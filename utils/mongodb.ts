@@ -2,7 +2,7 @@ import { MongoClient } from "mongodb"
 import { BotClient, BotStatus } from "./interface";
 import { SchemaBotClient, SchemaToken, SchemaTransaction } from "./schema";
 
-const MONGODB_URI = "mongodb://127.0.0.1:27017";
+const MONGODB_URI = "mongodb://0.0.0.0:27017";
 const MONGODB_DATABASE = "solana-sword"
 export const defaultWinRate: number = 40;
 export const defaultMinVolume: number = 1000;
