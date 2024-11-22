@@ -22,7 +22,7 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 					code: code,
 					client_id: CLIENT_ID,
 					client_secret: CLIENT_SECRET,
-					redirect_uri: "https://9494-83-234-227-20.ngrok-free.app/whop"
+					redirect_uri: "https://jupitertrackkbot.onrender.com/whop"
 				},
 			};
 
