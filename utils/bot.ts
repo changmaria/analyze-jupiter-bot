@@ -74,7 +74,7 @@ export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 				{ text: '👎 Falling Tokens', callback_data: 'fallingTokens' }
 			],
 			[
-				{ text: '🔄 BullX', url: 'https://bullx.io' },
+				{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
 				{ text: '⚙️ Settings', callback_data: 'admin' },
 			],
 		]
@@ -255,7 +255,7 @@ export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot, subscri
 							{ text: '👎 Falling Tokens', callback_data: 'fallingTokens' }
 						],
 						[
-							{ text: '🔄 BullX', url: 'https://bullx.io' },
+							{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
 							{ text: '⚙️ Settings', callback_data: 'admin' },
 						],
 						[
