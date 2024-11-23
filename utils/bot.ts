@@ -86,7 +86,7 @@ export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 				inline_keyboard: [
 					..._keyboards,
 					[
-						{ text: 'Buy Bot 🏆: 10$/month', callback_data: 'buyBot' }
+						{ text: 'Buy Bot 🏆: 47€/month', callback_data: 'buyBot' }
 					]
 				]
 			}
@@ -126,7 +126,7 @@ export const onBuyBot = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 			]
 		}
 
-		let message = '*Jupiter Track Bot - Full Acces* 🏆\n*10$* for One Month\n\nUnlock premium access to Jupiter Track Bot for just $10/month and gain exclusive insights into the Solana ecosystem.';
+		let message = '*Jupiter Track Bot - Full Acces* 🏆\n*47€* for One Month\n\nUnlock premium access to Jupiter Track Bot for just 47€/month and gain exclusive insights into the Solana ecosystem.';
 
 		await bot.sendMessage(
 			msg.chat.id,
@@ -259,7 +259,7 @@ export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot, subscri
 							{ text: '⚙️ Settings', callback_data: 'admin' },
 						],
 						[
-							{ text: 'Buy Bot 🏆: 10$/month', callback_data: 'buyBot' }
+							{ text: 'Buy Bot 🏆: 47€/month', callback_data: 'buyBot' }
 						],
 					]
 				}
@@ -427,7 +427,7 @@ export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramB
 					{ text: 'Add Bot', callback_data: 'addBot' }
 				],
 				[
-					{ text: 'Buy Bot 🏆: 10$/month', callback_data: 'buyBot' }
+					{ text: 'Buy Bot 🏆: 47€/month', callback_data: 'buyBot' }
 				],
 			]
 		};
