@@ -44,7 +44,7 @@ export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 					{ text: `Tokens Count ${clientData.lastedTokensCount || 0}`, callback_data: 'setLatestTokensCount' },
 				],
 				[
-					{ text: clientData.status === BotStatus.UsualMode ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotPauseStatus' },
+					{ text: !clientData.isPaused ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotPauseStatus' },
 				],
 				[
 					{ text: 'Back', callback_data: 'start' }
@@ -58,7 +58,7 @@ export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 				],
 				[
 					{ text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' },
-					{ text: clientData.status === BotStatus.UsualMode ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotPauseStatus' },
+					{ text: !clientData.isPaused ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotPauseStatus' },
 				],
 				[
 					{ text: 'Back', callback_data: 'start' }
@@ -224,11 +224,11 @@ export const setBotPauseStatus = async (msg: TelegramBot.Message, bot: TelegramB
 		if (clientData.isPaused) {
 			clientData.isPaused = false;
 			await updateClientData(clientData);
-			await bot.sendMessage(msg.chat.id, `The bot has been successfully paused.`)
+			await bot.sendMessage(msg.chat.id, `The bot was started successfully.`);
 		} else {
 			clientData.isPaused = true;
 			await updateClientData(clientData);
-			await bot.sendMessage(msg.chat.id, `The bot was started successfully.`)
+			await bot.sendMessage(msg.chat.id, `The bot has been successfully paused.`);
 		}
 	} catch (error) {
 		console.log("set real time error: ", error);
