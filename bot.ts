@@ -17,14 +17,14 @@ bot.setMyCommands([
 	{ command: '/start', description: 'start the bot' },
 	{ command: '/admin', description: 'modify the filter settings' },
 	{ command: '/realtime', description: "get the bot's realtime updates" },
-	{ command: '/stop', description: "stop the bot's realtime updates" },
+	{ command: '/pause', description: "pause the bot's realtime updates" },
 ])
 
 bot.onText(/\/login/, (msg) => {
 	onLogin(msg, bot);
 });
 
-bot.onText(/\/stop/, (msg) => {
+bot.onText(/\/pause/, (msg) => {
 	onStop(msg, bot);
 });
 
