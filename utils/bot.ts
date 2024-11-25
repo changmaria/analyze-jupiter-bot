@@ -43,7 +43,7 @@ export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 						{ text: `Tokens Count ${clientData.lastedTokensCount || 0}`, callback_data: 'setLatestTokensCount' },
 					],
 					[
-						{ text: clientData.status === BotStatus.UsualMode ? 'Pause bot' : 'Start bot', callback_data: 'setBotStatus' },
+						{ text: clientData.status === BotStatus.UsualMode ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotStatus' },
 					],
 					[
 						{ text: 'Back', callback_data: 'start' }
