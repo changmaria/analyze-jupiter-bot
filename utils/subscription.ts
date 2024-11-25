@@ -42,6 +42,7 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 						athPercent: client?.athPercent || defaultATHPercent,
 						lastedTokensCount: client?.lastedTokensCount || defaultLatestTokensCount,
 						status: BotStatus.UsualMode,
+						isPaused: client?.isPaused === undefined ? false : client?.isPaused,
 						chatId: chatId,
 						subscription_created_at: Number(_data.created_at),
 						subscription_expires_in: Number(_data.expires_in),

@@ -1,7 +1,7 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import dotenv from 'dotenv';
-import { onLogin, onSettings, onStart, addBot, setATHPercent, setMinimumVolume, setWinRate, showTopTradersMessage, showFallingTokenMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setLatestTokensCount, setBotStatus } from './utils/bot';
+import { onLogin, onSettings, onStart, addBot, setATHPercent, setMinimumVolume, setWinRate, showTopTradersMessage, showFallingTokenMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setLatestTokensCount, setBotPauseStatus } from './utils/bot';
 import { currentTime, isNumber } from './utils/helper';
 import { BotClient, BotStatus, RequestTraderDataType } from './utils/interface';
 import { getClientData, getClients, getTokensByATHPercent, getTokensCountByATHPercent, getTradersByWinRate, open, updateClientData } from "./utils/mongodb";
@@ -68,8 +68,8 @@ bot.on('callback_query', async (callbackQuery) => {
 		setATHPercent(message, bot);
 	} else if (_cmd == 'setLatestTokensCount') {
 		setLatestTokensCount(message, bot);
-	} else if (_cmd == 'setBotStatus') {
-		setBotStatus(message, bot);
+	} else if (_cmd == 'setBotPauseStatus') {
+		setBotPauseStatus(message, bot);
 	} else if (_cmd == 'buyBot') {
 		await onBuyBot(message, bot);
 	} else if (_cmd == 'addBot') {
@@ -161,8 +161,6 @@ bot.on('message', async (msg) => {
 const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: string, page: number = 1, messageId: number) => {
 	try {
 		const clientData = await getClientData(tgUserName);
-
-		console.log("clientData ============>", clientData);
 		
 		if (!clientData || clientData.status != BotStatus.UsualMode) return;
 
@@ -177,9 +175,6 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: s
 				page,
 				countPerPage
 			);
-
-			console.log("traders ============>", traders);
-			console.log("count ============>", count);
 	
 			await showTopTradersMessage(bot, traders as RequestTraderDataType[], count, clientData.chatId, page, countPerPage, messageId);
 		}

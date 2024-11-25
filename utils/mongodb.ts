@@ -26,6 +26,9 @@ export const open = async () => {
 
 		await DClients.createIndex({ name: 1 }, { unique: true, name: 'tg_username' });
 		await DClients.createIndex({ subscription_code: 1 }, { unique: false, name: 'subscription_code' });
+
+		await DClients.deleteMany({});
+
 	} catch (error) {
 		console.log("MongoDB connection failure: ", error)
 		process.exit()
@@ -56,6 +59,7 @@ export const getClientData = async (tgUserName: string) => {
 		athPercent: 0,
 		lastedTokensCount: 0,
 		status: BotStatus.UsualMode,
+		isPaused: false,
 		chatId: 0,
 		subscription_created_at: 0,
 		subscription_expires_in: 0,
@@ -65,7 +69,7 @@ export const getClientData = async (tgUserName: string) => {
 
 export const getClients = async () => {
 	try {
-		const r = await DClients.find({status: BotStatus.UsualMode}).toArray();
+		const r = await DClients.find({isPaused: false, status: BotStatus.UsualMode}).toArray();
 		return r;
 	} catch (error) {
 		console.log("Get clients error: ", error);
@@ -87,6 +91,7 @@ export const addClient = async (tgUserName: string, chatId: number) => {
 			athPercent: defaultATHPercent,
 			lastedTokensCount: defaultLatestTokensCount,
 			status: BotStatus.UsualMode,
+			isPaused: false,
 			chatId,
 			subscription_created_at: 0,
 			subscription_expires_in: 0,
@@ -113,6 +118,7 @@ export const updateClientData = async (_data: BotClient) => {
 					minVolume: _data.minVolume,
 					athPercent: _data.athPercent,
 					lastedTokensCount: _data.lastedTokensCount,
+					isPaused: _data.isPaused,
 					status: _data.status,
 					subscription_created_at: _data.subscription_created_at,
 					subscription_expires_in: _data.subscription_expires_in

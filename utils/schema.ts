@@ -3,8 +3,7 @@ enum BotStatus {
 	InputMinVolume = "Inputing Min Volume",
 	InputATHPercent = "Inputing ATH Percent",
 	InputTokensCount = "Inputing Latest Tokens Display Count",
-	UsualMode = "Normal Mode",
-	StopMode = "Stop Mode"
+	UsualMode = "Normal Mode"
 }
 
 export interface SchemaTransaction {
@@ -36,6 +35,7 @@ export interface SchemaBotClient {
 	athPercent: number;
 	lastedTokensCount: number;
 	status: BotStatus;
+	isPaused: boolean;
 	chatId: number;
 	subscription_created_at: number;
 	subscription_expires_in: number;
