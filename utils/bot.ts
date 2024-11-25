@@ -334,9 +334,9 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 				token_message += '`\n├ ⏰Latest Tokens:';
 				for (let j = 0; j < traders[i].latestTokens.length; j++) {
 					if (j === traders[i].latestTokens.length - 1) {
-						token_message += '\n     └ `';
+						token_message += '\n|    └ `';
 					} else {
-						token_message += '\n     ├ `';
+						token_message += '\n|    ├ `';
 					}
 					token_message += (
 						`${sliceAddress(traders[i].latestTokens[j])}` + '`' +
