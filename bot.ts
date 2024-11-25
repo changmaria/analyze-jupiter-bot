@@ -174,8 +174,6 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: s
 				page,
 				countPerPage
 			);
-
-			if (!traders.length) return;
 	
 			await showTopTradersMessage(bot, traders as RequestTraderDataType[], count, clientData.chatId, page, countPerPage, messageId);
 		}
@@ -183,8 +181,6 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: s
 	
 			const _tokens = await getTokensByATHPercent(clientData.athPercent, page, countPerPage);
 			const _count = await getTokensCountByATHPercent(clientData.athPercent);
-	
-			if (!_tokens.length) return;
 	
 			await showFallingTokenMessage(bot, _tokens, _count, clientData.chatId, page, countPerPage, messageId);
 		}
