@@ -1,7 +1,7 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import dotenv from 'dotenv';
-import { onLogin, onSettings, onStart, onStop, addBot, setATHPercent, setMinimumVolume, setWinRate, showTopTradersMessage, showFallingTokenMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setLatestTokensCount } from './utils/bot';
+import { onLogin, onSettings, onStart, onStop, addBot, setATHPercent, setMinimumVolume, setWinRate, showTopTradersMessage, showFallingTokenMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setLatestTokensCount, onRealtime } from './utils/bot';
 import { isNumber } from './utils/helper';
 import { BotClient, BotStatus, RequestTraderDataType } from './utils/interface';
 import { getClientData, getClients, getTokensByATHPercent, getTokensCountByATHPercent, getTradersByWinRate, open, updateClientData } from "./utils/mongodb";
@@ -16,7 +16,8 @@ const countPerPage = 10;
 bot.setMyCommands([
 	{ command: '/start', description: 'start the bot' },
 	{ command: '/admin', description: 'modify the filter settings' },
-	{ command: '/stop', description: "stop the bot's realtime updates" }
+	{ command: '/realtime', description: "get the bot's realtime updates" },
+	{ command: '/stop', description: "stop the bot's realtime updates" },
 ])
 
 bot.onText(/\/login/, (msg) => {
@@ -25,7 +26,11 @@ bot.onText(/\/login/, (msg) => {
 
 bot.onText(/\/stop/, (msg) => {
 	onStop(msg, bot);
-})
+});
+
+bot.onText(/\/realtime/, (msg) => {
+	onRealtime(msg, bot);
+});
 
 bot.onText(/\/start/, async (msg) => {
 	if (msg.text?.startsWith('/start code=')) {

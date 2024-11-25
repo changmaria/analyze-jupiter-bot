@@ -199,12 +199,34 @@ export const onStop = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 		if (!msg.chat.username) return;
 		const clientData = await getClientData(msg.chat.username) as BotClient;
 		if (!clientData.name) return;
+		if (clientData.status === BotStatus.StopMode) {
+			await bot.sendMessage(msg.chat.id, `The bot is already stopped.`)
+			return;
+		}
 		clientData.status = BotStatus.StopMode;
 		await updateClientData(clientData);
 		await bot.sendMessage(msg.chat.id, `The bot has been successfully stopped. Please restart it to get real-time updates.`)
 		console.log("stoped bot real time updates ===>", msg.chat.username);
 	} catch (error) {
 		console.log("Stop bot error: ", error);
+	}
+}
+
+export const onRealtime = async (msg: TelegramBot.Message, bot: TelegramBot) => {
+	try {
+		if (!msg.chat.username) return;
+		const clientData = await getClientData(msg.chat.username) as BotClient;
+		if (!clientData.name) return;
+		if (clientData.status === BotStatus.UsualMode) {
+			await bot.sendMessage(msg.chat.id, `You are already getting realtime updated now.`)
+			return;
+		}
+		clientData.status = BotStatus.UsualMode;
+		await updateClientData(clientData);
+		await bot.sendMessage(msg.chat.id, `The bot has been updated successfully.`)
+		console.log("start bot real time updates ===>", msg.chat.username);
+	} catch (error) {
+		console.log("set real time error: ", error);
 	}
 }
 
