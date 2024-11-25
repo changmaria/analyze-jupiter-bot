@@ -182,7 +182,7 @@ const analyzeSwapInstructions = async (instructions: SwapInstruction[], transact
 	stored_transactions.push({ ..._transaction, created: currentTime() });
 	index++;
 
-	if (index === 20) {
+	if (index === 200) {
 		await insertTransactions(stored_transactions);
 		index = 0;
 		stored_transactions = [];
