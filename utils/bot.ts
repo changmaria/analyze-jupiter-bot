@@ -298,8 +298,6 @@ const sliceAddress = (address: string) => {
 
 export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTraderDataType[], totalCount: number, chatId: number, page: number, countPerPage: number, messageId: number) => {
 	try {
-		// if (traders.length <= (page - 1) * countPerPage) return;
-		// const _traders = traders.slice((page - 1) * countPerPage, page * countPerPage);
 		const totalPage = (totalCount % countPerPage === 0) ? totalCount / countPerPage : Math.floor(totalCount / countPerPage) + 1;
 		let message = '🏆🏆🏆Good Traders🏆🏆🏆\n\n';
 
@@ -313,7 +311,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 					}
 					token_message += (
 						`${sliceAddress(traders[i].latestTokens[j])}` + '`' +
-						` [View on Solscan](https://solscan.io/address/${traders[i].latestTokens[j]})`);
+						`   [View on Solscan](https://solscan.io/address/${traders[i].latestTokens[j]})`);
 				}
 			} else {
 				token_message += '`';

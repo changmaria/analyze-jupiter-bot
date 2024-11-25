@@ -220,7 +220,7 @@ const startRunning = async () => {
         } catch(err) {
             console.log("sending token error ===>", err);
         }
-    }, 1000 * 60 * 5);
+    }, 1000 * 60 * 2);
 }
 
 open().then(async () => {
