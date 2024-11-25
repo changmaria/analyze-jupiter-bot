@@ -3,7 +3,7 @@ import { BotClient, BotStatus, RequestTraderDataType } from "./interface";
 import { SchemaBotClient, SchemaToken, SchemaTransaction } from "./schema";
 
 const MONGODB_URI = "mongodb://0.0.0.0:27017";
-const MONGODB_DATABASE = "solana-sword"
+const MONGODB_DATABASE = "solana-jupiter-sword"
 export const defaultWinRate: number = 40;
 export const defaultMinVolume: number = 1000;
 export const defaultATHPercent: number = 30;
