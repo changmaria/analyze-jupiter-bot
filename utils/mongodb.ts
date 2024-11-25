@@ -237,7 +237,7 @@ export const getTokensCountByATHPercent = async (athPercent: number) => {
 
 export const getTradersByWinRate = async (winRate: number, minVolume: number, lastedTokensCount: number, page: number, countPerPage: number) => {
 	try {
-		let _lastedTokensCount = lastedTokensCount > 7 ? 7 : lastedTokensCount;
+		let _lastedTokensCount = lastedTokensCount > 10 ? 10 : lastedTokensCount;
 		const r = await DTransactions.aggregate([
 			{
 				$group: {
