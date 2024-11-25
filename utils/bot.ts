@@ -43,6 +43,9 @@ export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 						{ text: `Tokens Count ${clientData.lastedTokensCount || 0}`, callback_data: 'setLatestTokensCount' },
 					],
 					[
+						{ text: clientData.status === BotStatus.UsualMode ? 'Pause bot' : 'Start bot', callback_data: 'setBotStatus' },
+					],
+					[
 						{ text: 'Back', callback_data: 'start' }
 					]
 				]
@@ -194,37 +197,21 @@ export const onLogin = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	}
 }
 
-export const onStop = async (msg: TelegramBot.Message, bot: TelegramBot) => {
+export const setBotStatus = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
 		if (!msg.chat.username) return;
 		const clientData = await getClientData(msg.chat.username) as BotClient;
 		if (!clientData.name) return;
-		if (clientData.status === BotStatus.StopMode) {
-			await bot.sendMessage(msg.chat.id, `The bot is already stopped.`)
-			return;
-		}
-		clientData.status = BotStatus.StopMode;
-		await updateClientData(clientData);
-		await bot.sendMessage(msg.chat.id, `The bot has been successfully stopped. Please restart it to get real-time updates.`)
-		console.log("stoped bot real time updates ===>", msg.chat.username);
-	} catch (error) {
-		console.log("Stop bot error: ", error);
-	}
-}
 
-export const onRealtime = async (msg: TelegramBot.Message, bot: TelegramBot) => {
-	try {
-		if (!msg.chat.username) return;
-		const clientData = await getClientData(msg.chat.username) as BotClient;
-		if (!clientData.name) return;
 		if (clientData.status === BotStatus.UsualMode) {
-			await bot.sendMessage(msg.chat.id, `You are now receiving real-time updates.`)
-			return;
+			clientData.status = BotStatus.StopMode;
+			await updateClientData(clientData);
+			await bot.sendMessage(msg.chat.id, `The bot has been successfully paused.`)
+		} else if (clientData.status === BotStatus.StopMode) {
+			clientData.status = BotStatus.UsualMode;
+			await updateClientData(clientData);
+			await bot.sendMessage(msg.chat.id, `The bot was started successfully.`)
 		}
-		clientData.status = BotStatus.UsualMode;
-		await updateClientData(clientData);
-		await bot.sendMessage(msg.chat.id, `The bot has been updated successfully.`)
-		console.log("start bot real time updates ===>", msg.chat.username);
 	} catch (error) {
 		console.log("set real time error: ", error);
 	}
