@@ -161,6 +161,9 @@ bot.on('message', async (msg) => {
 const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: string, page: number = 1, messageId: number) => {
 	try {
 		const clientData = await getClientData(tgUserName);
+
+		console.log("clientData ============>", clientData);
+		
 		if (!clientData || clientData.status != BotStatus.UsualMode) return;
 
 		if (page < 1) return;
@@ -174,6 +177,9 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: s
 				page,
 				countPerPage
 			);
+
+			console.log("traders ============>", traders);
+			console.log("count ============>", count);
 	
 			await showTopTradersMessage(bot, traders as RequestTraderDataType[], count, clientData.chatId, page, countPerPage, messageId);
 		}
