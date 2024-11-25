@@ -237,6 +237,7 @@ export const getTokensCountByATHPercent = async (athPercent: number) => {
 
 export const getTradersByWinRate = async (winRate: number, minVolume: number, lastedTokensCount: number, page: number, countPerPage: number) => {
 	try {
+		let _lastedTokensCount = lastedTokensCount > 7 ? 7 : lastedTokensCount;
 		const r = await DTransactions.aggregate([
 			{
 				$group: {
@@ -301,7 +302,7 @@ export const getTradersByWinRate = async (winRate: number, minVolume: number, la
 
 		for (let i of r[0]?.paginatedResults) {
 			if (!!i?._id) {
-				const _latestTokens = await DTransactions.find({ trader: i._id }).sort({ created: -1 }).skip(0).limit(lastedTokensCount).toArray();
+				const _latestTokens = await DTransactions.find({ trader: i._id }).sort({ created: -1 }).skip(0).limit(_lastedTokensCount).toArray();
 				let _tokens = _latestTokens.map(i => i.tokenAddress);
 				_tokens = [...new Set(_tokens)]
 				traders.push({
