@@ -291,17 +291,38 @@ export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot, subscri
 	}
 }
 
+const sliceAddress = (address: string) => {
+	let _address = address.replace('0x', '');
+	return `0x${_address.slice(0, 5)}...${_address.slice(-5)}`
+}
+
 export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTraderDataType[], totalCount: number, chatId: number, page: number, countPerPage: number, messageId: number) => {
 	try {
 		// if (traders.length <= (page - 1) * countPerPage) return;
 		// const _traders = traders.slice((page - 1) * countPerPage, page * countPerPage);
 		const totalPage = (totalCount % countPerPage === 0) ? totalCount / countPerPage : Math.floor(totalCount / countPerPage) + 1;
 		let message = '🏆🏆🏆Good Traders🏆🏆🏆\n\n';
+
 		for (let i = 0; i < traders.length; i++) {
+			let token_message = '';
+			if (!!traders[i].latestTokens.length) {
+				token_message += '`\n⏰Latest Tokens: `';
+				for (let j = 0; j < traders[i].latestTokens.length; j++) {
+					if (j !== 0) {
+						token_message += '               `';
+					}
+					token_message += (
+						`${sliceAddress(traders[i].latestTokens[j])}` + '`' +
+						` [View on Solscan](https://solscan.io/address/${traders[i].latestTokens[j]})`);
+				}
+			} else {
+				token_message += '`';
+			}
 			const _balance = await getUserSolBalance(traders[i]._id);
 			message += ('👜 Wallet 👇\n`' +
 				`${traders[i]._id}` +
-				'`\n🥇Win Rate: `' +
+				token_message +
+				'\n🥇Win Rate: `' +
 				`${(traders[i].winTransaction / traders[i].totalTransaction * 100).toFixed(0)}%` +
 				'`\n💵Trading Volume: `' +
 				`${(traders[i].totalVolume / LAMPORTS_PER_SOL * 175).toFixed(0)}` +

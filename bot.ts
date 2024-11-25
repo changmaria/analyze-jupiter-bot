@@ -163,7 +163,7 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: s
 			const { traders, count } = await getTradersByWinRate(
 				clientData.winRate / 100,
 				(clientData.minVolume * LAMPORTS_PER_SOL) / 175,
-				clientData.lastedTokensCount,
+				clientData.lastedTokensCount || 0,
 				page,
 				countPerPage
 			);
@@ -195,7 +195,7 @@ const sendUpdatesToBot = async () => {
 			const { traders, count } = await getTradersByWinRate(
 				i.winRate / 100,
 				(i.minVolume * LAMPORTS_PER_SOL) / 175,
-				i.lastedTokensCount,
+				i.lastedTokensCount || 0,
 				1,
 				countPerPage
 			);
