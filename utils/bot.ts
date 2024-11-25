@@ -331,12 +331,12 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 		for (let i = 0; i < traders.length; i++) {
 			let token_message = '';
 			if (!!traders[i].latestTokens.length) {
-				token_message += '`\n⏰Latest Tokens:';
+				token_message += '`\n├ ⏰Latest Tokens:';
 				for (let j = 0; j < traders[i].latestTokens.length; j++) {
 					if (j === traders[i].latestTokens.length - 1) {
-						token_message += '\n  └ `';
+						token_message += '\n     └ `';
 					} else {
-						token_message += '\n  ├ `';
+						token_message += '\n     ├ `';
 					}
 					token_message += (
 						`${sliceAddress(traders[i].latestTokens[j])}` + '`' +
@@ -411,9 +411,9 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 		for (let i = 0; i < tokenList.length; i++) {
 			let last_message = '';
 			if (!!tokenList[i].telegram || !!tokenList[i].twitter || !!tokenList[i].website) {
-				last_message = '`\n├ 👉[View on Coingekco]';
+				last_message = '\n├ 👉[View on Coingekco]';
 			} else {
-				last_message = '`\n└ 👉[View on Coingekco]';
+				last_message = '\n└ 👉[View on Coingekco]';
 			}
 
 			// message += ('👜 Address 👇\n`' +
