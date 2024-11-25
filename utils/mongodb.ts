@@ -302,9 +302,12 @@ export const getTradersByWinRate = async (winRate: number, minVolume: number, la
 
 		for (let i of r[0]?.paginatedResults) {
 			if (!!i?._id) {
-				const _latestTokens = await DTransactions.find({ trader: i._id }).sort({ created: -1 }).skip(0).limit(_lastedTokensCount).toArray();
-				let _tokens = _latestTokens.map(i => i.tokenAddress);
-				_tokens = [...new Set(_tokens)]
+				let _tokens = [] as string[];
+				if (!!_lastedTokensCount) {
+					const _latestTokens = await DTransactions.find({ trader: i._id }).sort({ created: -1 }).skip(0).limit(_lastedTokensCount).toArray();
+					_tokens = _latestTokens.map(i => i.tokenAddress);
+					_tokens = [...new Set(_tokens)]
+				}
 				traders.push({
 					_id: i?._id || "",
 					totalTransaction: i?.totalTransaction || 0,
@@ -316,8 +319,6 @@ export const getTradersByWinRate = async (winRate: number, minVolume: number, la
 			}
 
 		}
-
-		console.log("traders", traders)
 
 		return {
 			traders,
