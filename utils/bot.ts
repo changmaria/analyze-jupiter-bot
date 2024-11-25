@@ -429,11 +429,19 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 				`(https://www.coingecko.com/en/coins/${tokenList[i].coinGeckoId})\n`
 			);
 			if (!!tokenList[i].telegram) {
-				if (!!tokenList[i].twitter) message += '├ ';
+				if (!!tokenList[i].twitter || !!tokenList[i].website) {
+					message += '├ ';
+				} else {
+					message += '└ ';
+				}
 				message += `✈️[Telegram](https://t.me/${tokenList[i].telegram})\n`;
 			}
 			if (!!tokenList[i].twitter) {
-				if (!!tokenList[i].website) message += '├ ';
+				if (!!tokenList[i].website) {
+					message += '├ ';
+				} else {
+					message += '└ ';
+				}
 				message += `✖️[Twitter](https://twitter.com/${tokenList[i].twitter})\n`;
 			}
 			if (!!tokenList[i].website) {
