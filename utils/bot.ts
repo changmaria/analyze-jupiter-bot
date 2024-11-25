@@ -201,6 +201,7 @@ export const onStop = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 		if (!clientData.name) return;
 		clientData.status = BotStatus.StopMode;
 		await updateClientData(clientData);
+		await bot.sendMessage(msg.chat.id, `The bot has been successfully stopped. Please restart it to get real-time updates.`)
 		console.log("stoped bot real time updates ===>", msg.chat.username);
 	} catch (error) {
 		console.log("Stop bot error: ", error);
