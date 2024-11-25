@@ -320,8 +320,7 @@ export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot, subscri
 }
 
 const sliceAddress = (address: string) => {
-	let _address = address.replace('0x', '');
-	return `0x${_address.slice(0, 5)}...${_address.slice(-5)}`
+	return `0x${address.slice(0, 5)}...${address.slice(-5)}`
 }
 
 export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTraderDataType[], totalCount: number, chatId: number, page: number, countPerPage: number, messageId: number) => {
@@ -332,14 +331,12 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 		for (let i = 0; i < traders.length; i++) {
 			let token_message = '';
 			if (!!traders[i].latestTokens.length) {
-				token_message += '`\n⏰Latest Tokens: `';
+				token_message += '`\n⏰Latest Tokens:`';
 				for (let j = 0; j < traders[i].latestTokens.length; j++) {
-					if (j !== 0) {
-						token_message += '\n                                 `';
-					}
 					token_message += (
+						'\n├                                 `' +
 						`${sliceAddress(traders[i].latestTokens[j])}` + '`' +
-						`   [View on Solscan](https://solscan.io/address/${traders[i].latestTokens[j]})`);
+						`   [Solscan](https://solscan.io/address/${traders[i].latestTokens[j]})`);
 				}
 			} else {
 				token_message += '`';
