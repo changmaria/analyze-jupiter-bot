@@ -218,7 +218,7 @@ export const onRealtime = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 		const clientData = await getClientData(msg.chat.username) as BotClient;
 		if (!clientData.name) return;
 		if (clientData.status === BotStatus.UsualMode) {
-			await bot.sendMessage(msg.chat.id, `You are already getting realtime updated now.`)
+			await bot.sendMessage(msg.chat.id, `You are now receiving real-time updates.`)
 			return;
 		}
 		clientData.status = BotStatus.UsualMode;
