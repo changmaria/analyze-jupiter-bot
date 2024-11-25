@@ -2,7 +2,7 @@ import TelegramBot from 'node-telegram-bot-api';
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import dotenv from 'dotenv';
 import { onLogin, onSettings, onStart, addBot, setATHPercent, setMinimumVolume, setWinRate, showTopTradersMessage, showFallingTokenMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setLatestTokensCount, setBotStatus } from './utils/bot';
-import { isNumber } from './utils/helper';
+import { currentTime, isNumber } from './utils/helper';
 import { BotClient, BotStatus, RequestTraderDataType } from './utils/interface';
 import { getClientData, getClients, getTokensByATHPercent, getTokensCountByATHPercent, getTradersByWinRate, open, updateClientData } from "./utils/mongodb";
 
@@ -170,7 +170,7 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: s
 			const { traders, count } = await getTradersByWinRate(
 				clientData.winRate / 100,
 				(clientData.minVolume * LAMPORTS_PER_SOL) / 175,
-				clientData.lastedTokensCount || 0,
+				clientData.subscription_expires_in > currentTime() ? clientData.lastedTokensCount : 3,
 				page,
 				countPerPage
 			);
@@ -202,7 +202,7 @@ const sendUpdatesToBot = async () => {
 			const { traders, count } = await getTradersByWinRate(
 				i.winRate / 100,
 				(i.minVolume * LAMPORTS_PER_SOL) / 175,
-				i.lastedTokensCount || 0,
+				i.subscription_expires_in > currentTime() ? i.lastedTokensCount : 3,
 				1,
 				countPerPage
 			);

@@ -31,31 +31,49 @@ export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 
 		const imageData = await fs.readFile(imagePath);
 
-		const options = {
-			reply_markup: {
-				inline_keyboard: [
-					[
-						{ text: `Win Rate ${clientData.winRate.toFixed(0)}%`, callback_data: 'setWinRate' },
-						{ text: `MinVolume $${clientData.minVolume.toFixed(0)}`, callback_data: 'setMinimumVolume' },
-					],
-					[
-						{ text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' },
-						{ text: `Tokens Count ${clientData.lastedTokensCount || 0}`, callback_data: 'setLatestTokensCount' },
-					],
-					[
-						{ text: clientData.status === BotStatus.UsualMode ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotStatus' },
-					],
-					[
-						{ text: 'Back', callback_data: 'start' }
-					]
+		let inline_keyboard;
+
+		if (clientData.subscription_expires_in >= currentTime()) {
+			inline_keyboard = [
+				[
+					{ text: `Win Rate ${clientData.winRate.toFixed(0)}%`, callback_data: 'setWinRate' },
+					{ text: `MinVolume $${clientData.minVolume.toFixed(0)}`, callback_data: 'setMinimumVolume' },
+				],
+				[
+					{ text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' },
+					{ text: `Tokens Count ${clientData.lastedTokensCount || 0}`, callback_data: 'setLatestTokensCount' },
+				],
+				[
+					{ text: clientData.status === BotStatus.UsualMode ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotStatus' },
+				],
+				[
+					{ text: 'Back', callback_data: 'start' }
 				]
-			}
-		};
+			]
+		} else {
+			inline_keyboard = [
+				[
+					{ text: `Win Rate ${clientData.winRate.toFixed(0)}%`, callback_data: 'setWinRate' },
+					{ text: `MinVolume $${clientData.minVolume.toFixed(0)}`, callback_data: 'setMinimumVolume' },
+				],
+				[
+					{ text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' },
+					{ text: clientData.status === BotStatus.UsualMode ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotStatus' },
+				],
+				[
+					{ text: 'Back', callback_data: 'start' }
+				]
+			]
+		}
 
 		await bot.sendPhoto(
 			msg.chat.id,
 			imageData,
-			options
+			{
+				reply_markup: {
+					inline_keyboard
+				}
+			}
 		);
 	} catch (error) {
 		console.log("settings error: ", error);
@@ -86,7 +104,7 @@ export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 		]
 
 		let reply_markup;
-		
+
 		if (client.subscription_expires_in < currentTime()) {
 			reply_markup = {
 				inline_keyboard: [
@@ -98,7 +116,7 @@ export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 			}
 		} else {
 			reply_markup = {
-			inline_keyboard: _keyboards
+				inline_keyboard: _keyboards
 			}
 		}
 
@@ -260,7 +278,7 @@ export const setLatestTokensCount = async (msg: TelegramBot.Message, bot: Telegr
 	try {
 		if (!msg.chat.username) return;
 		const clientData = await getClientData(msg.chat.username) as BotClient;
-		if (!clientData.name) return;
+		if (!clientData.name || clientData.subscription_expires_in < currentTime()) return;
 		await bot.sendMessage(msg.chat.id, `Please input the display count of latest tokens. Now token's count is ${clientData.lastedTokensCount || 0}`);
 		clientData.status = BotStatus.InputTokensCount;
 		await updateClientData(clientData);
