@@ -320,7 +320,7 @@ export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot, subscri
 }
 
 const sliceAddress = (address: string) => {
-	return `0x${address.slice(0, 5)}...${address.slice(-5)}`
+	return `${address.slice(0, 5)}...${address.slice(-5)}`
 }
 
 export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTraderDataType[], totalCount: number, chatId: number, page: number, countPerPage: number, messageId: number) => {
