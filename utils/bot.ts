@@ -334,9 +334,9 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 				token_message += '`\n⏰Latest Tokens:';
 				for (let j = 0; j < traders[i].latestTokens.length; j++) {
 					if (j === traders[i].latestTokens.length - 1) {
-						token_message += '\n└ `';
+						token_message += '\n  └ `';
 					} else {
-						token_message += '\n├ `';
+						token_message += '\n  ├ `';
 					}
 					token_message += (
 						`${sliceAddress(traders[i].latestTokens[j])}` + '`' +
@@ -349,13 +349,13 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 			message += ('👜 Wallet 👇\n`' +
 				`${traders[i]._id}` +
 				token_message +
-				'\n🥇Win Rate: `' +
+				'\n├ 🥇Win Rate: `' +
 				`${(traders[i].winTransaction / traders[i].totalTransaction * 100).toFixed(0)}%` +
-				'`\n💵Trading Volume: `' +
+				'`\n├ 💵Trading Volume: `' +
 				`${(traders[i].totalVolume / LAMPORTS_PER_SOL * 175).toFixed(0)}` +
-				'`\n💰Wallet Balance in SOL: `' +
+				'`\n├ 💰Wallet Balance in SOL: `' +
 				`${Math.round(_balance * 1e3) / 1e3}SOL` +
-				'`\n👉[View on Solscan]' +
+				'`\n└ 👉[View on Solscan]' +
 				`(https://solscan.io/address/${traders[i]._id})\n\n`);
 		}
 		if (!!traders.length) {
@@ -408,18 +408,33 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 		let message = '👎👎👎 _Falling Token_ 👎👎👎\n\n';
 
 		for (let i = 0; i < tokenList.length; i++) {
+			let solscan_message = '';
+			if (!!tokenList[i].telegram || !!tokenList[i].twitter || !!tokenList[i].website) {
+				solscan_message = '`\n├ 👉[View on Solscan]';
+			} else {
+				solscan_message = '`\n└ 👉[View on Solscan]';
+			}
+
 			message += ('👜 Address 👇\n`' +
 				`${tokenList[i].address}` +
-				'`\n❄️ATH Percent: `' +
+				'`\n├ ❄️ATH Percent: `' +
 				`${(tokenList[i].athPercent || 0).toFixed(0)}%` +
-				'`\n📊Market Cap: `' +
+				'`\n├ 📊Market Cap: `' +
 				`${(tokenList[i].marketCap || 0).toFixed(0)}$` +
-				'`\n👉[View on Solscan]' +
+				solscan_message +
 				`(https://solscan.io/address/${tokenList[i].address})\n👉[View on Coingekco](https://www.coingecko.com/en/coins/${tokenList[i].coinGeckoId})\n`
 			);
-			if (!!tokenList[i].telegram) message += `✈️[Telegram](https://t.me/${tokenList[i].telegram})\n`;
-			if (!!tokenList[i].twitter) message += `✖️[Twitter](https://twitter.com/${tokenList[i].twitter})\n`;
-			if (!!tokenList[i].website) message += `🌐[Website](${tokenList[i].website})\n`;
+			if (!!tokenList[i].telegram) {
+				if (!!tokenList[i].twitter) message += '├ ';
+				message += `✈️[Telegram](https://t.me/${tokenList[i].telegram})\n`;
+			}
+			if (!!tokenList[i].twitter) {
+				if (!!tokenList[i].website) message += '├ ';
+				message += `✖️[Twitter](https://twitter.com/${tokenList[i].twitter})\n`;
+			}
+			if (!!tokenList[i].website) {
+				message += `└ 🌐[Website](${tokenList[i].website})\n`;
+			}
 			message += '\n';
 		}
 
