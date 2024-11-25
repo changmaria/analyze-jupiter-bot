@@ -1,5 +1,5 @@
-import { MongoClient } from "mongodb"
-import { BotClient, BotStatus } from "./interface";
+import { AnyBulkWriteOperation, MongoClient } from "mongodb"
+import { BotClient, BotStatus, RequestTraderDataType } from "./interface";
 import { SchemaBotClient, SchemaToken, SchemaTransaction } from "./schema";
 
 const MONGODB_URI = "mongodb://0.0.0.0:27017";
@@ -7,6 +7,7 @@ const MONGODB_DATABASE = "solana-sword"
 export const defaultWinRate: number = 40;
 export const defaultMinVolume: number = 1000;
 export const defaultATHPercent: number = 30;
+export const defaultLatestTokensCount: number = 3;
 
 const client = new MongoClient(MONGODB_URI);
 const db = client.db(MONGODB_DATABASE);
@@ -53,6 +54,7 @@ export const getClientData = async (tgUserName: string) => {
 		winRate: 0,
 		minVolume: 0,
 		athPercent: 0,
+		lastedTokensCount: 0,
 		status: BotStatus.UsualMode,
 		chatId: 0,
 		subscription_created_at: 0,
@@ -63,7 +65,7 @@ export const getClientData = async (tgUserName: string) => {
 
 export const getClients = async () => {
 	try {
-		const r = await DClients.find({}).toArray();
+		const r = await DClients.find({status: BotStatus.UsualMode}).toArray();
 		return r;
 	} catch (error) {
 		console.log("Get clients error: ", error);
@@ -83,6 +85,7 @@ export const addClient = async (tgUserName: string, chatId: number) => {
 			winRate: defaultWinRate,
 			minVolume: defaultMinVolume,
 			athPercent: defaultATHPercent,
+			lastedTokensCount: defaultLatestTokensCount,
 			status: BotStatus.UsualMode,
 			chatId,
 			subscription_created_at: 0,
@@ -109,6 +112,7 @@ export const updateClientData = async (_data: BotClient) => {
 					winRate: _data.winRate,
 					minVolume: _data.minVolume,
 					athPercent: _data.athPercent,
+					lastedTokensCount: _data.lastedTokensCount,
 					status: _data.status,
 					subscription_created_at: _data.subscription_created_at,
 					subscription_expires_in: _data.subscription_expires_in
@@ -132,7 +136,7 @@ export const updateClientData = async (_data: BotClient) => {
 
 export const getExsitSubscriptionCode = async (code: string) => {
 	try {
-		const r = await DClients.findOne({subscription_code: code});
+		const r = await DClients.findOne({ subscription_code: code });
 		if (!!r?._id) return true;
 	} catch (error) {
 		console.log("Get exsit subscription code error: ", error);
@@ -231,7 +235,7 @@ export const getTokensCountByATHPercent = async (athPercent: number) => {
 	return 0;
 }
 
-export const getTradersByWinRate = async (winRate: number, minVolume: number, page: number, countPerPage: number) => {
+export const getTradersByWinRate = async (winRate: number, minVolume: number, lastedTokensCount: number, page: number, countPerPage: number) => {
 	try {
 		const r = await DTransactions.aggregate([
 			{
@@ -293,8 +297,29 @@ export const getTradersByWinRate = async (winRate: number, minVolume: number, pa
 			}
 		]).toArray();
 
+		let traders = [] as RequestTraderDataType[];
+
+		for (let i of r[0]?.paginatedResults) {
+			if (!!i?._id) {
+				const _latestTokens = await DTransactions.find({ trader: i._id }).sort({ created: -1 }).skip(0).limit(lastedTokensCount).toArray();
+				let _tokens = _latestTokens.map(i => i.tokenAddress);
+				_tokens = [...new Set(_tokens)]
+				traders.push({
+					_id: i?._id || "",
+					totalTransaction: i?.totalTransaction || 0,
+					totalVolume: i?.totalVolume || 0,
+					winTransaction: i?.winTransaction || 0,
+					winRate: i?.winRate || 0,
+					latestTokens: _tokens
+				})
+			}
+
+		}
+
+		console.log("traders", traders)
+
 		return {
-			traders: r[0]?.paginatedResults || [],
+			traders,
 			count: r[0]?.totalCount[0]?.count || 0
 		};
 	} catch (error) {

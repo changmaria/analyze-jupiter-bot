@@ -1,10 +1,10 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import dotenv from 'dotenv';
-import { onLogin, onSettings, onStart, onStop, addBot, setATHPercent, setMinimumVolume, setWinRate, showTopTradersMessage, showFallingTokenMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode } from './utils/bot';
+import { onLogin, onSettings, onStart, onStop, addBot, setATHPercent, setMinimumVolume, setWinRate, showTopTradersMessage, showFallingTokenMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setLatestTokensCount } from './utils/bot';
 import { isNumber } from './utils/helper';
 import { BotClient, BotStatus, RequestTraderDataType } from './utils/interface';
-import { getClientData, getTokensByATHPercent, getTokensCountByATHPercent, getTradersByWinRate, open, updateClientData } from "./utils/mongodb";
+import { getClientData, getClients, getTokensByATHPercent, getTokensCountByATHPercent, getTradersByWinRate, open, updateClientData } from "./utils/mongodb";
 
 dotenv.config();
 
@@ -15,7 +15,8 @@ const countPerPage = 10;
 
 bot.setMyCommands([
 	{ command: '/start', description: 'start the bot' },
-	{ command: '/admin', description: 'modify the filter settings' }
+	{ command: '/admin', description: 'modify the filter settings' },
+	{ command: '/stop', description: "stop the bot's realtime updates" }
 ])
 
 bot.onText(/\/login/, (msg) => {
@@ -60,6 +61,8 @@ bot.on('callback_query', async (callbackQuery) => {
 		await setMinimumVolume(message, bot);
 	} else if (_cmd == 'setATHPercent') {
 		setATHPercent(message, bot);
+	} else if (_cmd == 'setLatestTokensCount') {
+		setLatestTokensCount(message, bot);
 	} else if (_cmd == 'buyBot') {
 		await onBuyBot(message, bot);
 	} else if (_cmd == 'addBot') {
@@ -136,56 +139,93 @@ bot.on('message', async (msg) => {
 		clientData.status = BotStatus.UsualMode;
 		await updateClientData(clientData);
 		await bot.sendMessage(msg.chat.id, `ATH Percent is updated successfully. ${clientData.athPercent}%`);
+	} else if (clientData.status == BotStatus.InputTokensCount) {
+		if (!isNumber(msg.text) || Number(msg.text) < 0) {
+			await bot.sendMessage(msg.chat.id, 'You have to input number as display count of latest tokens. Not Correct Format!!');
+			return;
+		}
+		clientData.lastedTokensCount = parseInt(msg.text);
+		clientData.status = BotStatus.UsualMode;
+		await updateClientData(clientData);
+		await bot.sendMessage(msg.chat.id, `Display count of latest tokens is updated successfully. ${clientData.lastedTokensCount}`);
 	}
 })
 
 const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: string, page: number = 1, messageId: number) => {
+	try {
+		const clientData = await getClientData(tgUserName);
+		if (!clientData || clientData.status != BotStatus.UsualMode) return;
 
-	const clientData = await getClientData(tgUserName);
-	if (!clientData || clientData.status != BotStatus.UsualMode) return;
+		if (page < 1) return;
+	
+		if (type == 'top-trader') {
+	
+			const { traders, count } = await getTradersByWinRate(
+				clientData.winRate / 100,
+				(clientData.minVolume * LAMPORTS_PER_SOL) / 175,
+				clientData.lastedTokensCount,
+				page,
+				countPerPage
+			);
 
-	if (type == 'top-trader') {
-
-		const { traders, count } = await getTradersByWinRate(
-			clientData.winRate / 100,
-			(clientData.minVolume * LAMPORTS_PER_SOL) / 175,
-			page,
-			countPerPage
-		);
-
-		await showTopTradersMessage(bot, traders as RequestTraderDataType[], count, clientData.chatId, page, countPerPage, messageId);
-	}
-	if (type === 'falling-token') {
-
-		const _tokens = await getTokensByATHPercent(clientData.athPercent, page, countPerPage);
-		const _count = await getTokensCountByATHPercent(clientData.athPercent);
-
-		if (!_tokens.length) return;
-
-		await showFallingTokenMessage(bot, _tokens, _count, clientData.chatId, page, countPerPage, messageId);
+			if (!traders.length) return;
+	
+			await showTopTradersMessage(bot, traders as RequestTraderDataType[], count, clientData.chatId, page, countPerPage, messageId);
+		}
+		if (type === 'falling-token') {
+	
+			const _tokens = await getTokensByATHPercent(clientData.athPercent, page, countPerPage);
+			const _count = await getTokensCountByATHPercent(clientData.athPercent);
+	
+			if (!_tokens.length) return;
+	
+			await showFallingTokenMessage(bot, _tokens, _count, clientData.chatId, page, countPerPage, messageId);
+		}
+	} catch (error) {
+		console.log("Send data to bot error: ", error);
 	}
 }
 
-// const app: Express = express();
+const sendUpdatesToBot = async () => {
+	try {
+		const clients = await getClients();
+		if (!clients.length) return;
+
+		for (let i of clients) {
+			const { traders, count } = await getTradersByWinRate(
+				i.winRate / 100,
+				(i.minVolume * LAMPORTS_PER_SOL) / 175,
+				i.lastedTokensCount,
+				1,
+				countPerPage
+			);
+
+			const _tokens = await getTokensByATHPercent(i.athPercent, 1, countPerPage);
+			const _count = await getTokensCountByATHPercent(i.athPercent);
+
+			if (!_tokens.length || !traders.length) continue;
+	
+			await showFallingTokenMessage(bot, _tokens, _count, i.chatId, 1, countPerPage, 0);
+			await showTopTradersMessage(bot, traders as RequestTraderDataType[], count, i.chatId, 1, countPerPage, 0);
+		}
+	} catch (error) {
+		console.log("Send updates to bot error: ", error);
+	}
+}
+
+const startRunning = async () => {
+    setInterval(async () => {
+        try {
+            await sendUpdatesToBot();
+        } catch(err) {
+            console.log("sending token error ===>", err);
+        }
+    }, 1000 * 60 * 5);
+}
 
 open().then(async () => {
 	try {
-		// app.use(bodyParser.urlencoded({ extended: false }));
-		// app.get("/whop", (req: Request, res: Response) => {
-		// 	const code = req.url.replace('/whop?', '');
-		// 	let _url = ''
-		// 	if (!code) {
-		// 		_url = 'https://t.me/jupitertrackkbot';
-		// 	} else {
-		// 		_url = `https://t.me/jupitertrackkbot?start=${code}`;
-		// 	}
-		// 	return res.redirect(_url);
-		// });
-		
-		// const port = 3000;
-		// app.listen(port, () => {
-		// 	console.log(`Express is running at port: ${port}`);
-		// });
+		startRunning();
 	} catch (error) {
 		console.log("Mongodb open is failed error: ", error);
 		process.exit(1)

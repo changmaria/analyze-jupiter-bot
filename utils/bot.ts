@@ -37,7 +37,10 @@ export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 					[
 						{ text: `Win Rate ${clientData.winRate.toFixed(0)}%`, callback_data: 'setWinRate' },
 						{ text: `MinVolume $${clientData.minVolume.toFixed(0)}`, callback_data: 'setMinimumVolume' },
-						{ text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' }
+					],
+					[
+						{ text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' },
+						{ text: `Tokens Count ${clientData.lastedTokensCount || 0}`, callback_data: 'setLatestTokensCount' },
 					],
 					[
 						{ text: 'Back', callback_data: 'start' }
@@ -193,7 +196,12 @@ export const onLogin = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 
 export const onStop = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		console.log("msg chat id ===>", msg.chat.username);
+		if (!msg.chat.username) return;
+		const clientData = await getClientData(msg.chat.username) as BotClient;
+		if (!clientData.name) return;
+		clientData.status = BotStatus.StopMode;
+		await updateClientData(clientData);
+		console.log("stoped bot real time updates ===>", msg.chat.username);
 	} catch (error) {
 		console.log("Stop bot error: ", error);
 	}
@@ -235,6 +243,19 @@ export const setATHPercent = async (msg: TelegramBot.Message, bot: TelegramBot) 
 		await updateClientData(clientData);
 	} catch (error) {
 		console.log("Set ATH percent error: ", error);
+	}
+}
+
+export const setLatestTokensCount = async (msg: TelegramBot.Message, bot: TelegramBot) => {
+	try {
+		if (!msg.chat.username) return;
+		const clientData = await getClientData(msg.chat.username) as BotClient;
+		if (!clientData.name) return;
+		await bot.sendMessage(msg.chat.id, `Please input the display count of latest tokens. Now token's count is ${clientData.lastedTokensCount || 0}`);
+		clientData.status = BotStatus.InputTokensCount;
+		await updateClientData(clientData);
+	} catch (error) {
+		console.log("Set latest tokens count error: ", error);
 	}
 }
 
