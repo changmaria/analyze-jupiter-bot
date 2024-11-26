@@ -354,10 +354,10 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 				'\n\n📊**Detail**' +
 				'\n  ├ `Win Rate:`                ' +
 				`${(traders[i].winTransaction / traders[i].totalTransaction * 100).toFixed(0)}%` +
-				'\n  ├ `Trading Volume:`          ' +
+				'\n  ├ `Trading Volume:`     ' +
 				`${(traders[i].totalVolume / LAMPORTS_PER_SOL * 175).toFixed(0)}` +
-				'\n  └ `Wallet Balance in SOL:`   ' +
-				`${Math.round(_balance * 1e3) / 1e3}SOL\n\n`)
+				'\n  └ `SOL Balance:`         ' +
+				`${Math.round(_balance * 1e3) / 1e3}SOL\n\n\n`)
 				// '`\n└ 👉[View on Solscan]' +
 				// `(https://solscan.io/address/${traders[i]._id})\n\n`);
 		}
