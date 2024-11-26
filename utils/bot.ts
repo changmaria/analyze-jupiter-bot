@@ -435,7 +435,7 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 			}
 
 			message += (
-				`\n\n[DEF](https://www.defined.fi/sol/${tokenList[i].address})` +
+				`\n\n[**DEF**](https://www.defined.fi/sol/${tokenList[i].address})` +
 				` • [DS](https://dexscreener.com/solana/${tokenList[i].address})` +
 				` • [GM](https://gmgn.ai/sol/token/${tokenList[i].address})` +
 				` • [EXP](https://solscan.io/token/${tokenList[i].address})` +
@@ -450,7 +450,7 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 				` • [BAN](https://t.me/BananaGun_bot)` +
 				` • [PEP](https://t.me/pepeboost_sol_bot)` +
 				` • [AVE](https://t.me/AveSniperBot)` +
-				`\n\n[🍌 Try Banana Gun on Solana!](https://t.me/BananaGun_bot)`
+				`\n\n[🍌 **Try Banana Gun on Solana!**](https://t.me/BananaGun_bot)`
 			)
 
 			message += '\n\n\n';
