@@ -89,6 +89,7 @@ const getCoinInfo = async (coinId: string, address: string) => {
 		const ath = res_1.data.market_data.ath.usd;
 		const name = res_1.data.name;
 		const symbol = res_1.data.symbol;
+		const watchlistUsers = res_1.data.watchlist_portfolio_users;
 		const website = res_1.data.links.homepage?.[0] || '';
 		const twitter = res_1.data.links.twitter_screen_name || '';
 		const telegram = res_1.data.links.telegram_channel_identifier || '';
@@ -96,7 +97,7 @@ const getCoinInfo = async (coinId: string, address: string) => {
 		const volume = res_1.data.market_data.total_volume.usd;
 		const price1HPercent = res_1.data.market_data.price_change_percentage_1h_in_currency.usd * 100;
 		const athPercent = (ath - price) / ath * 100;
-		return { name, symbol, price, ath, athPercent, marketCap, volume, lp, price1HPercent, website, twitter, telegram };
+		return { name, symbol, watchlistUsers, price, ath, athPercent, marketCap, volume, lp, price1HPercent, website, twitter, telegram };
 	} catch (error) {
 		console.log("Get coin info error: ", error);
 	}
@@ -146,6 +147,7 @@ const analyzeSwapInstructions = async (instructions: SwapInstruction[], transact
 		coinGeckoId: '',
 		name: '',
 		symbol: '',
+		watchlistUsers: 0,
 		price: 0,
 		ath: 0,
 		athPercent: 0,
@@ -199,6 +201,7 @@ const analyzeSwapInstructions = async (instructions: SwapInstruction[], transact
 		coin_info = await getCoinInfo(_token.coinGeckoId, _token.address);
 		_token.name = coin_info?.name || "";
 		_token.symbol = coin_info?.symbol || "";
+		_token.watchlistUsers = Number(coin_info?.watchlistUsers) || 0;
 		_token.price = Number(coin_info?.price) || 0;
 		_token.ath = Number(coin_info?.ath) || 0;
 		_token.athPercent = Number(coin_info?.athPercent) || 0;

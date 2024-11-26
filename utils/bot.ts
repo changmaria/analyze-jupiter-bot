@@ -416,6 +416,7 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 				'`\n' +
 				`  └ 🔴 [Solscan](https://solscan.io/address/${tokenList[i].address})  ` +
 				`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${tokenList[i].coinGeckoId})` +
+				`|  👁️ ${tokenList[i].watchlistUsers}` +
 				'\n\n📊 **Token Stats**' +
 				'\n  ├ `USD:`   ' +
 				`$${formatBigNumber(tokenList[i].price || 0)}` +

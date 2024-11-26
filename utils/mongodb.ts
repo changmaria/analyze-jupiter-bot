@@ -198,6 +198,7 @@ export const updateToken = async (token: SchemaToken) => {
 			},
 			{
 				$set: {
+					watchlistUsers: token.watchlistUsers,
 					price: token.price,
 					ath: token.ath,
 					athPercent: token.athPercent,

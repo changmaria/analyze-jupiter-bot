@@ -22,6 +22,7 @@ export interface SchemaToken {
 	coinGeckoId: string;
 	name: string;
 	symbol: string;
+	watchlistUsers: number;
 	price: number;
 	ath: number;
 	athPercent: number;
