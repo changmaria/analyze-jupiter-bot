@@ -331,7 +331,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 		for (let i = 0; i < traders.length; i++) {
 			let token_message = '';
 			if (!!traders[i].latestTokens.length) {
-				token_message += '`\n├ ⏰Latest Tokens:';
+				token_message += '`\n├ ⏰**Latest Tokens**';
 				for (let j = 0; j < traders[i].latestTokens.length; j++) {
 					if (j === traders[i].latestTokens.length - 1) {
 						token_message += '\n     └ `';
@@ -343,14 +343,15 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 						`   [Solscan](https://solscan.io/address/${traders[i].latestTokens[j]})`);
 				}
 			} else {
-				token_message += '`';
+				token_message += '`└ N/A ‼️';
 			}
 			const _balance = await getUserSolBalance(traders[i]._id);
-			// message += ('👜 Wallet 👇\n`' +
-			message += ('👜Wallet: `' +
-				`${traders[i]._id}` +
+			// message += ('👜Wallet: `' +
+			message += ('💊 🟥🟪🟦🟩🟨🟧 (https://t.me/jupitertrackkbot?start) ($🟥🟩)\n' +
+				`├${traders[i]._id}` +
+				`└🔴[View on Solscan](https://solscan.io/address/${traders[i]._id})` +
 				token_message +
-				'\n├ 🥇Win Rate: `' +
+				'\n\n├ 🥇Win Rate: `' +
 				`${(traders[i].winTransaction / traders[i].totalTransaction * 100).toFixed(0)}%` +
 				'`\n├ 💵Trading Volume: `' +
 				`${(traders[i].totalVolume / LAMPORTS_PER_SOL * 175).toFixed(0)}` +
