@@ -408,7 +408,7 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 	try {
 		const totalPage = (totalCount % countPerPage === 0) ? totalCount / countPerPage : Math.floor(totalCount / countPerPage) + 1;
 		let message = '👎👎👎 _Falling Token_ 👎👎👎\n\n';
-		console.log("tokenList" , tokenList)
+		
 		for (let i = 0; i < tokenList.length; i++) {
 			message += (`💊 **${tokenList[i].name}** (**${tokenList[i].symbol}**)\n` +
 				'  ├ `' +
