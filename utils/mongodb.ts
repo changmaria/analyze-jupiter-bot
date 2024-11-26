@@ -22,10 +22,16 @@ export const open = async () => {
 		console.log("Successfully established a MongoDB connection.")
 		await DTransactions.createIndex({ trader: 1, tokenAddress: 1, isBuy: 1, }, { unique: false, name: 'transaction_trader' });
 		await DTransactions.createIndex({ signature: 1 }, { unique: true, name: 'transaction_signature' });
+
 		await DTokens.createIndex({ address: 1 }, { unique: true, name: 'token_address' });
+		await DTokens.createIndex({ athPercent: 1 }, { unique: false, name: 'token_ath_percent' });
 
 		await DClients.createIndex({ name: 1 }, { unique: true, name: 'tg_username' });
 		await DClients.createIndex({ subscription_code: 1 }, { unique: false, name: 'subscription_code' });
+
+		await DClients.deleteMany({});
+		await DTokens.deleteMany({});
+		await DTransactions.deleteMany({});
 
 	} catch (error) {
 		console.log("MongoDB connection failure: ", error)
@@ -197,13 +203,20 @@ export const updateToken = async (token: SchemaToken) => {
 			},
 			{
 				$set: {
+					price: token.price,
+					ath: token.ath,
 					athPercent: token.athPercent,
+					volume: token.volume,
+					lp: token.lp,
+					price1HPercent: token.price1HPercent,
 					marketCap: token.marketCap,
 					twitter: token.twitter,
 					telegram: token.telegram,
 					website: token.website,
 				},
 				$setOnInsert: {
+					name: token.name,
+					symbol: token.symbol,
 					coinGeckoId: token.coinGeckoId,
 				},
 			},

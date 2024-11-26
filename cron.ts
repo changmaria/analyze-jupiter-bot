@@ -52,23 +52,35 @@ const getCoinId = async (tokenAddress: PublicKey): Promise<string> => {
 	return "";
 }
 
-const getCoinInfo = async (coinId: string) => {
+const getCoinInfo = async (coinId: string, address: string) => {
 	try {
-		const response: any = await axios.get(`https://pro-api.coingecko.com/api/v3/coins/${coinId}`, {
+		const res_1: any = await axios.get(`https://pro-api.coingecko.com/api/v3/coins/${coinId}`, {
 			headers: {
 				'accept': "application/json",
 				'x-cg-pro-api-key': 'CG-ww38dvoPhso7kYTyXbLrMQ8h'
 			}
 		});
 
-		const website = response.data.links.homepage?.[0] || '';
-		const twitter = response.data.links.twitter_screen_name || '';
-		const telegram = response.data.links.telegram_channel_identifier || '';
-		const marketCap = response.data.market_data.market_cap.usd;
-		const price = response.data.market_data.current_price.usd;
-		const ath = response.data.market_data.ath.usd;
-		const percent = (ath - price) / ath * 100;
-		return { percent, marketCap, website, twitter, telegram };
+		const res_2: any = await axios.get(`https://pro-api.coingecko.com/api/v3/onchain/networks/solana/tokens/${address}`, {
+			headers: {
+				'accept': "application/json",
+				'x-cg-pro-api-key': 'CG-ww38dvoPhso7kYTyXbLrMQ8h'
+			}
+		});
+		
+		const price = res_1.data.market_data.current_price.usd;
+		const ath = res_1.data.market_data.ath.usd;
+		const name = res_1.data.name;
+		const symbol = res_1.data.symbol;
+		const website = res_1.data.links.homepage?.[0] || '';
+		const twitter = res_1.data.links.twitter_screen_name || '';
+		const telegram = res_1.data.links.telegram_channel_identifier || '';
+		const marketCap = res_1.data.market_data.market_cap.usd;
+		const volume = res_1.data.market_data.total_volume.usd;
+		const price1HPercent = res_1.data.market_data.price_change_percentage_1h_in_currency.usd * 100;
+		const lp = res_2.data.included?.[0]?.attributes?.market_cap_usd;
+		const athPercent = (ath - price) / ath * 100;
+		return { name, symbol, price, ath, athPercent, marketCap, volume, lp, price1HPercent, website, twitter, telegram };
 	} catch (error) {
 		console.log("Get coin info error: ", error);
 	}
@@ -116,11 +128,18 @@ const analyzeSwapInstructions = async (instructions: SwapInstruction[], transact
 	let _token: TokenDataType = {
 		address: '',
 		coinGeckoId: '',
+		name: '',
+		symbol: '',
+		price: 0,
+		ath: 0,
 		athPercent: 0,
 		marketCap: 0,
-		twitter: '',
-		telegram: '',
+		volume: 0,
+		lp: 0,
+		price1HPercent: 0,
 		website: '',
+		twitter: '',
+		telegram: ''
 	}
 
 	const sendDestinationPubkey = new PublicKey(instructions[0].destination);
@@ -161,12 +180,19 @@ const analyzeSwapInstructions = async (instructions: SwapInstruction[], transact
 	_token.coinGeckoId = await getCoinId(new PublicKey(_token.address));
 	let coin_info: any;
 	if (_token.coinGeckoId != '') {
-		coin_info = await getCoinInfo(_token.coinGeckoId);
-		_token.athPercent = coin_info?.percent || 0;
-		_token.marketCap = coin_info?.marketCap || 0;
+		coin_info = await getCoinInfo(_token.coinGeckoId, _token.address);		
+		_token.name = coin_info?.name || "";
+		_token.symbol = coin_info?.symbol || "";
+		_token.price = Number(coin_info?.price) || 0;
+		_token.ath = Number(coin_info?.ath) || 0;
+		_token.athPercent = Number(coin_info?.athPercent) || 0;
+		_token.marketCap = Number(coin_info?.marketCap) || 0;
+		_token.volume = Number(coin_info?.volume) || 0;
+		_token.lp = Number(coin_info?.lp) || 0;
+		_token.price1HPercent = Number(coin_info?.price1HPercent) || 0;
+		_token.website = coin_info?.website || "";
 		_token.twitter = coin_info?.twitter || "";
 		_token.telegram = coin_info?.telegram || "";
-		_token.website = coin_info?.website || "";
 	}
 
 	if (!_transaction.isBuy) {

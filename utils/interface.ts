@@ -65,7 +65,14 @@ export interface TransactionDataType {
 export interface TokenDataType {
 	address: string;
 	coinGeckoId: string;
+	name: string;
+	symbol: string;
+	price: number;
+	ath: number;
 	athPercent: number;
+	volume: number;
+	lp: number;
+	price1HPercent: number;
 	marketCap: number;
 	twitter: string;
 	telegram: string;

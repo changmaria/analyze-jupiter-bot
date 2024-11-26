@@ -4,7 +4,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 
 import { BotClient, BotStatus, RequestTraderDataType, TokenDataType, Trader } from "./interface";
-import { currentTime } from "./helper";
+import { currentTime, formatBigNumber } from "./helper";
 import { addClient, getClientData, updateClientData } from "./mongodb";
 import { verifySubscriptionCode } from "./subscription";
 
@@ -346,7 +346,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 				token_message += '└ N/A ‼️';
 			}
 			const _balance = await getUserSolBalance(traders[i]._id);
-			message += ('💊 🟥🟪🟦🟩🟨🟧 ($🟥🟩)\n' +
+			message += ('👜 **Wallet** 👇\n' +
 				`  ├ ${traders[i]._id}\n` +
 				`  └ 🔴 [Solscan](https://solscan.io/address/${traders[i]._id})` +
 				token_message +
@@ -408,15 +408,23 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 		let message = '👎👎👎 _Falling Token_ 👎👎👎\n\n';
 
 		for (let i = 0; i < tokenList.length; i++) {
-			message += ('💊 🟥🟪🟦🟩🟨🟧 ($🟥🟩)\n' +
+			message += (`💊 ${tokenList[i].name} (${tokenList[i].symbol})\n` +
 				`  ├ ${tokenList[i].address}\n` +
 				`  └ 🔴 [Solscan](https://solscan.io/address/${tokenList[i].address})  ` +
 				`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${tokenList[i].coinGeckoId})` +
 				'\n\n📊 **Token Stats**' +
-				'\n  ├ `ATH Percent:`   ' +
-				`${(tokenList[i].athPercent || 0).toFixed(0)}%` +
-				'\n  └ `Market Cap:`     ' +
-				`${(tokenList[i].marketCap || 0).toFixed(0)}$` +
+				'\n  ├ `USD:`   ' +
+				`$${formatBigNumber(tokenList[i].price || 0)}` +
+				'\n  └ `MC:`    ' +
+				`$${formatBigNumber(tokenList[i].marketCap || 0)}` +
+				'\n  └ `VOL:`   ' +
+				`$${formatBigNumber(tokenList[i].volume || 0)}` +
+				'\n  └ `LP:`    ' +
+				`$${formatBigNumber(tokenList[i].lp || 0)}` +
+				'\n  └ `1H:`    ' +
+				`${tokenList[i].price1HPercent > 0 ? '+' : ''}${(tokenList[i].price1HPercent || 0).toFixed(0)}%` +
+				'\n  └ `ATH:   ' +
+				`$${formatBigNumber(tokenList[i].ath || 0)} (${((tokenList[i].ath - tokenList[i].price) / tokenList[i].ath * 100).toFixed(0)})` +
 				'\n\n🔗 **Links**\n  └ '
 			);
 			if (!!tokenList[i].telegram) {
