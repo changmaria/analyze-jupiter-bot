@@ -439,7 +439,7 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 				` • [DS](https://dexscreener.com/solana/${tokenList[i].address})` +
 				` • [GM](https://gmgn.ai/sol/token/${tokenList[i].address})` +
 				` • [EXP](https://solscan.io/token/${tokenList[i].address})` +
-				` • [𝕏s](https://x.com/search?f=live&q=%28url%3A${tokenList[i].address}%29` +
+				` • [𝕏s](https://x.com/search?f=live&q=%28url%3A${tokenList[i].address}%29)` +
 				`\n\n[BLX](https://bullx.io/terminal?address=${tokenList[i].address})` +
 				` • [TRO](https://t.me/paris_trojanbot)` +
 				` • [BNK](https://t.me/furiosa_bonkbot)` +
