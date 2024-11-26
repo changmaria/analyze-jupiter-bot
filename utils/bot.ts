@@ -347,8 +347,8 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 			}
 			const _balance = await getUserSolBalance(traders[i]._id);
 			message += ('💊 🟥🟪🟦🟩🟨🟧 ($🟥🟩)\n' +
-				`├${traders[i]._id}\n` +
-				`└🔴[View on Solscan](https://solscan.io/address/${traders[i]._id})` +
+				`  ├ ${traders[i]._id}\n` +
+				`  └ 🔴[View on Solscan](https://solscan.io/address/${traders[i]._id})` +
 				token_message +
 				'\n\n📊 **Detail**' +
 				'\n  ├ `Win Rate:`                 ' +
@@ -408,19 +408,16 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 		let message = '👎👎👎 _Falling Token_ 👎👎👎\n\n';
 
 		for (let i = 0; i < tokenList.length; i++) {
-
-			// message += ('👜 Address 👇\n`' +
 			message += ('💊 🟥🟪🟦🟩🟨🟧 ($🟥🟩)\n' +
-				// `${tokenList[i].address}` +
-				`├${tokenList[i].address}\n` +
-				`└🔴 [Solscan](https://solscan.io/address/${tokenList[i].address})  ` +
+				`  ├ ${tokenList[i].address}\n` +
+				`  └ 🔴 [Solscan](https://solscan.io/address/${tokenList[i].address})  ` +
 				`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${tokenList[i].coinGeckoId})` +
 				'\n\n📊 **Detail**' +
-				'\n├ ❄️`ATH Percent:`   ' +
+				'\n  ├ ❄️`ATH Percent:`   ' +
 				`${(tokenList[i].athPercent || 0).toFixed(0)}%` +
-				'\n└ 📊`Market Cap:`     ' +
+				'\n  └ 📊`Market Cap:`     ' +
 				`${(tokenList[i].marketCap || 0).toFixed(0)}$` +
-				'\n\n🔗 **Links**\n└ '
+				'\n\n🔗 **Links**\n  └ '
 			);
 			if (!!tokenList[i].telegram) {
 				message += `[TG](https://t.me/${tokenList[i].telegram})`;
@@ -436,7 +433,6 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 			if (!tokenList[i].telegram && !tokenList[i].twitter && !tokenList[i].website) {
 				message += 'N/A ‼️'
 			}
-			message += 'N/A ‼️'
 			message += '\n\n\n';
 		}
 
