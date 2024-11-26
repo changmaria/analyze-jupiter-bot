@@ -429,7 +429,7 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 				'\n  ├ `1H:`     ' +
 				`${tokenList[i].price1HPercent > 0 ? '+' : ''}${(tokenList[i].price1HPercent || 0).toFixed(0)}%` +
 				'\n  └ `ATH:`   ' +
-				`$${formatBigNumber(tokenList[i].ath || 0)} (${((tokenList[i].ath - tokenList[i].price) / tokenList[i].ath * 100).toFixed(0)}%)` +
+				`$${formatBigNumber(tokenList[i].ath || 0)} (-${((tokenList[i].ath - tokenList[i].price) / tokenList[i].ath * 100).toFixed(0)}%)` +
 				'\n\n🔗 **Links**\n  └ '
 			);
 			if (!!tokenList[i].telegram) {
