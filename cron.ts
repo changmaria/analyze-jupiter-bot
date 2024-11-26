@@ -81,7 +81,11 @@ const getCoinInfo = async (coinId: string, address: string) => {
 				});
 				if (!res_3.data?.data?.id) return;
 				const _d = res_3.data.data.attributes;
-				lp = (Number(_d.reserve_in_usd) / Number(_d.market_cap_usd)) * Number(_d.fdv_usd);
+				if (!!Number(_d.market_cap_usd) && !!Number(_d.fdv_usd)) {
+					lp = (Number(_d.reserve_in_usd) / Number(_d.market_cap_usd)) * Number(_d.fdv_usd);
+				} else {
+					lp = Number(_d.reserve_in_usd);	
+				}
 			}
 		}
 
