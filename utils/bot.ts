@@ -331,7 +331,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 		for (let i = 0; i < traders.length; i++) {
 			let token_message = '';
 			if (!!traders[i].latestTokens.length) {
-				token_message += '\n\n⏰**Latest Tokens**';
+				token_message += '\n⏰**Latest Tokens**';
 				for (let j = 0; j < traders[i].latestTokens.length; j++) {
 					if (j === traders[i].latestTokens.length - 1) {
 						token_message += '\n  └ ';
@@ -351,10 +351,10 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 				`├${traders[i]._id}\n` +
 				`└🔴[View on Solscan](https://solscan.io/address/${traders[i]._id})` +
 				token_message +
-				'\n\n📊**Detail**' +
+				'\n📊**Detail**' +
 				'\n  ├ `Win Rate:`                ' +
 				`${(traders[i].winTransaction / traders[i].totalTransaction * 100).toFixed(0)}%` +
-				'\n  ├ `Trading Volume:`     ' +
+				'\n  ├ `Trading Volume:`   ' +
 				`${(traders[i].totalVolume / LAMPORTS_PER_SOL * 175).toFixed(0)}` +
 				'\n  └ `SOL Balance:`         ' +
 				`${Math.round(_balance * 1e3) / 1e3}SOL\n\n\n`)
