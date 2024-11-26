@@ -436,7 +436,7 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 			if (!tokenList[i].telegram && !tokenList[i].twitter && !tokenList[i].website) {
 				message += 'N/A ‼️'
 			}
-			message += '\n\n\n';
+			message += '\n\n';
 		}
 
 		if (!!tokenList.length) {
