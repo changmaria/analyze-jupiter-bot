@@ -348,7 +348,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 			const _balance = await getUserSolBalance(traders[i]._id);
 			message += ('💊 🟥🟪🟦🟩🟨🟧 ($🟥🟩)\n' +
 				`  ├ ${traders[i]._id}\n` +
-				`  └ 🔴[View on Solscan](https://solscan.io/address/${traders[i]._id})` +
+				`  └ 🔴 [Solscan](https://solscan.io/address/${traders[i]._id})` +
 				token_message +
 				'\n\n📊 **Detail**' +
 				'\n  ├ `Win Rate:`                 ' +
