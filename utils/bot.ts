@@ -347,11 +347,13 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 			}
 			const _balance = await getUserSolBalance(traders[i]._id);
 			message += ('👜 **Wallet** 👇\n' +
-				`  ├ ${traders[i]._id}\n` +
+				'  ├ `' +
+				`${traders[i]._id}` +
+				'`\n' +
 				`  └ 🔴 [Solscan](https://solscan.io/address/${traders[i]._id})` +
 				token_message +
 				'\n\n📊 **Detail**' +
-				'\n  ├ `Win Rate:`                 ' +
+				'\n  ├ `Win Rate:`                ' +
 				`${(traders[i].winTransaction / traders[i].totalTransaction * 100).toFixed(0)}%` +
 				'\n  ├ `Trading Volume:`   ' +
 				`${(traders[i].totalVolume / LAMPORTS_PER_SOL * 175).toFixed(0)}` +
@@ -409,7 +411,9 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 		console.log("tokenList" , tokenList)
 		for (let i = 0; i < tokenList.length; i++) {
 			message += (`💊 **${tokenList[i].name}** (**${tokenList[i].symbol}**)\n` +
-				`  ├ ${tokenList[i].address}\n` +
+				'  ├ `' +
+				`${tokenList[i].address}` +
+				'`\n' +
 				`  └ 🔴 [Solscan](https://solscan.io/address/${tokenList[i].address})  ` +
 				`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${tokenList[i].coinGeckoId})` +
 				'\n\n📊 **Token Stats**' +
