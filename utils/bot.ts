@@ -408,23 +408,23 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 		let message = '👎👎👎 _Falling Token_ 👎👎👎\n\n';
 		console.log("tokenList" , tokenList)
 		for (let i = 0; i < tokenList.length; i++) {
-			message += (`💊 ${tokenList[i].name} (${tokenList[i].symbol})\n` +
+			message += (`💊 **${tokenList[i].name}** (**${tokenList[i].symbol}**)\n` +
 				`  ├ ${tokenList[i].address}\n` +
 				`  └ 🔴 [Solscan](https://solscan.io/address/${tokenList[i].address})  ` +
 				`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${tokenList[i].coinGeckoId})` +
 				'\n\n📊 **Token Stats**' +
 				'\n  ├ `USD:`   ' +
 				`$${formatBigNumber(tokenList[i].price || 0)}` +
-				'\n  └ `MC:`    ' +
+				'\n  ├ `MC:`     ' +
 				`$${formatBigNumber(tokenList[i].marketCap || 0)}` +
-				'\n  └ `VOL:`   ' +
+				'\n  ├ `VOL:`   ' +
 				`$${formatBigNumber(tokenList[i].volume || 0)}` +
-				'\n  └ `LP:`    ' +
+				'\n  ├ `LP:`     ' +
 				`$${formatBigNumber(tokenList[i].lp || 0)}` +
-				'\n  └ `1H:`    ' +
+				'\n  ├ `1H:`     ' +
 				`${tokenList[i].price1HPercent > 0 ? '+' : ''}${(tokenList[i].price1HPercent || 0).toFixed(0)}%` +
 				'\n  └ `ATH:`   ' +
-				`$${formatBigNumber(tokenList[i].ath || 0)} (${((tokenList[i].ath - tokenList[i].price) / tokenList[i].ath * 100).toFixed(0)})` +
+				`$${formatBigNumber(tokenList[i].ath || 0)} (${((tokenList[i].ath - tokenList[i].price) / tokenList[i].ath * 100).toFixed(0)}%)` +
 				'\n\n🔗 **Links**\n  └ '
 			);
 			if (!!tokenList[i].telegram) {
