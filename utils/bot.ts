@@ -331,7 +331,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 		for (let i = 0; i < traders.length; i++) {
 			let token_message = '';
 			if (!!traders[i].latestTokens.length) {
-				token_message += '\n\n⏰**Latest Tokens**';
+				token_message += '\n\n⏰ **Latest Tokens**';
 				for (let j = 0; j < traders[i].latestTokens.length; j++) {
 					if (j === traders[i].latestTokens.length - 1) {
 						token_message += '\n  └ ';
@@ -346,20 +346,17 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 				token_message += '└ N/A ‼️';
 			}
 			const _balance = await getUserSolBalance(traders[i]._id);
-			// message += ('👜Wallet: `' +
 			message += ('💊 🟥🟪🟦🟩🟨🟧 ($🟥🟩)\n' +
 				`├${traders[i]._id}\n` +
 				`└🔴[View on Solscan](https://solscan.io/address/${traders[i]._id})` +
 				token_message +
-				'\n\n📊**Detail**' +
+				'\n\n📊 **Detail**' +
 				'\n  ├ `Win Rate:`                 ' +
 				`${(traders[i].winTransaction / traders[i].totalTransaction * 100).toFixed(0)}%` +
 				'\n  ├ `Trading Volume:`   ' +
 				`${(traders[i].totalVolume / LAMPORTS_PER_SOL * 175).toFixed(0)}` +
 				'\n  └ `SOL Balance:`          ' +
-				`${Math.round(_balance * 1e3) / 1e3}SOL\n\n\n`)
-				// '`\n└ 👉[View on Solscan]' +
-				// `(https://solscan.io/address/${traders[i]._id})\n\n`);
+				`${Math.round(_balance * 1e3) / 1e3}SOL\n\n\n`);
 		}
 		if (!!traders.length) {
 			message += `\n_Current page ${page} of ${totalPage} pages_`;
@@ -411,45 +408,33 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 		let message = '👎👎👎 _Falling Token_ 👎👎👎\n\n';
 
 		for (let i = 0; i < tokenList.length; i++) {
-			let last_message = '';
-			if (!!tokenList[i].telegram || !!tokenList[i].twitter || !!tokenList[i].website) {
-				last_message = '\n├ 👉[View on Coingekco]';
-			} else {
-				last_message = '\n└ 👉[View on Coingekco]';
-			}
 
 			// message += ('👜 Address 👇\n`' +
-			message += ('👜Address: `' +
-				`${tokenList[i].address}` +
-				'`\n├ ❄️ATH Percent: `' +
+			message += ('💊 🟥🟪🟦🟩🟨🟧 ($🟥🟩)\n' +
+				// `${tokenList[i].address}` +
+				`├${tokenList[i].address}\n` +
+				`└🔴 [Solscan](https://solscan.io/address/${tokenList[i].address})  ` +
+				`|🟣  [Coingekco](https://www.coingecko.com/en/coins/${tokenList[i].coinGeckoId})` +
+				'\n\n📊 **Detail**' +
+				'\n├ ❄️`ATH Percent:` ' +
 				`${(tokenList[i].athPercent || 0).toFixed(0)}%` +
-				'`\n├ 📊Market Cap: `' +
+				'\n├ 📊`Market Cap:`   ' +
 				`${(tokenList[i].marketCap || 0).toFixed(0)}$` +
-				'`\n├ 👉[View on Solscan]' +
-				`(https://solscan.io/address/${tokenList[i].address})` +
-				last_message +
-				`(https://www.coingecko.com/en/coins/${tokenList[i].coinGeckoId})\n`
+				'\n\n🔗 **Links**\n└ '
 			);
 			if (!!tokenList[i].telegram) {
-				if (!!tokenList[i].twitter || !!tokenList[i].website) {
-					message += '├ ';
-				} else {
-					message += '└ ';
-				}
-				message += `✈️[Telegram](https://t.me/${tokenList[i].telegram})\n`;
+				message += `[TG](https://t.me/${tokenList[i].telegram})`;
 			}
 			if (!!tokenList[i].twitter) {
-				if (!!tokenList[i].website) {
-					message += '├ ';
-				} else {
-					message += '└ ';
-				}
-				message += `✖️[Twitter](https://twitter.com/${tokenList[i].twitter})\n`;
+				message += ` • [𝕏](https://twitter.com/${tokenList[i].twitter})`;
 			}
 			if (!!tokenList[i].website) {
-				message += `└ 🌐[Website](${tokenList[i].website})\n`;
+				message += ` • [Web](${tokenList[i].website})`;
 			}
-			message += '\n';
+			if (!tokenList[i].telegram && !tokenList[i].twitter && !tokenList[i].website) {
+				message += 'N/A ‼️'
+			}
+			message += '\n\n\n';
 		}
 
 		if (!!tokenList.length) {
