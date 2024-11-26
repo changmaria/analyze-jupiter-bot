@@ -433,13 +433,13 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 			if (!tokenList[i].telegram && !tokenList[i].twitter && !tokenList[i].website) {
 				message += 'N/A ‼️'
 			}
-
+			
 			message += (
 				`\n\n[DEF](https://www.defined.fi/sol/${tokenList[i].address})` +
 				` • [DS](https://dexscreener.com/solana/${tokenList[i].address})` +
 				` • [GM](https://gmgn.ai/sol/token/${tokenList[i].address})` +
 				` • [EXP](https://solscan.io/token/${tokenList[i].address})` +
-				` • [𝕏s](https://solscan.io/token/${tokenList[i].address})` +
+				` • [𝕏s](https://twitter.com/search?f=live&q=($url:${tokenList[i].address})&src=typed_query)` +
 				`\n\n[BLX](https://bullx.io/terminal?address=${tokenList[i].address})` +
 				` • [TRO](https://t.me/paris_trojanbot)` +
 				` • [BNK](https://t.me/furiosa_bonkbot)` +
