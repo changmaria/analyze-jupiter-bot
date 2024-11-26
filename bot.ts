@@ -11,7 +11,7 @@ dotenv.config();
 const bot_token = process.env.bot_token != undefined ? process.env.bot_token : "";
 const bot = new TelegramBot(bot_token, { polling: true });
 
-const countPerPage = 5;
+const countPerPage = 3;
 
 bot.setMyCommands([
 	{ command: '/start', description: 'start the bot' },
