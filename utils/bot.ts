@@ -359,7 +359,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 				`${Math.round(_balance * 1e3) / 1e3}SOL\n\n\n`);
 		}
 		if (!!traders.length) {
-			message += `\n_Current page ${page} of ${totalPage} pages_`;
+			message += `_Current page ${page} of ${totalPage} pages_`;
 		} else {
 			message += 'There is no top traders yet.';
 		}
@@ -436,11 +436,12 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 			if (!tokenList[i].telegram && !tokenList[i].twitter && !tokenList[i].website) {
 				message += 'N/A ‼️'
 			}
-			message += '\n\n';
+			message += 'N/A ‼️'
+			message += '\n\n\n';
 		}
 
 		if (!!tokenList.length) {
-			message += `\n_Current page ${page} of ${totalPage} pages_`;
+			message += `_Current page ${page} of ${totalPage} pages_`;
 		} else {
 			message += 'There is no falling tokens.'
 		}
