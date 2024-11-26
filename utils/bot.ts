@@ -435,7 +435,7 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 			}
 
 			message += (
-				`[**DEF**](https://www.defined.fi/sol/${tokenList[i].address})` +
+				`**[DEF]**(https://www.defined.fi/sol/${tokenList[i].address})` +
 				` • [DS](https://dexscreener.com/solana/${tokenList[i].address})` +
 				` • [GM](https://gmgn.ai/sol/token/${tokenList[i].address})` +
 				` • [EXP](https://solscan.io/token/${tokenList[i].address})` +
