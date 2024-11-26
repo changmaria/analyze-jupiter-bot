@@ -414,17 +414,17 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 				`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${tokenList[i].coinGeckoId})` +
 				'\n\n📊 **Token Stats**' +
 				'\n  ├ `USD:`   ' +
-				`$${formatBigNumber(tokenList[i].price || 0)}` +
+				`${formatBigNumber(tokenList[i].price || 0)}` +
 				'\n  └ `MC:`    ' +
-				`$${formatBigNumber(tokenList[i].marketCap || 0)}` +
+				`${formatBigNumber(tokenList[i].marketCap || 0)}` +
 				'\n  └ `VOL:`   ' +
-				`$${formatBigNumber(tokenList[i].volume || 0)}` +
+				`${formatBigNumber(tokenList[i].volume || 0)}` +
 				'\n  └ `LP:`    ' +
-				`$${formatBigNumber(tokenList[i].lp || 0)}` +
+				`${formatBigNumber(tokenList[i].lp || 0)}` +
 				'\n  └ `1H:`    ' +
 				`${tokenList[i].price1HPercent > 0 ? '+' : ''}${(tokenList[i].price1HPercent || 0).toFixed(0)}%` +
 				'\n  └ `ATH:   ' +
-				`$${formatBigNumber(tokenList[i].ath || 0)} (${((tokenList[i].ath - tokenList[i].price) / tokenList[i].ath * 100).toFixed(0)})` +
+				`${formatBigNumber(tokenList[i].ath || 0)} (${((tokenList[i].ath - tokenList[i].price) / tokenList[i].ath * 100).toFixed(0)})` +
 				'\n\n🔗 **Links**\n  └ '
 			);
 			if (!!tokenList[i].telegram) {
