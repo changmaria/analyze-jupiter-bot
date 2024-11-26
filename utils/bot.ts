@@ -414,11 +414,11 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 				// `${tokenList[i].address}` +
 				`├${tokenList[i].address}\n` +
 				`└🔴 [Solscan](https://solscan.io/address/${tokenList[i].address})  ` +
-				`|🟣  [Coingekco](https://www.coingecko.com/en/coins/${tokenList[i].coinGeckoId})` +
+				`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${tokenList[i].coinGeckoId})` +
 				'\n\n📊 **Detail**' +
-				'\n├ ❄️`ATH Percent:` ' +
+				'\n├ ❄️`ATH Percent:`   ' +
 				`${(tokenList[i].athPercent || 0).toFixed(0)}%` +
-				'\n├ 📊`Market Cap:`   ' +
+				'\n└ 📊`Market Cap:`     ' +
 				`${(tokenList[i].marketCap || 0).toFixed(0)}$` +
 				'\n\n🔗 **Links**\n└ '
 			);
@@ -426,10 +426,12 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 				message += `[TG](https://t.me/${tokenList[i].telegram})`;
 			}
 			if (!!tokenList[i].twitter) {
-				message += ` • [𝕏](https://twitter.com/${tokenList[i].twitter})`;
+				if (!!tokenList[i].telegram) message += ' • '
+				message += `[𝕏](https://twitter.com/${tokenList[i].twitter})`;
 			}
 			if (!!tokenList[i].website) {
-				message += ` • [Web](${tokenList[i].website})`;
+				if (!!tokenList[i].telegram || !!tokenList[i].twitter) message += ' • '
+				message += `[Web](${tokenList[i].website})`;
 			}
 			if (!tokenList[i].telegram && !tokenList[i].twitter && !tokenList[i].website) {
 				message += 'N/A ‼️'
