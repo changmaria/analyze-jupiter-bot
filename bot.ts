@@ -11,7 +11,8 @@ dotenv.config();
 const bot_token = process.env.bot_token != undefined ? process.env.bot_token : "";
 const bot = new TelegramBot(bot_token, { polling: true });
 
-const countPerPage = 3;
+const traderCountPerPage = 5;
+const tokenCountPerPage = 3;
 
 bot.setMyCommands([
 	{ command: '/start', description: 'start the bot' },
@@ -173,17 +174,17 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: s
 				(clientData.minVolume * LAMPORTS_PER_SOL) / 175,
 				clientData.subscription_expires_in > currentTime() ? clientData.lastedTokensCount : 3,
 				page,
-				countPerPage
+				traderCountPerPage
 			);
 	
-			await showTopTradersMessage(bot, traders as RequestTraderDataType[], count, clientData.chatId, page, countPerPage, messageId);
+			await showTopTradersMessage(bot, traders as RequestTraderDataType[], count, clientData.chatId, page, traderCountPerPage, messageId);
 		}
 		if (type === 'falling-token') {
 	
-			const _tokens = await getTokensByATHPercent(clientData.athPercent, page, countPerPage);
+			const _tokens = await getTokensByATHPercent(clientData.athPercent, page, tokenCountPerPage);
 			const _count = await getTokensCountByATHPercent(clientData.athPercent);
 	
-			await showFallingTokenMessage(bot, _tokens, _count, clientData.chatId, page, countPerPage, messageId);
+			await showFallingTokenMessage(bot, _tokens, _count, clientData.chatId, page, tokenCountPerPage, messageId);
 		}
 	} catch (error) {
 		console.log("Send data to bot error: ", error);
@@ -201,16 +202,16 @@ const sendUpdatesToBot = async () => {
 				(i.minVolume * LAMPORTS_PER_SOL) / 175,
 				i.subscription_expires_in > currentTime() ? i.lastedTokensCount : 3,
 				1,
-				countPerPage
+				traderCountPerPage
 			);
 
-			const _tokens = await getTokensByATHPercent(i.athPercent, 1, countPerPage);
+			const _tokens = await getTokensByATHPercent(i.athPercent, 1, tokenCountPerPage);
 			const _count = await getTokensCountByATHPercent(i.athPercent);
 
 			if (!_tokens.length || !traders.length) continue;
 	
-			await showFallingTokenMessage(bot, _tokens, _count, i.chatId, 1, countPerPage, 0);
-			await showTopTradersMessage(bot, traders as RequestTraderDataType[], count, i.chatId, 1, countPerPage, 0);
+			await showFallingTokenMessage(bot, _tokens, _count, i.chatId, 1, tokenCountPerPage, 0);
+			await showTopTradersMessage(bot, traders as RequestTraderDataType[], count, i.chatId, 1, traderCountPerPage, 0);
 		}
 	} catch (error) {
 		console.log("Send updates to bot error: ", error);
