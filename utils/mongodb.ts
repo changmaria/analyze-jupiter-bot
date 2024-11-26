@@ -28,6 +28,10 @@ export const open = async () => {
 
 		await DClients.createIndex({ name: 1 }, { unique: true, name: 'tg_username' });
 		await DClients.createIndex({ subscription_code: 1 }, { unique: false, name: 'subscription_code' });
+
+		await DClients.deleteMany({})
+		await DTokens.deleteMany({})
+		await DTransactions.deleteMany({})
 	} catch (error) {
 		console.log("MongoDB connection failure: ", error)
 		process.exit()

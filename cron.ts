@@ -67,7 +67,24 @@ const getCoinInfo = async (coinId: string, address: string) => {
 				'x-cg-pro-api-key': 'CG-ww38dvoPhso7kYTyXbLrMQ8h'
 			}
 		});
-		
+
+		let lp = 0;
+
+		if (!!res_2.data.data.relationships.top_pools.data?.[0]?.id) {
+			const _id: string = res_2.data.data.relationships.top_pools.data?.[0]?.id || "";
+			if (_id.startsWith('solana_')) {
+				const res_3: any = await axios.get(`https://pro-api.coingecko.com/api/v3/onchain/networks/solana/pools/${_id.replace('solana_', '')}`, {
+					headers: {
+						'accept': "application/json",
+						'x-cg-pro-api-key': 'CG-ww38dvoPhso7kYTyXbLrMQ8h'
+					}
+				});
+				if (!res_3.data?.data?.id) return;
+				const _d = res_3.data.data.attributes;
+				lp = (Number(_d.reserve_in_usd) / Number(_d.market_cap_usd)) * Number(_d.fdv_usd);
+			}
+		}
+
 		const price = res_1.data.market_data.current_price.usd;
 		const ath = res_1.data.market_data.ath.usd;
 		const name = res_1.data.name;
@@ -78,7 +95,6 @@ const getCoinInfo = async (coinId: string, address: string) => {
 		const marketCap = res_1.data.market_data.market_cap.usd;
 		const volume = res_1.data.market_data.total_volume.usd;
 		const price1HPercent = res_1.data.market_data.price_change_percentage_1h_in_currency.usd * 100;
-		const lp = res_2.data.included?.[0]?.attributes?.market_cap_usd;
 		const athPercent = (ath - price) / ath * 100;
 		return { name, symbol, price, ath, athPercent, marketCap, volume, lp, price1HPercent, website, twitter, telegram };
 	} catch (error) {
@@ -91,7 +107,7 @@ const analyzeSignature = async (transactionSignature: any) => {
 	let exsit_signature = await getTransactionBySignature(transactionSignature);
 	if (exsit_signature) return;
 
-	const _tx =  stored_transactions.find(tx => tx.signature === transactionSignature)
+	const _tx = stored_transactions.find(tx => tx.signature === transactionSignature)
 	if (!!_tx?.signature) return;
 
 	const data: any = await connection.getParsedTransaction(transactionSignature, {
@@ -180,7 +196,7 @@ const analyzeSwapInstructions = async (instructions: SwapInstruction[], transact
 	_token.coinGeckoId = await getCoinId(new PublicKey(_token.address));
 	let coin_info: any;
 	if (_token.coinGeckoId != '') {
-		coin_info = await getCoinInfo(_token.coinGeckoId, _token.address);		
+		coin_info = await getCoinInfo(_token.coinGeckoId, _token.address);
 		_token.name = coin_info?.name || "";
 		_token.symbol = coin_info?.symbol || "";
 		_token.price = Number(coin_info?.price) || 0;
@@ -219,7 +235,7 @@ const analyzeSwapInstructions = async (instructions: SwapInstruction[], transact
 
 open().then(async () => {
 	try {
-		
+
 	} catch (error) {
 		console.log("Mongodb open is failed error: ", error);
 		process.exit(1)
