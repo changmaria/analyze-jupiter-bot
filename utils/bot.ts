@@ -331,23 +331,23 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 		for (let i = 0; i < traders.length; i++) {
 			let token_message = '';
 			if (!!traders[i].latestTokens.length) {
-				token_message += '`\n\n⏰**Latest Tokens**';
+				token_message += '\n\n⏰**Latest Tokens**';
 				for (let j = 0; j < traders[i].latestTokens.length; j++) {
 					if (j === traders[i].latestTokens.length - 1) {
-						token_message += '\n     └ `';
+						token_message += '\n  └ ';
 					} else {
-						token_message += '\n     ├ `';
+						token_message += '\n  ├ ';
 					}
 					token_message += (
-						`${sliceAddress(traders[i].latestTokens[j])}` + '`' +
+						`${sliceAddress(traders[i].latestTokens[j])}` +
 						`   [Solscan](https://solscan.io/address/${traders[i].latestTokens[j]})`);
 				}
 			} else {
-				token_message += '`└ N/A ‼️';
+				token_message += '└ N/A ‼️';
 			}
 			const _balance = await getUserSolBalance(traders[i]._id);
 			// message += ('👜Wallet: `' +
-			message += ('💊 [🟥🟪🟦🟩🟨🟧] (https://t.me/jupitertrackkbot?start) ($🟥🟩)\n' +
+			message += ('💊 🟥🟪🟦🟩🟨🟧 ($🟥🟩)\n' +
 				`├${traders[i]._id}\n` +
 				`└🔴[View on Solscan](https://solscan.io/address/${traders[i]._id})` +
 				token_message +
