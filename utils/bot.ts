@@ -412,10 +412,10 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 				`  ├ ${tokenList[i].address}\n` +
 				`  └ 🔴 [Solscan](https://solscan.io/address/${tokenList[i].address})  ` +
 				`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${tokenList[i].coinGeckoId})` +
-				'\n\n📊 **Detail**' +
-				'\n  ├ ❄️`ATH Percent:`   ' +
+				'\n\n📊 **Token Stats**' +
+				'\n  ├ `ATH Percent:`   ' +
 				`${(tokenList[i].athPercent || 0).toFixed(0)}%` +
-				'\n  └ 📊`Market Cap:`     ' +
+				'\n  └ `Market Cap:`     ' +
 				`${(tokenList[i].marketCap || 0).toFixed(0)}$` +
 				'\n\n🔗 **Links**\n  └ '
 			);
@@ -433,6 +433,26 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 			if (!tokenList[i].telegram && !tokenList[i].twitter && !tokenList[i].website) {
 				message += 'N/A ‼️'
 			}
+
+			message += (
+				`[**DEF**](https://www.defined.fi/sol/${tokenList[i].address})` +
+				` • [DS](https://dexscreener.com/solana/${tokenList[i].address})` +
+				` • [GM](https://gmgn.ai/sol/token/${tokenList[i].address})` +
+				` • [EXP](https://solscan.io/token/${tokenList[i].address})` +
+				` • [𝕏s](https://solscan.io/token/${tokenList[i].address})` +
+				`\n\n[BLX](https://bullx.io/terminal?address=${tokenList[i].address})` +
+				` • [TRO](https://t.me/paris_trojanbot)` +
+				` • [BNK](https://t.me/furiosa_bonkbot)` +
+				` • [STB](https://t.me/SolTradingBot)` +
+				` • [MVX](https://t.me/MevxTradingBot)` +
+				`\n[GM](https://t.me/GMGN_sol03_bot)` +
+				` • [PHO](https://photon-sol.tinyastro.io/en/r/@jupitertrackkbot/${tokenList[i].address})` +
+				` • [BAN](https://t.me/BananaGun_bot)` +
+				` • [PEP](https://t.me/pepeboost_sol_bot)` +
+				` • [AVE](https://t.me/AveSniperBot)` +
+				`\n\n[🍌 Try Banana Gun on Solana!](https://t.me/BananaGun_bot)`
+			)
+
 			message += '\n\n\n';
 		}
 

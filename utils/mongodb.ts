@@ -199,12 +199,12 @@ export const updateToken = async (token: SchemaToken) => {
 				$set: {
 					athPercent: token.athPercent,
 					marketCap: token.marketCap,
-				},
-				$setOnInsert: {
-					coinGeckoId: token.coinGeckoId,
 					twitter: token.twitter,
 					telegram: token.telegram,
 					website: token.website,
+				},
+				$setOnInsert: {
+					coinGeckoId: token.coinGeckoId,
 				},
 			},
 			{

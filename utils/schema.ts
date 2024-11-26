@@ -27,7 +27,6 @@ export interface SchemaToken {
 	website: string;
 }
 
-
 export interface SchemaBotClient {
 	name: string;
 	winRate: number;
