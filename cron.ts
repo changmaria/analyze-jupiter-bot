@@ -199,27 +199,27 @@ const analyzeSwapInstructions = async (instructions: SwapInstruction[], transact
 		return;
 	}
 
-	if (_token.address.slice(-4) === 'pump') {
-		_token.coinGeckoId = await getCoinId(new PublicKey(_token.address));
-		let coin_info: any;
-		if (_token.coinGeckoId != '') {
-			coin_info = await getCoinInfo(_token.coinGeckoId, _token.address);
-			_token.name = coin_info?.name || "";
-			_token.symbol = coin_info?.symbol || "";
-			_token.watchlistUsers = Number(coin_info?.watchlistUsers) || 0;
-			_token.price = Number(coin_info?.price) || 0;
-			_token.ath = Number(coin_info?.ath) || 0;
-			_token.athPercent = Number(coin_info?.athPercent) || 0;
-			_token.marketCap = Number(coin_info?.marketCap) || 0;
-			_token.volume = Number(coin_info?.volume) || 0;
-			_token.lp = Number(coin_info?.lp) || 0;
-			_token.price1HPercent = Number(coin_info?.price1HPercent) || 0;
-			_token.website = coin_info?.website || "";
-			_token.twitter = coin_info?.twitter || "";
-			_token.telegram = coin_info?.telegram || "";
-		}
+	if (_token.address.slice(-4) !== 'pump') return;
+
+	_token.coinGeckoId = await getCoinId(new PublicKey(_token.address));
+	let coin_info: any;
+	if (_token.coinGeckoId != '') {
+		coin_info = await getCoinInfo(_token.coinGeckoId, _token.address);
+		_token.name = coin_info?.name || "";
+		_token.symbol = coin_info?.symbol || "";
+		_token.watchlistUsers = Number(coin_info?.watchlistUsers) || 0;
+		_token.price = Number(coin_info?.price) || 0;
+		_token.ath = Number(coin_info?.ath) || 0;
+		_token.athPercent = Number(coin_info?.athPercent) || 0;
+		_token.marketCap = Number(coin_info?.marketCap) || 0;
+		_token.volume = Number(coin_info?.volume) || 0;
+		_token.lp = Number(coin_info?.lp) || 0;
+		_token.price1HPercent = Number(coin_info?.price1HPercent) || 0;
+		_token.website = coin_info?.website || "";
+		_token.twitter = coin_info?.twitter || "";
+		_token.telegram = coin_info?.telegram || "";
 	}
-	
+
 	if (!_transaction.isBuy) {
 		const { solAmount, tokenAmount } = await getLastedBuyTransaction(_transaction.trader, _transaction.tokenAddress);
 		if (!!solAmount && !!tokenAmount) {
@@ -239,7 +239,7 @@ const analyzeSwapInstructions = async (instructions: SwapInstruction[], transact
 		stored_transactions = [];
 	}
 
-	if (!!_token.coinGeckoId && (_token.address.slice(-4) === 'pump')) await updateToken(_token);
+	if (!!_token.coinGeckoId) await updateToken(_token);
 }
 
 open().then(async () => {
