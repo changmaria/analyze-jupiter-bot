@@ -42,10 +42,7 @@ export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 							{ text: `Min Volume $${clientData.minVolume.toFixed(0)}`, callback_data: 'setMinimumVolume' },
 						],
 						[
-							{ text: `Min Wallet Size $${clientData.minWalletSize.toFixed(0)}`, callback_data: 'setMinWalletSize' },	
-							{ text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' },	
-						],
-						[
+							{ text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' },
 							{ text: !clientData.isPaused ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotPauseStatus' },
 						],
 						[
@@ -238,19 +235,6 @@ export const setMinimumVolume = async (msg: TelegramBot.Message, bot: TelegramBo
 		await updateClientData(clientData);
 	} catch (error) {
 		console.log("Set minimum volume error: ", error);
-	}
-}
-
-export const setMinWalletSize = async (msg: TelegramBot.Message, bot: TelegramBot) => {
-	try {
-		if (!msg.chat.username) return;
-		const clientData = await getClientData(msg.chat.username) as BotClient;
-		if (!clientData.name) return;
-		await bot.sendMessage(msg.chat.id, `Please input the Whales's Minimum Wallet Size for filtering. Now Minimum Wallet Size is $${clientData.minWalletSize}`)
-		clientData.status = BotStatus.InputMinWalletSize;
-		await updateClientData(clientData);
-	} catch (error) {
-		console.log("Set minimum wallet size error: ", error);
 	}
 }
 
