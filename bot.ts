@@ -1,7 +1,7 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import dotenv from 'dotenv';
-import { onLogin, onSettings, onStart, addBot, setATHPercent, setMinimumVolume, setWinRate, showTopTradersMessage, showFallingTokenMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setBotPauseStatus } from './utils/bot';
+import { onLogin, onSettings, onStart, addBot, setATHPercent, setMinimumVolume, setWinRate, showTopTradersMessage, showFallingTokenMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setBotPauseStatus, setMinWalletSize } from './utils/bot';
 import { isNumber } from './utils/helper';
 import { BotClient, BotStatus, RequestTraderDataType } from './utils/interface';
 import { getClientData, getClients, getTokensByATHPercent, getTokensCountByATHPercent, getTradersByWinRate, open, updateClientData } from "./utils/mongodb";
@@ -55,6 +55,8 @@ bot.on('callback_query', async (callbackQuery) => {
 		await setWinRate(message, bot);
 	} else if (_cmd == 'setMinimumVolume') {
 		await setMinimumVolume(message, bot);
+	} else if (_cmd == 'setMinWalletSize') {
+		await setMinWalletSize(message, bot);
 	} else if (_cmd == 'setATHPercent') {
 		setATHPercent(message, bot);
 	} else if (_cmd == 'setBotPauseStatus') {
@@ -113,7 +115,7 @@ bot.on('message', async (msg) => {
 			await bot.sendMessage(msg.chat.id, 'You have to input number as Win Rate. Not Correct Format!!');
 			return;
 		}
-		clientData.winRate = parseInt(msg.text);
+		clientData.winRate = Math.abs(parseInt(msg.text));
 		clientData.status = BotStatus.UsualMode;
 		await updateClientData(clientData);
 		await bot.sendMessage(msg.chat.id, `Win Rate is updated successfully. ${clientData.winRate}%`);
@@ -122,16 +124,25 @@ bot.on('message', async (msg) => {
 			await bot.sendMessage(msg.chat.id, 'You have to input number as Minimum Volume. Not Correct Format!!');
 			return;
 		}
-		clientData.minVolume = parseInt(msg.text);
+		clientData.minVolume = Math.abs(parseInt(msg.text));
 		clientData.status = BotStatus.UsualMode;
 		await updateClientData(clientData);
 		await bot.sendMessage(msg.chat.id, `Minimum Volume is updated successfully. $${clientData.minVolume}`);
+	} else if (clientData.status == BotStatus.InputMinWalletSize) {
+		if (!isNumber(msg.text)) {
+			await bot.sendMessage(msg.chat.id, 'You have to input number as Minimum Wallet Size. Not Correct Format!!');
+			return;
+		}
+		clientData.minWalletSize = Math.abs(parseInt(msg.text));
+		clientData.status = BotStatus.UsualMode;
+		await updateClientData(clientData);
+		await bot.sendMessage(msg.chat.id, `Minimum Wallet Size is updated successfully. $${clientData.minWalletSize}`);
 	} else if (clientData.status == BotStatus.InputATHPercent) {
 		if (!isNumber(msg.text)) {
 			await bot.sendMessage(msg.chat.id, 'You have to input number as ATH Percent. Not Correct Format!!');
 			return;
 		}
-		clientData.athPercent = parseInt(msg.text);
+		clientData.athPercent = Math.abs(parseInt(msg.text));
 		clientData.status = BotStatus.UsualMode;
 		await updateClientData(clientData);
 		await bot.sendMessage(msg.chat.id, `ATH Percent is updated successfully. ${clientData.athPercent}%`);

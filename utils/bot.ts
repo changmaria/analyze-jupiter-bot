@@ -39,10 +39,13 @@ export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 					inline_keyboard: [
 						[
 							{ text: `Win Rate ${clientData.winRate.toFixed(0)}%`, callback_data: 'setWinRate' },
-							{ text: `MinVolume $${clientData.minVolume.toFixed(0)}`, callback_data: 'setMinimumVolume' },
+							{ text: `Min Volume $${clientData.minVolume.toFixed(0)}`, callback_data: 'setMinimumVolume' },
 						],
 						[
-							{ text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' },
+							{ text: `Min Wallet Size $${clientData.minWalletSize.toFixed(0)}`, callback_data: 'setMinWalletSize' },	
+							{ text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' },	
+						],
+						[
 							{ text: !clientData.isPaused ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotPauseStatus' },
 						],
 						[
@@ -238,6 +241,19 @@ export const setMinimumVolume = async (msg: TelegramBot.Message, bot: TelegramBo
 	}
 }
 
+export const setMinWalletSize = async (msg: TelegramBot.Message, bot: TelegramBot) => {
+	try {
+		if (!msg.chat.username) return;
+		const clientData = await getClientData(msg.chat.username) as BotClient;
+		if (!clientData.name) return;
+		await bot.sendMessage(msg.chat.id, `Please input the Whales's Minimum Wallet Size for filtering. Now Minimum Wallet Size is $${clientData.minWalletSize}`)
+		clientData.status = BotStatus.InputMinWalletSize;
+		await updateClientData(clientData);
+	} catch (error) {
+		console.log("Set minimum wallet size error: ", error);
+	}
+}
+
 export const setATHPercent = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
 		if (!msg.chat.username) return;
@@ -330,7 +346,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 				'\n  ├ `Win Rate:`                ' +
 				`${(traders[i].winTransaction / traders[i].totalTransaction * 100).toFixed(0)}%` +
 				'\n  ├ `Trading Volume:`   ' +
-				`${(traders[i].totalVolume / LAMPORTS_PER_SOL * 175).toFixed(0)}` +
+				`$${formatBigNumber((traders[i].totalVolume / LAMPORTS_PER_SOL * 175))}` +
 				'\n  └ `SOL Balance:`          ' +
 				`${Math.round(_balance * 1e3) / 1e3}SOL\n\n\n`);
 		}

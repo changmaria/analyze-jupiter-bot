@@ -1,6 +1,6 @@
 import axios from "axios";
 import dotenv from 'dotenv';
-import { defaultATHPercent, defaultMinVolume, defaultWinRate, getClientData, getExsitSubscriptionCode, updateClientData } from "./mongodb";
+import { defaultATHPercent, defaultMinVolume, defaultMinWalletSize, defaultWinRate, getClientData, getExsitSubscriptionCode, updateClientData } from "./mongodb";
 import { BotStatus } from "./interface";
 
 dotenv.config();
@@ -28,8 +28,6 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 
 			const res = await axios.request(requestOptions);
 
-			console.log("verify - res: ", res);
-
 			if (res.status === 200 && !!res.data?.access_token) {
 				const _data = res.data;
 				const _exist_code = await getExsitSubscriptionCode(code);
@@ -39,6 +37,7 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 						name: tgUsername,
 						winRate: client?.winRate || defaultWinRate,
 						minVolume: client?.minVolume || defaultMinVolume,
+						minWalletSize: client?.minWalletSize || defaultMinWalletSize,
 						athPercent: client?.athPercent || defaultATHPercent,
 						status: BotStatus.UsualMode,
 						isPaused: client?.isPaused === undefined ? false : client?.isPaused,
