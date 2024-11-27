@@ -300,21 +300,21 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 					'\n  └ ' +
 					`${sliceAddress(_t.address)}` +
 					`   [Solscan](https://solscan.io/address/${_t.address})` +
-					'\n        └ '
+					'\n      └ '
 				);
 				if (!!_t.telegram) {
-					message += `[TG](https://t.me/${_t.telegram})`;
+					token_message += `[TG](https://t.me/${_t.telegram})`;
 				}
 				if (!!_t.twitter) {
-					if (!!_t.telegram) message += ' • '
-					message += `[𝕏](https://twitter.com/${_t.twitter})`;
+					if (!!_t.telegram) token_message += ' • '
+					token_message += `[𝕏](https://twitter.com/${_t.twitter})`;
 				}
 				if (!!_t.website) {
-					if (!!_t.telegram || !!_t.twitter) message += ' • '
-					message += `[Web](${_t.website})`;
+					if (!!_t.telegram || !!_t.twitter) token_message += ' • '
+					token_message += `[Web](${_t.website})`;
 				}
 				if (!_t.telegram && !_t.twitter && !_t.website) {
-					message += 'N/A ‼️'
+					token_message += 'N/A ‼️'
 				}
 			} else {
 				token_message += '└ N/A ‼️';
