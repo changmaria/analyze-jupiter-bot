@@ -300,7 +300,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 					'\n  └ ' +
 					`${sliceAddress(_t.address)}` +
 					`   [Solscan](https://solscan.io/address/${_t.address})` +
-					'\n     └ `Links:`    '
+					'\n     └ `Links:`   '
 				);
 				if (!!_t.telegram) {
 					token_message += `[TG](https://t.me/${_t.telegram})`;

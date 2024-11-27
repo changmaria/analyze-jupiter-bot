@@ -6,7 +6,7 @@ const MONGODB_URI = "mongodb://0.0.0.0:27017";
 const MONGODB_DATABASE = "solana-jupiter-sword"
 export const defaultWinRate: number = 40;
 export const defaultMinVolume: number = 1000;
-export const defaultATHPercent: number = 30;
+export const defaultATHPercent: number = 80;
 
 const client = new MongoClient(MONGODB_URI);
 const db = client.db(MONGODB_DATABASE);
@@ -27,6 +27,8 @@ export const open = async () => {
 
 		await DClients.createIndex({ name: 1 }, { unique: true, name: 'tg_username' });
 		await DClients.createIndex({ subscription_code: 1 }, { unique: false, name: 'subscription_code' });
+
+		await DClients.deleteMany({})
 	} catch (error) {
 		console.log("MongoDB connection failure: ", error)
 		process.exit()
