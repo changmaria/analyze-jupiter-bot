@@ -56,7 +56,7 @@ bot.on('callback_query', async (callbackQuery) => {
 	} else if (_cmd == 'setMinimumVolume') {
 		await setMinimumVolume(message, bot);
 	} else if (_cmd == 'setATHPercent') {
-		setATHPercent(message, bot);
+		// setATHPercent(message, bot);
 	} else if (_cmd == 'setBotPauseStatus') {
 		setBotPauseStatus(message, bot);
 	} else if (_cmd == 'buyBot') {
@@ -72,7 +72,7 @@ bot.on('callback_query', async (callbackQuery) => {
 	} else if (_cmd === 'topTraders') {
 		await sendDataToBot('top-trader', message?.chat?.username, 1, 0);
 	} else if (_cmd === 'fallingTokens') {
-		await sendDataToBot('falling-token', message?.chat?.username, 1, 0);
+		// await sendDataToBot('falling-token', message?.chat?.username, 1, 0);
 	} else if (_cmd?.startsWith('previousPageOfTraders')) {
 		const page = Number(_cmd.replace('previousPageOfTraders_', '')) || 0;
 		if (!!page && page - 1 >= 1) {
@@ -84,15 +84,15 @@ bot.on('callback_query', async (callbackQuery) => {
 			await sendDataToBot('top-trader', message?.chat?.username, page + 1, message?.message_id);
 		}
 	} else if (_cmd?.startsWith('previousPageOfTokens')) {
-		const page = Number(_cmd.replace('previousPageOfTokens_', '')) || 0;
-		if (!!page && page - 1 >= 1) {
-			await sendDataToBot('falling-token', message?.chat?.username, page - 1, message?.message_id);
-		}
+		// const page = Number(_cmd.replace('previousPageOfTokens_', '')) || 0;
+		// if (!!page && page - 1 >= 1) {
+		// 	await sendDataToBot('falling-token', message?.chat?.username, page - 1, message?.message_id);
+		// }
 	} else if (_cmd?.startsWith('nextPageOfTokens')) {
-		const page = Number(_cmd.replace('nextPageOfTokens_', '')) || 0;
-		if (!!page) {
-			await sendDataToBot('falling-token', message?.chat?.username, page + 1, message?.message_id);
-		}
+		// const page = Number(_cmd.replace('nextPageOfTokens_', '')) || 0;
+		// if (!!page) {
+		// 	await sendDataToBot('falling-token', message?.chat?.username, page + 1, message?.message_id);
+		// }
 	}
 	bot.answerCallbackQuery(callbackQuery.id);
 });
@@ -127,43 +127,43 @@ bot.on('message', async (msg) => {
 		await updateClientData(clientData);
 		await bot.sendMessage(msg.chat.id, `Minimum Volume is updated successfully. $${clientData.minVolume}`);
 	} else if (clientData.status == BotStatus.InputATHPercent) {
-		if (!isNumber(msg.text)) {
-			await bot.sendMessage(msg.chat.id, 'You have to input number as ATH Percent. Not Correct Format!!');
-			return;
-		}
-		clientData.athPercent = Math.abs(parseInt(msg.text));
-		clientData.status = BotStatus.UsualMode;
-		await updateClientData(clientData);
-		await bot.sendMessage(msg.chat.id, `ATH Percent is updated successfully. ${clientData.athPercent}%`);
+		// if (!isNumber(msg.text)) {
+		// 	await bot.sendMessage(msg.chat.id, 'You have to input number as ATH Percent. Not Correct Format!!');
+		// 	return;
+		// }
+		// clientData.athPercent = Math.abs(parseInt(msg.text));
+		// clientData.status = BotStatus.UsualMode;
+		// await updateClientData(clientData);
+		// await bot.sendMessage(msg.chat.id, `ATH Percent is updated successfully. ${clientData.athPercent}%`);
 	}
 })
 
 const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: string, page: number = 1, messageId: number) => {
 	try {
 		const clientData = await getClientData(tgUserName);
-		
+
 		if (!clientData || clientData.status != BotStatus.UsualMode) return;
 
 		if (page < 1) return;
-	
+
 		if (type == 'top-trader') {
-	
+
 			const { traders, count } = await getTradersByWinRate(
 				clientData.winRate / 100,
 				(clientData.minVolume * LAMPORTS_PER_SOL) / 175,
 				page,
 				traderCountPerPage
 			);
-	
+
 			await showTopTradersMessage(bot, traders as RequestTraderDataType[], count, clientData.chatId, page, traderCountPerPage, messageId);
 		}
-		if (type === 'falling-token') {
-	
-			const _tokens = await getTokensByATHPercent(clientData.athPercent, page, tokenCountPerPage);
-			const _count = await getTokensCountByATHPercent(clientData.athPercent);
-	
-			await showFallingTokenMessage(bot, _tokens, _count, clientData.chatId, page, tokenCountPerPage, messageId);
-		}
+		// if (type === 'falling-token') {
+
+		// 	const _tokens = await getTokensByATHPercent(clientData.athPercent, page, tokenCountPerPage);
+		// 	const _count = await getTokensCountByATHPercent(clientData.athPercent);
+
+		// 	await showFallingTokenMessage(bot, _tokens, _count, clientData.chatId, page, tokenCountPerPage, messageId);
+		// }
 	} catch (error) {
 		console.log("Send data to bot error: ", error);
 	}
@@ -182,12 +182,12 @@ const sendUpdatesToBot = async () => {
 				traderCountPerPage
 			);
 
-			const _tokens = await getTokensByATHPercent(i.athPercent, 1, tokenCountPerPage);
-			const _count = await getTokensCountByATHPercent(i.athPercent);
+			// const _tokens = await getTokensByATHPercent(i.athPercent, 1, tokenCountPerPage);
+			// const _count = await getTokensCountByATHPercent(i.athPercent);
 
-			if (!_tokens.length || !traders.length) continue;
-	
-			await showFallingTokenMessage(bot, _tokens, _count, i.chatId, 1, tokenCountPerPage, 0);
+			if (/* !_tokens.length ||  */!traders.length) continue;
+
+			// await showFallingTokenMessage(bot, _tokens, _count, i.chatId, 1, tokenCountPerPage, 0);
 			await showTopTradersMessage(bot, traders as RequestTraderDataType[], count, i.chatId, 1, traderCountPerPage, 0);
 		}
 	} catch (error) {
@@ -196,13 +196,13 @@ const sendUpdatesToBot = async () => {
 }
 
 const startRunning = async () => {
-    setInterval(async () => {
-        try {
-            await sendUpdatesToBot();
-        } catch(err) {
-            console.log("sending token error ===>", err);
-        }
-    }, 1000 * 60 * 10);
+	setInterval(async () => {
+		try {
+			await sendUpdatesToBot();
+		} catch (err) {
+			console.log("sending token error ===>", err);
+		}
+	}, 1000 * 60 * 10);
 }
 
 open().then(async () => {

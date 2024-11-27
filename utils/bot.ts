@@ -40,10 +40,10 @@ export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 						[
 							{ text: `Win Rate ${clientData.winRate.toFixed(0)}%`, callback_data: 'setWinRate' },
 							{ text: `Min Volume $${clientData.minVolume.toFixed(0)}`, callback_data: 'setMinimumVolume' },
+							{ text: !clientData.isPaused ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotPauseStatus' },
 						],
 						[
-							{ text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' },
-							{ text: !clientData.isPaused ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotPauseStatus' },
+							// { text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' },
 						],
 						[
 							{ text: 'Back', callback_data: 'start' }
@@ -72,10 +72,10 @@ export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 		const _keyboards = [
 			[
 				{ text: '🏆 Top Traders', callback_data: 'topTraders' },
-				{ text: '👎 Falling Tokens', callback_data: 'fallingTokens' }
+				{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
+				// { text: '👎 Falling Tokens', callback_data: 'fallingTokens' }
 			],
 			[
-				{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
 				{ text: '⚙️ Settings', callback_data: 'admin' },
 			],
 		]
@@ -265,15 +265,15 @@ export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot, subscri
 					inline_keyboard: [
 						[
 							{ text: '🏆 Top Traders', callback_data: 'topTraders' },
-							{ text: '👎 Falling Tokens', callback_data: 'fallingTokens' }
+							{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
+							// { text: '👎 Falling Tokens', callback_data: 'fallingTokens' }
 						],
 						[
-							{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
 							{ text: '⚙️ Settings', callback_data: 'admin' },
 						],
 						[
 							{ text: 'Buy Bot 🏆: 47€/month', callback_data: 'buyBot' }
-						],
+						]
 					]
 				}
 			}
@@ -346,6 +346,9 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 					{ text: '<<', callback_data: page - 1 >= 1 ? `previousPageOfTraders_${page}` : 'page' },
 					{ text: `${page}`, callback_data: 'page' },
 					{ text: '>>', callback_data: page + 1 <= totalPage ? `nextPageOfTraders_${page}` : 'page' },
+				],
+				[
+					{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
 				],
 				[
 					{ text: 'Back', callback_data: 'start' },
