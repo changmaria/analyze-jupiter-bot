@@ -293,7 +293,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 		let message = '🏆🏆🏆Good Traders🏆🏆🏆\n\n';
 
 		for (let i = 0; i < traders.length; i++) {
-			let token_message = '\n\n⏰ **Latest Token**';
+			let token_message = '\n\n⏰ **Recently Buyed Token**';
 			const _t = traders[i].latestToken;
 			if (!!_t.address) {
 				token_message += (
