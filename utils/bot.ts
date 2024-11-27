@@ -300,7 +300,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 					'\n  └ ' +
 					`${sliceAddress(_t.address)}` +
 					`   [Solscan](https://solscan.io/address/${_t.address})` +
-					'\n      └ '
+					'\n     └ 🔗 Links: '
 				);
 				if (!!_t.telegram) {
 					token_message += `[TG](https://t.me/${_t.telegram})`;
@@ -317,7 +317,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 					token_message += 'N/A ‼️'
 				}
 			} else {
-				token_message += '└ N/A ‼️';
+				token_message += '\n  └ N/A ‼️';
 			}
 			const _balance = await getUserSolBalance(traders[i]._id);
 			message += ('👜 **Wallet** 👇\n' +

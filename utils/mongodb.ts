@@ -314,8 +314,10 @@ export const getTradersByWinRate = async (winRate: number, minVolume: number, pa
 				const _latestToken = await DTransactions.find({ trader: i._id, isBuy: true }).sort({ created: -1 }).skip(0).limit(1).toArray();
 				const address = _latestToken?.[0]?.tokenAddress || "";
 				let twitter = "", telegram = "", website = "";
+				console.log("address", address);
 				if (!!address) {
 					const _tokenInfo = await DTokens.findOne({ address });
+					console.log("_tokenInfo", _tokenInfo);
 					twitter = _tokenInfo?.twitter || "";
 					website = _tokenInfo?.website || "";
 					telegram = _tokenInfo?.telegram || "";
