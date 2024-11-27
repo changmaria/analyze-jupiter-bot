@@ -72,11 +72,11 @@ export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 		const _keyboards = [
 			[
 				{ text: '🏆 Top Traders', callback_data: 'topTraders' },
-				{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
+				{ text: '⚙️ Settings', callback_data: 'admin' },
 				// { text: '👎 Falling Tokens', callback_data: 'fallingTokens' }
 			],
 			[
-				{ text: '⚙️ Settings', callback_data: 'admin' },
+				{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
 			],
 		]
 
@@ -265,11 +265,11 @@ export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot, subscri
 					inline_keyboard: [
 						[
 							{ text: '🏆 Top Traders', callback_data: 'topTraders' },
-							{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
+							{ text: '⚙️ Settings', callback_data: 'admin' },
 							// { text: '👎 Falling Tokens', callback_data: 'fallingTokens' }
 						],
 						[
-							{ text: '⚙️ Settings', callback_data: 'admin' },
+							{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
 						],
 						[
 							{ text: 'Buy Bot 🏆: 47€/month', callback_data: 'buyBot' }
@@ -349,8 +349,6 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 				],
 				[
 					{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
-				],
-				[
 					{ text: 'Back', callback_data: 'start' },
 				]
 			]
