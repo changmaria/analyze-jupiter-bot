@@ -2,7 +2,6 @@ export enum BotStatus {
 	InputWinRate = "Inputing Win Rate",
 	InputMinVolume = "Inputing Min Volume",
 	InputATHPercent = "Inputing ATH Percent",
-	InputTokensCount = "Inputing Latest Tokens Display Count",
 	UsualMode = "Normal Mode"
 }
 
@@ -29,7 +28,6 @@ export interface BotClient {
 	winRate: number;
 	minVolume: number;
 	athPercent: number;
-	lastedTokensCount: number;
 	status: BotStatus;
 	isPaused: boolean;
 	chatId: number;
@@ -86,5 +84,10 @@ export interface RequestTraderDataType {
 	totalVolume: number;
 	winTransaction: number;
 	winRate: number;
-	latestTokens: string[];
+	latestToken: {
+		address: string;
+		twitter: string;
+		telegram: string;
+		website: string;
+	}
 }

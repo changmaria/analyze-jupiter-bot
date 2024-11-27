@@ -1,8 +1,8 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import dotenv from 'dotenv';
-import { onLogin, onSettings, onStart, addBot, setATHPercent, setMinimumVolume, setWinRate, showTopTradersMessage, showFallingTokenMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setLatestTokensCount, setBotPauseStatus } from './utils/bot';
-import { currentTime, isNumber } from './utils/helper';
+import { onLogin, onSettings, onStart, addBot, setATHPercent, setMinimumVolume, setWinRate, showTopTradersMessage, showFallingTokenMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setBotPauseStatus } from './utils/bot';
+import { isNumber } from './utils/helper';
 import { BotClient, BotStatus, RequestTraderDataType } from './utils/interface';
 import { getClientData, getClients, getTokensByATHPercent, getTokensCountByATHPercent, getTradersByWinRate, open, updateClientData } from "./utils/mongodb";
 
@@ -12,26 +12,16 @@ const bot_token = process.env.bot_token != undefined ? process.env.bot_token : "
 const bot = new TelegramBot(bot_token, { polling: true });
 
 const traderCountPerPage = 5;
-const tokenCountPerPage = 3;
+const tokenCountPerPage = 5;
 
 bot.setMyCommands([
 	{ command: '/start', description: 'start the bot' },
 	{ command: '/admin', description: 'modify the filter settings' },
-	// { command: '/realtime', description: "get the bot's realtime updates" },
-	// { command: '/pause', description: "pause the bot's realtime updates" },
 ])
 
 bot.onText(/\/login/, (msg) => {
 	onLogin(msg, bot);
 });
-
-// bot.onText(/\/pause/, (msg) => {
-// 	onStop(msg, bot);
-// });
-
-// bot.onText(/\/realtime/, (msg) => {
-// 	onRealtime(msg, bot);
-// });
 
 bot.onText(/\/start/, async (msg) => {
 	if (msg.text?.startsWith('/start code=')) {
@@ -67,8 +57,6 @@ bot.on('callback_query', async (callbackQuery) => {
 		await setMinimumVolume(message, bot);
 	} else if (_cmd == 'setATHPercent') {
 		setATHPercent(message, bot);
-	} else if (_cmd == 'setLatestTokensCount') {
-		setLatestTokensCount(message, bot);
 	} else if (_cmd == 'setBotPauseStatus') {
 		setBotPauseStatus(message, bot);
 	} else if (_cmd == 'buyBot') {
@@ -147,15 +135,6 @@ bot.on('message', async (msg) => {
 		clientData.status = BotStatus.UsualMode;
 		await updateClientData(clientData);
 		await bot.sendMessage(msg.chat.id, `ATH Percent is updated successfully. ${clientData.athPercent}%`);
-	} else if (clientData.status == BotStatus.InputTokensCount) {
-		if (!isNumber(msg.text) || Number(msg.text) < 0) {
-			await bot.sendMessage(msg.chat.id, 'You have to input number as display count of latest tokens. Not Correct Format!!');
-			return;
-		}
-		clientData.lastedTokensCount = parseInt(msg.text);
-		clientData.status = BotStatus.UsualMode;
-		await updateClientData(clientData);
-		await bot.sendMessage(msg.chat.id, `Display count of latest tokens is updated successfully. ${clientData.lastedTokensCount}`);
 	}
 })
 
@@ -172,7 +151,6 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: s
 			const { traders, count } = await getTradersByWinRate(
 				clientData.winRate / 100,
 				(clientData.minVolume * LAMPORTS_PER_SOL) / 175,
-				clientData.subscription_expires_in > currentTime() ? clientData.lastedTokensCount : 3,
 				page,
 				traderCountPerPage
 			);
@@ -200,7 +178,6 @@ const sendUpdatesToBot = async () => {
 			const { traders, count } = await getTradersByWinRate(
 				i.winRate / 100,
 				(i.minVolume * LAMPORTS_PER_SOL) / 175,
-				i.subscription_expires_in > currentTime() ? i.lastedTokensCount : 3,
 				1,
 				traderCountPerPage
 			);

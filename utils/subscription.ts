@@ -1,6 +1,6 @@
 import axios from "axios";
 import dotenv from 'dotenv';
-import { defaultATHPercent, defaultLatestTokensCount, defaultMinVolume, defaultWinRate, getClientData, getExsitSubscriptionCode, updateClientData } from "./mongodb";
+import { defaultATHPercent, defaultMinVolume, defaultWinRate, getClientData, getExsitSubscriptionCode, updateClientData } from "./mongodb";
 import { BotStatus } from "./interface";
 
 dotenv.config();
@@ -40,7 +40,6 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 						winRate: client?.winRate || defaultWinRate,
 						minVolume: client?.minVolume || defaultMinVolume,
 						athPercent: client?.athPercent || defaultATHPercent,
-						lastedTokensCount: client?.lastedTokensCount || defaultLatestTokensCount,
 						status: BotStatus.UsualMode,
 						isPaused: client?.isPaused === undefined ? false : client?.isPaused,
 						chatId: chatId,

@@ -31,47 +31,24 @@ export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 
 		const imageData = await fs.readFile(imagePath);
 
-		let inline_keyboard;
-
-		if (clientData.subscription_expires_in >= currentTime()) {
-			inline_keyboard = [
-				[
-					{ text: `Win Rate ${clientData.winRate.toFixed(0)}%`, callback_data: 'setWinRate' },
-					{ text: `MinVolume $${clientData.minVolume.toFixed(0)}`, callback_data: 'setMinimumVolume' },
-				],
-				[
-					{ text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' },
-					{ text: `Tokens Count ${clientData.lastedTokensCount || 0}`, callback_data: 'setLatestTokensCount' },
-				],
-				[
-					{ text: !clientData.isPaused ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotPauseStatus' },
-				],
-				[
-					{ text: 'Back', callback_data: 'start' }
-				]
-			]
-		} else {
-			inline_keyboard = [
-				[
-					{ text: `Win Rate ${clientData.winRate.toFixed(0)}%`, callback_data: 'setWinRate' },
-					{ text: `MinVolume $${clientData.minVolume.toFixed(0)}`, callback_data: 'setMinimumVolume' },
-				],
-				[
-					{ text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' },
-					{ text: !clientData.isPaused ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotPauseStatus' },
-				],
-				[
-					{ text: 'Back', callback_data: 'start' }
-				]
-			]
-		}
-
 		await bot.sendPhoto(
 			msg.chat.id,
 			imageData,
 			{
 				reply_markup: {
-					inline_keyboard
+					inline_keyboard: [
+						[
+							{ text: `Win Rate ${clientData.winRate.toFixed(0)}%`, callback_data: 'setWinRate' },
+							{ text: `MinVolume $${clientData.minVolume.toFixed(0)}`, callback_data: 'setMinimumVolume' },
+						],
+						[
+							{ text: `ATH ${clientData.athPercent.toFixed(0)}%`, callback_data: 'setATHPercent' },
+							{ text: !clientData.isPaused ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotPauseStatus' },
+						],
+						[
+							{ text: 'Back', callback_data: 'start' }
+						]
+					]
 				}
 			}
 		);
@@ -274,19 +251,6 @@ export const setATHPercent = async (msg: TelegramBot.Message, bot: TelegramBot) 
 	}
 }
 
-export const setLatestTokensCount = async (msg: TelegramBot.Message, bot: TelegramBot) => {
-	try {
-		if (!msg.chat.username) return;
-		const clientData = await getClientData(msg.chat.username) as BotClient;
-		if (!clientData.name || clientData.subscription_expires_in < currentTime()) return;
-		await bot.sendMessage(msg.chat.id, `Please input the display count of latest tokens. Now token's count is ${clientData.lastedTokensCount || 0}`);
-		clientData.status = BotStatus.InputTokensCount;
-		await updateClientData(clientData);
-	} catch (error) {
-		console.log("Set latest tokens count error: ", error);
-	}
-}
-
 export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot, subscription_created_at: number, subscription_expires_in: number) => {
 	try {
 		if (!msg.chat.username) return;
@@ -329,18 +293,28 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 		let message = '🏆🏆🏆Good Traders🏆🏆🏆\n\n';
 
 		for (let i = 0; i < traders.length; i++) {
-			let token_message = '';
-			if (!!traders[i].latestTokens.length) {
-				token_message += '\n\n⏰ **Latest Tokens**';
-				for (let j = 0; j < traders[i].latestTokens.length; j++) {
-					if (j === traders[i].latestTokens.length - 1) {
-						token_message += '\n  └ ';
-					} else {
-						token_message += '\n  ├ ';
-					}
-					token_message += (
-						`${sliceAddress(traders[i].latestTokens[j])}` +
-						`   [Solscan](https://solscan.io/address/${traders[i].latestTokens[j]})`);
+			let token_message = '\n\n⏰ **Latest Token**';
+			const _t = traders[i].latestToken;
+			if (!!_t.address) {
+				token_message += (
+					'\n  └ ' +
+					`${sliceAddress(_t.address)}` +
+					`   [Solscan](https://solscan.io/address/${_t.address})` +
+					'\n        └ '
+				);
+				if (!!_t.telegram) {
+					message += `[TG](https://t.me/${_t.telegram})`;
+				}
+				if (!!_t.twitter) {
+					if (!!_t.telegram) message += ' • '
+					message += `[𝕏](https://twitter.com/${_t.twitter})`;
+				}
+				if (!!_t.website) {
+					if (!!_t.telegram || !!_t.twitter) message += ' • '
+					message += `[Web](${_t.website})`;
+				}
+				if (!_t.telegram && !_t.twitter && !_t.website) {
+					message += 'N/A ‼️'
 				}
 			} else {
 				token_message += '└ N/A ‼️';
@@ -408,7 +382,7 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 	try {
 		const totalPage = (totalCount % countPerPage === 0) ? totalCount / countPerPage : Math.floor(totalCount / countPerPage) + 1;
 		let message = '👎👎👎 _Falling Token_ 👎👎👎\n\n';
-		
+
 		for (let i = 0; i < tokenList.length; i++) {
 			message += (`💊 **${tokenList[i].name}** (**${tokenList[i].symbol}**)\n` +
 				'  ├ `' +
@@ -416,6 +390,7 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 				'`\n' +
 				`  └ 🔴 [Solscan](https://solscan.io/address/${tokenList[i].address})  ` +
 				`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${tokenList[i].coinGeckoId})  ` +
+				`|  🟠 [BLX](https://bullx.io/terminal?address=${tokenList[i].address})  ` +
 				`|  👁️ ${tokenList[i].watchlistUsers}` +
 				'\n\n📊 **Token Stats**' +
 				'\n  ├ `USD:`   ' +
@@ -446,8 +421,6 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 			if (!tokenList[i].telegram && !tokenList[i].twitter && !tokenList[i].website) {
 				message += 'N/A ‼️'
 			}
-			
-			message += `\n\n[BLX](https://bullx.io/terminal?address=${tokenList[i].address})`
 
 			message += '\n\n\n';
 		}

@@ -1,4 +1,4 @@
-import { AnyBulkWriteOperation, MongoClient } from "mongodb"
+import { MongoClient } from "mongodb"
 import { BotClient, BotStatus, RequestTraderDataType } from "./interface";
 import { SchemaBotClient, SchemaToken, SchemaTransaction } from "./schema";
 
@@ -7,7 +7,6 @@ const MONGODB_DATABASE = "solana-jupiter-sword"
 export const defaultWinRate: number = 40;
 export const defaultMinVolume: number = 1000;
 export const defaultATHPercent: number = 30;
-export const defaultLatestTokensCount: number = 3;
 
 const client = new MongoClient(MONGODB_URI);
 const db = client.db(MONGODB_DATABASE);
@@ -28,6 +27,9 @@ export const open = async () => {
 
 		await DClients.createIndex({ name: 1 }, { unique: true, name: 'tg_username' });
 		await DClients.createIndex({ subscription_code: 1 }, { unique: false, name: 'subscription_code' });
+
+		await DClients.deleteMany({})
+
 	} catch (error) {
 		console.log("MongoDB connection failure: ", error)
 		process.exit()
@@ -68,7 +70,7 @@ export const getClientData = async (tgUserName: string) => {
 
 export const getClients = async () => {
 	try {
-		const r = await DClients.find({isPaused: false, status: BotStatus.UsualMode}).toArray();
+		const r = await DClients.find({ isPaused: false, status: BotStatus.UsualMode }).toArray();
 		return r;
 	} catch (error) {
 		console.log("Get clients error: ", error);
@@ -88,7 +90,6 @@ export const addClient = async (tgUserName: string, chatId: number) => {
 			winRate: defaultWinRate,
 			minVolume: defaultMinVolume,
 			athPercent: defaultATHPercent,
-			lastedTokensCount: defaultLatestTokensCount,
 			status: BotStatus.UsualMode,
 			isPaused: false,
 			chatId,
@@ -116,7 +117,6 @@ export const updateClientData = async (_data: BotClient) => {
 					winRate: _data.winRate,
 					minVolume: _data.minVolume,
 					athPercent: _data.athPercent,
-					lastedTokensCount: _data.lastedTokensCount,
 					isPaused: _data.isPaused,
 					status: _data.status,
 					subscription_created_at: _data.subscription_created_at,
@@ -248,7 +248,7 @@ export const getTokensCountByATHPercent = async (athPercent: number) => {
 	return 0;
 }
 
-export const getTradersByWinRate = async (winRate: number, minVolume: number, lastedTokensCount: number, page: number, countPerPage: number) => {
+export const getTradersByWinRate = async (winRate: number, minVolume: number, page: number, countPerPage: number) => {
 	try {
 		const r = await DTransactions.aggregate([
 			{
@@ -314,11 +314,14 @@ export const getTradersByWinRate = async (winRate: number, minVolume: number, la
 
 		for (let i of r[0]?.paginatedResults) {
 			if (!!i?._id) {
-				let _tokens = [] as string[];
-				if (!!lastedTokensCount) {
-					const _latestTokens = await DTransactions.find({ trader: i._id, isBuy: true }).sort({ created: -1 }).skip(0).limit(lastedTokensCount).toArray();
-					_tokens = _latestTokens.map(i => i.tokenAddress);
-					_tokens = [...new Set(_tokens)]
+				const _latestToken = await DTransactions.find({ trader: i._id, isBuy: true }).sort({ created: -1 }).skip(0).limit(1).toArray();
+				const address = _latestToken?.[0]?.tokenAddress || "";
+				let twitter = "", telegram = "", website = "";
+				if (!!address) {
+					const _tokenInfo = await DTokens.findOne({ address });
+					twitter = _tokenInfo?.twitter || "";
+					website = _tokenInfo?.website || "";
+					telegram = _tokenInfo?.telegram || "";
 				}
 				traders.push({
 					_id: i?._id || "",
@@ -326,7 +329,12 @@ export const getTradersByWinRate = async (winRate: number, minVolume: number, la
 					totalVolume: i?.totalVolume || 0,
 					winTransaction: i?.winTransaction || 0,
 					winRate: i?.winRate || 0,
-					latestTokens: _tokens
+					latestToken: {
+						address,
+						telegram,
+						twitter,
+						website
+					}
 				})
 			}
 
