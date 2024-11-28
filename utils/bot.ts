@@ -76,7 +76,7 @@ export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 				// { text: '👎 Falling Tokens', callback_data: 'fallingTokens' }
 			],
 			[
-				{ text: '🟠 BULL X', url: 'https://bullx.io/veutino' },
+				{ text: 'BULL X', url: 'https://bullx.io/veutino' },
 			],
 		]
 
@@ -112,7 +112,7 @@ export const onBuyBot = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 			]
 		}
 
-		let message = '*Jupiter Track Bot - Full Acces* 🏆\n*47€* for One Month\n\nUnlock premium access to Jupiter Track Bot for just 47€/month and gain exclusive insights into the Solana ecosystem.';
+		let message = '*Sword Track Bot - Full Acces* 🏆\n*47€* for One Month\n\nUnlock premium access to Sword Track Bot for just 47€/month and gain exclusive insights into the Solana ecosystem.';
 
 		await bot.sendMessage(
 			msg.chat.id,
@@ -255,7 +255,7 @@ export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot, subscri
 							// { text: '👎 Falling Tokens', callback_data: 'fallingTokens' }
 						],
 						[
-							{ text: '🟠 BULL X', url: 'https://bullx.io/veutino' },
+							{ text: 'BULL X', url: 'https://bullx.io/veutino' },
 						],
 						[
 							{ text: 'Buy Bot 🏆: 47€/month', callback_data: 'buyBot' }
@@ -350,7 +350,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTra
 				// 	{ text: '>>', callback_data: page + 1 <= totalPage ? `nextPageOfTraders_${page}` : 'page' },
 				// ],
 				[
-					{ text: '🟠 BULL X', url: 'https://bullx.io/veutino' },
+					{ text: 'BULL X', url: 'https://bullx.io/veutino' },
 				],
 				[
 					{ text: 'Back', callback_data: 'start' },
@@ -480,7 +480,7 @@ export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramB
 		const client_data = await getClientData(msg.chat.username);
 		const now = currentTime();
 		let caption = '';
-		let bot_description = 'Meet the *Jupiter Track Bot*—your go-to tool for real-time insights on the Solana blockchain! It tracks falling tokens and successful traders to help you make smarter crypto decisions. Simplify your trading experience and boost your success with *Jupiter Track Bot*!'
+		let bot_description = 'Meet the *Sword Track Bot*—your go-to tool for real-time insights on the Solana blockchain! It tracks falling tokens and successful traders to help you make smarter crypto decisions. Simplify your trading experience and boost your success with *Sword Track Bot*!'
 
 		if (!client_data || !client_data?.subscription_code) {
 			caption = `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _You have to buy bot first_ ⭣⭣⭣`;
