@@ -302,7 +302,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 					// `${sliceAddress(_t.address)}` +
 					// `   [Solscan](https://solscan.io/address/${_t.address})` +
 					// '\n     └ `Links:`   '
-					`💊 **${_t.name}** (**${_t.symbol}**)\n` +
+					`💊 **${_t.name || "N/A"}** (**${_t.symbol || "N/A"}**)\n` +
 					'  ├ `' +
 					`${_t.address}` +
 					'`\n' +
