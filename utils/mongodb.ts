@@ -68,7 +68,8 @@ export const getClientData = async (tgUserName: string) => {
 
 export const getClients = async () => {
 	try {
-		const r = await DClients.find({ isPaused: false, status: BotStatus.UsualMode }).toArray();
+		const now = currentTime();
+		const r = await DClients.find({ isPaused: false, status: BotStatus.UsualMode, subscription_expires_in: {$gte: now} }).toArray();
 		return r;
 	} catch (error) {
 		console.log("Get clients error: ", error);
