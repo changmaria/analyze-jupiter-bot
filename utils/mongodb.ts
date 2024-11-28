@@ -313,8 +313,6 @@ export const getTraderByWinRate = async (winRate: number, minVolume: number/* , 
 			// }
 		]).toArray();
 
-		console.log("result-mongodb", r);
-
 		let trader: RequestTraderDataType | null = null;
 
 		if (!!r?.[0]._id) {
