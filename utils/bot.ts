@@ -69,7 +69,7 @@ export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 		}
 
 		const imageData = await fs.readFile(imagePath);
-		const _keyboards = [
+		const inline_keyboard = [
 			[
 				{ text: '🟣Sword Best Traders Bot📈', callback_data: 'topTraders' },
 				{ text: '⚙️ Settings', callback_data: 'admin' },
@@ -80,30 +80,15 @@ export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 			],
 		]
 
-		let reply_markup;
-
-		if (client.subscription_expires_in < currentTime()) {
-			reply_markup = {
-				inline_keyboard: [
-					..._keyboards,
-					[
-						{ text: 'Buy Bot 🏆: 47€/month', callback_data: 'buyBot' }
-					]
-				]
-			}
-		} else {
-			reply_markup = {
-				inline_keyboard: _keyboards
-			}
-		}
-
 		await bot.sendPhoto(
 			msg.chat.id,
 			imageData,
 			{
 				caption: `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n \*⭣ How to use this bot? ⭣*\n\n 1. Use /start command to run bot.🚀\n\n 2. Use /admin command to set settings.\n\n\n _Bot is already running!!!_`,
 				parse_mode: 'Markdown',
-				reply_markup,
+				reply_markup: {
+					inline_keyboard
+				},
 			}
 		);
 	} catch (error) {
@@ -284,9 +269,9 @@ export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot, subscri
 	}
 }
 
-const sliceAddress = (address: string) => {
-	return `${address.slice(0, 5)}...${address.slice(-5)}`
-}
+// const sliceAddress = (address: string) => {
+// 	return `${address.slice(0, 5)}...${address.slice(-5)}`
+// }
 
 export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTraderDataType | null, /* totalCount: number,  */clientData: BotClient, /* page: number, countPerPage: number,  */messageId: number) => {
 	try {
@@ -304,7 +289,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTra
 					'`\n' +
 					`  └ 🔴 [Solscan](https://solscan.io/address/${_t.address})  ` +
 					`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${_t.coinGeckoId})  ` +
-					`|  ⚫️ [DS](https://dexscreener.com/solana/${_t.address})  ` +
+					// `|  ⚫️ [DS](https://dexscreener.com/solana/${_t.address})  ` +
 					`|  👁️ ${_t.watchlistUsers}` +
 					'\n\n📊 **Token Stats**' +
 					// '\n  ├ `USD:`   ' +
@@ -497,26 +482,26 @@ export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramB
 		let caption = '';
 		let bot_description = 'Meet the *Jupiter Track Bot*—your go-to tool for real-time insights on the Solana blockchain! It tracks falling tokens and successful traders to help you make smarter crypto decisions. Simplify your trading experience and boost your success with *Jupiter Track Bot*!'
 
-		// if (!client_data || !client_data?.subscription) {
-		// 	caption = `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _You have to buy bot first_ ⭣⭣⭣`;
-		// } else if ( now - client_data.subscription > EXPIRE_TIME ) {
-		// 	caption = `👋👋_Welcome Back ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _Your memebership is expired, please buy bot_ ⭣⭣⭣`;
-		// } else {
-		// 	return true;
-		// }
-
-		if (!client_data.name) {
+		if (!client_data || !client_data?.subscription_code) {
 			caption = `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _You have to buy bot first_ ⭣⭣⭣`;
+		} else if ( client_data.subscription_expires_in < now ) {
+			caption = `👋👋_Welcome Back ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _Your memebership is expired, please buy bot_ ⭣⭣⭣`;
 		} else {
 			return true;
 		}
 
+		// if (!client_data.name) {
+		// 	caption = `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _You have to buy bot first_ ⭣⭣⭣`;
+		// } else {
+		// 	return true;
+		// }
+
 		const imageData = await fs.readFile(imagePath);
 		const reply_markup = {
 			inline_keyboard: [
-				[
-					{ text: 'Add Bot', callback_data: 'addBot' }
-				],
+				// [
+				// 	{ text: 'Add Bot', callback_data: 'addBot' }
+				// ],
 				[
 					{ text: 'Buy Bot 🏆: 47€/month', callback_data: 'buyBot' }
 				],

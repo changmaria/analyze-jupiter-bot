@@ -46,7 +46,7 @@ bot.on('callback_query', async (callbackQuery) => {
 	const message: any = callbackQuery.message;
 	const _cmd = callbackQuery.data || '';
 
-	if (_cmd !== 'addBot' && _cmd !== 'buyBot' && _cmd !== 'cancelSubscription') {
+	if (/* _cmd !== 'addBot' &&  */_cmd !== 'buyBot' && _cmd !== 'cancelSubscription') {
 		const res = await checkSubscription(message, bot);
 		if (!res) return bot.answerCallbackQuery(callbackQuery.id);
 	}
@@ -61,8 +61,8 @@ bot.on('callback_query', async (callbackQuery) => {
 		setBotPauseStatus(message, bot);
 	} else if (_cmd == 'buyBot') {
 		await onBuyBot(message, bot);
-	} else if (_cmd == 'addBot') {
-		await addBot(message, bot, 0, 0);
+	// } else if (_cmd == 'addBot') {
+	// 	await addBot(message, bot, 0, 0);
 	} else if (_cmd == 'cancelSubscription') {
 		await onCancelSubscription(message, bot);
 	} else if (_cmd === 'admin') {
