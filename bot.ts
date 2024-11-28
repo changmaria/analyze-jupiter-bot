@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import { onLogin, onSettings, onStart, addBot, setATHPercent, setMinimumVolume, setWinRate, showTopTradersMessage, showFallingTokenMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setBotPauseStatus } from './utils/bot';
 import { isNumber } from './utils/helper';
 import { BotClient, BotStatus, RequestTraderDataType } from './utils/interface';
-import { getClientData, getClients, getTokensByATHPercent, getTokensCountByATHPercent, getTradersByWinRate, open, updateClientData } from "./utils/mongodb";
+import { getClientData, getClients, getTokensByATHPercent, getTokensCountByATHPercent, getTraderByWinRate, open, updateClientData } from "./utils/mongodb";
 
 dotenv.config();
 
@@ -148,14 +148,14 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: s
 
 		if (type == 'top-trader') {
 
-			const { traders, count } = await getTradersByWinRate(
+			const trader = await getTraderByWinRate(
 				clientData.winRate / 100,
-				(clientData.minVolume * LAMPORTS_PER_SOL) / 175,
-				page,
-				traderCountPerPage
+				(clientData.minVolume * LAMPORTS_PER_SOL) / 175
 			);
 
-			await showTopTradersMessage(bot, traders as RequestTraderDataType[], count, clientData.chatId, page, traderCountPerPage, messageId);
+			if (trader) return;
+
+			await showTopTradersMessage(bot, trader, /* count,  */clientData.chatId, /* page, traderCountPerPage,  */messageId);
 		}
 		// if (type === 'falling-token') {
 
@@ -175,20 +175,18 @@ const sendUpdatesToBot = async () => {
 		if (!clients.length) return;
 
 		for (let i of clients) {
-			const { traders, count } = await getTradersByWinRate(
+			const trader = await getTraderByWinRate(
 				i.winRate / 100,
 				(i.minVolume * LAMPORTS_PER_SOL) / 175,
-				1,
-				traderCountPerPage
 			);
 
 			// const _tokens = await getTokensByATHPercent(i.athPercent, 1, tokenCountPerPage);
 			// const _count = await getTokensCountByATHPercent(i.athPercent);
 
-			if (/* !_tokens.length ||  */!traders.length) continue;
+			if (/* !_tokens.length ||  */!trader) continue;
 
 			// await showFallingTokenMessage(bot, _tokens, _count, i.chatId, 1, tokenCountPerPage, 0);
-			await showTopTradersMessage(bot, traders as RequestTraderDataType[], count, i.chatId, 1, traderCountPerPage, 0);
+			await showTopTradersMessage(bot, trader, /* count,  */i.chatId, /* 1, traderCountPerPage, */ 0);
 		}
 	} catch (error) {
 		console.log("Send updates to bot error: ", error);

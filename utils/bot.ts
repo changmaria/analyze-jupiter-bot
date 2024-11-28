@@ -287,26 +287,27 @@ const sliceAddress = (address: string) => {
 	return `${address.slice(0, 5)}...${address.slice(-5)}`
 }
 
-export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTraderDataType[], totalCount: number, chatId: number, page: number, countPerPage: number, messageId: number) => {
+export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTraderDataType | null, /* totalCount: number,  */chatId: number, /* page: number, countPerPage: number,  */messageId: number) => {
 	try {
-		const totalPage = (totalCount % countPerPage === 0) ? totalCount / countPerPage : Math.floor(totalCount / countPerPage) + 1;
-		let message = '🏆🏆🏆Good Traders🏆🏆🏆\n\n';
+		// const totalPage = (totalCount % countPerPage === 0) ? totalCount / countPerPage : Math.floor(totalCount / countPerPage) + 1;
+		let message = '🟣Sword Best Traders Bot📈\n\n';
 
-		for (let i = 0; i < traders.length; i++) {
+		if (!!trader) {
 			let token_message = '';
-			const _t = traders[i].latestToken;
+			const _t = trader.latestToken;
 			if (!!_t?.address) {
 				token_message += (
-					`\n\n💊 **${_t.name || "Unknown"}** (**${_t.symbol || "Unknown"}**)\n` +
+					`💊 **${_t.name || "Unknown"}** (**${_t.symbol || "Unknown"}**)\n` +
 					'  ├ `' +
 					`${_t.address}` +
 					'`\n' +
 					`  └ 🔴 [Solscan](https://solscan.io/address/${_t.address})  ` +
 					`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${_t.coinGeckoId})  ` +
+					`|  ⚫️ [DS](https://dexscreener.com/solana/${_t.coinGeckoId})  ` +
 					`|  👁️ ${_t.watchlistUsers}` +
 					'\n\n📊 **Token Stats**' +
-					'\n  ├ `USD:`   ' +
-					`$${formatBigNumber(_t.price || 0)}` +
+					// '\n  ├ `USD:`   ' +
+					// `$${formatBigNumber(_t.price || 0)}` +
 					'\n  ├ `MC:`     ' +
 					`$${formatBigNumber(_t.marketCap || 0)}` +
 					'\n  ├ `VOL:`   ' +
@@ -336,36 +337,36 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 			} else {
 				token_message += '\n  └ N/A ‼️';
 			}
-			const _balance = await getUserSolBalance(traders[i]._id);
-			message += ('👜 **Wallet** 👇\n' +
-				'  ├ `' +
-				`${traders[i]._id}` +
-				'`\n' +
-				`  └ 🔴 [Solscan](https://solscan.io/address/${traders[i]._id})` +
+			const _balance = await getUserSolBalance(trader._id);
+			message += (
 				token_message +
+				'\n\n👜 **Wallet** 👇\n' +
+				'  ├ `' +
+				`${trader._id}` +
+				'`\n' +
+				`  └ 🔴 [Solscan](https://solscan.io/address/${trader._id})` +
 				'\n\n📈 **Detail**' +
 				'\n  ├ `Win Rate:`                ' +
-				`${(traders[i].winTransaction / traders[i].totalTransaction * 100).toFixed(0)}%` +
+				`${(trader.winTransaction / trader.totalTransaction * 100).toFixed(0)}%` +
 				'\n  ├ `Trading Volume:`   ' +
-				`$${formatBigNumber((traders[i].totalVolume / LAMPORTS_PER_SOL * 175))}` +
+				`$${formatBigNumber((trader.totalVolume / LAMPORTS_PER_SOL * 175))}` +
 				'\n  └ `SOL Balance:`          ' +
-				`${Math.round(_balance * 1e3) / 1e3}SOL\n\n\n`);
-		}
-		if (!!traders.length) {
-			message += `_Current page ${page} of ${totalPage} pages_`;
+				`${Math.round(_balance * 1e3) / 1e3}SOL`);
 		} else {
-			message += 'There is no top traders yet.';
+			message += 'There is no top trader yet';
 		}
 
 		const reply_markup = {
 			inline_keyboard: [
+				// [
+				// 	{ text: '<<', callback_data: page - 1 >= 1 ? `previousPageOfTraders_${page}` : 'page' },
+				// 	{ text: `${page}`, callback_data: 'page' },
+				// 	{ text: '>>', callback_data: page + 1 <= totalPage ? `nextPageOfTraders_${page}` : 'page' },
+				// ],
 				[
-					{ text: '<<', callback_data: page - 1 >= 1 ? `previousPageOfTraders_${page}` : 'page' },
-					{ text: `${page}`, callback_data: 'page' },
-					{ text: '>>', callback_data: page + 1 <= totalPage ? `nextPageOfTraders_${page}` : 'page' },
+					{ text: '🟠 BULL X', url: 'https://bullx.io/veutino' },
 				],
 				[
-					{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
 					{ text: 'Back', callback_data: 'start' },
 				]
 			]

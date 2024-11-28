@@ -245,7 +245,7 @@ export const getTokensCountByATHPercent = async (athPercent: number) => {
 	return 0;
 }
 
-export const getTradersByWinRate = async (winRate: number, minVolume: number, page: number, countPerPage: number) => {
+export const getTraderByWinRate = async (winRate: number, minVolume: number/* , page: number, countPerPage: number */) => {
 	try {
 		const r = await DTransactions.aggregate([
 			{
@@ -293,50 +293,47 @@ export const getTradersByWinRate = async (winRate: number, minVolume: number, pa
 				}
 			},
 			{
-				$sort: { winRate: -1, totalVolume: -1 }
+				$sort: { winRate: -1 }
 			},
 			{
-				$facet: {
-					paginatedResults: [{ $skip: (page - 1) * countPerPage }, { $limit: countPerPage }],
-					totalCount: [
-						{
-							$count: 'count'
-						}
-					]
-				}
+				$skip: 0,
+			},
+			{
+				$limit: 0
 			}
+			// {
+			// 	$facet: {
+			// 		paginatedResults: [{ $skip: (page - 1) * countPerPage }, { $limit: countPerPage }],
+			// 		totalCount: [
+			// 			{
+			// 				$count: 'count'
+			// 			}
+			// 		]
+			// 	}
+			// }
 		]).toArray();
 
-		let traders = [] as RequestTraderDataType[];
+		let trader: RequestTraderDataType | null = null;
 
-		for (let i of r[0]?.paginatedResults) {
-			if (!!i?._id) {
-				const _latestToken = await DTransactions.find({ trader: i._id, isBuy: true }).sort({ created: -1 }).skip(0).limit(1).toArray();
-				const address = _latestToken?.[0]?.tokenAddress || "";
+		if (!!r?.[0]._id) {
+			const _r = r[0];
+			const _latestToken = await DTransactions.find({ trader: _r._id, isBuy: true }).sort({ created: -1 }).skip(0).limit(1).toArray();
+			const address = _latestToken?.[0]?.tokenAddress || "";
 
-				const _token = await DTokens.findOne({ address });
-
-				traders.push({
-					_id: i?._id || "",
-					totalTransaction: i?.totalTransaction || 0,
-					totalVolume: i?.totalVolume || 0,
-					winTransaction: i?.winTransaction || 0,
-					winRate: i?.winRate || 0,
-					latestToken: _token
-				})
+			const _token = await DTokens.findOne({ address });
+			trader = {
+				_id: _r._id || "",
+				totalTransaction: _r.totalTransaction || 0,
+				totalVolume: _r.totalVolume || 0,
+				winTransaction: _r.winTransaction || 0,
+				winRate: _r.winRate || 0,
+				latestToken: _token
 			}
-
 		}
 
-		return {
-			traders,
-			count: r[0]?.totalCount[0]?.count || 0
-		};
+		return trader;
 	} catch (error) {
-		console.log("Get traders by win rate error: ", error);
+		console.log("Get trader by win rate error: ", error);
 	}
-	return {
-		traders: [],
-		count: 0
-	};
+	return null;
 }
