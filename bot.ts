@@ -70,23 +70,23 @@ bot.on('callback_query', async (callbackQuery) => {
 	} else if (_cmd === 'start') {
 		await onStart(message, bot);
 	} else if (_cmd === 'topTraders') {
-		await sendDataToBot('top-trader', message?.chat?.username, 1, 0);
+		await sendDataToBot('top-trader', message?.chat?.username, 0);
 	} else if (_cmd === 'fallingTokens') {
 		// await sendDataToBot('falling-token', message?.chat?.username, 1, 0);
 	} else if (_cmd?.startsWith('previousPageOfTraders')) {
 		const page = Number(_cmd.replace('previousPageOfTraders_', '')) || 0;
 		if (!!page && page - 1 >= 1) {
-			await sendDataToBot('top-trader', message?.chat?.username, page - 1, message?.message_id);
+			await sendDataToBot('top-trader', message?.chat?.username, message?.message_id);
 		}
 	} else if (_cmd?.startsWith('nextPageOfTraders')) {
 		const page = Number(_cmd.replace('nextPageOfTraders_', '')) || 0;
 		if (!!page) {
-			await sendDataToBot('top-trader', message?.chat?.username, page + 1, message?.message_id);
+			await sendDataToBot('top-trader', message?.chat?.username, message?.message_id);
 		}
 	} else if (_cmd?.startsWith('previousPageOfTokens')) {
 		// const page = Number(_cmd.replace('previousPageOfTokens_', '')) || 0;
 		// if (!!page && page - 1 >= 1) {
-		// 	await sendDataToBot('falling-token', message?.chat?.username, page - 1, message?.message_id);
+		// 	await sendDataToBot('falling-token', message?.chat?.username, message?.message_id);
 		// }
 	} else if (_cmd?.startsWith('nextPageOfTokens')) {
 		// const page = Number(_cmd.replace('nextPageOfTokens_', '')) || 0;
@@ -138,13 +138,11 @@ bot.on('message', async (msg) => {
 	}
 })
 
-const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: string, page: number = 1, messageId: number) => {
+const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: string, /* page: number = 1, */ messageId: number) => {
 	try {
 		const clientData = await getClientData(tgUserName);
 
 		if (!clientData || clientData.status != BotStatus.UsualMode) return;
-
-		if (page < 1) return;
 
 		if (type == 'top-trader') {
 
@@ -152,8 +150,6 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: s
 				clientData.winRate / 100,
 				(clientData.minVolume * LAMPORTS_PER_SOL) / 175
 			);
-
-			if (trader) return;
 
 			await showTopTradersMessage(bot, trader, /* count,  */clientData.chatId, /* page, traderCountPerPage,  */messageId);
 		}
