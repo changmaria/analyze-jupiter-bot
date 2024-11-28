@@ -313,15 +313,9 @@ export const getTradersByWinRate = async (winRate: number, minVolume: number, pa
 			if (!!i?._id) {
 				const _latestToken = await DTransactions.find({ trader: i._id, isBuy: true }).sort({ created: -1 }).skip(0).limit(1).toArray();
 				const address = _latestToken?.[0]?.tokenAddress || "";
-				let twitter = "", telegram = "", website = "";
-				console.log("address", address);
-				if (!!address) {
-					const _tokenInfo = await DTokens.findOne({ address });
-					console.log("_tokenInfo", _tokenInfo);
-					twitter = _tokenInfo?.twitter || "";
-					website = _tokenInfo?.website || "";
-					telegram = _tokenInfo?.telegram || "";
-				}
+
+				const _token = await DTokens.findOne({ address });
+
 				traders.push({
 					_id: i?._id || "",
 					totalTransaction: i?.totalTransaction || 0,
@@ -330,9 +324,12 @@ export const getTradersByWinRate = async (winRate: number, minVolume: number, pa
 					winRate: i?.winRate || 0,
 					latestToken: {
 						address,
-						telegram,
-						twitter,
-						website
+						name: _token?.name || "",
+						symbol: _token?.symbol || "",
+						coinGeckoId: _token?.coinGeckoId || "",
+						telegram: _token?.telegram || "",
+						twitter: _token?.twitter || "",
+						website: _token?.website || ""
 					}
 				})
 			}

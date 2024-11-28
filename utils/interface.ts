@@ -86,6 +86,9 @@ export interface RequestTraderDataType {
 	winRate: number;
 	latestToken: {
 		address: string;
+		name: string;
+		symbol: string;
+		coinGeckoId: string;
 		twitter: string;
 		telegram: string;
 		website: string;

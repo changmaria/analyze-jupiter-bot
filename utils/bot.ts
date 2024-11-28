@@ -293,14 +293,22 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 		let message = '🏆🏆🏆Good Traders🏆🏆🏆\n\n';
 
 		for (let i = 0; i < traders.length; i++) {
-			let token_message = '\n\n⏰ **Latest Token**';
+			let token_message = '\n\n';
+			// let token_message = '\n\n⏰ **Latest Token**';
 			const _t = traders[i].latestToken;
 			if (!!_t.address) {
 				token_message += (
-					'\n  └ ' +
-					`${sliceAddress(_t.address)}` +
-					`   [Solscan](https://solscan.io/address/${_t.address})` +
-					'\n     └ `Links:`   '
+					// '\n  └ ' +
+					// `${sliceAddress(_t.address)}` +
+					// `   [Solscan](https://solscan.io/address/${_t.address})` +
+					// '\n     └ `Links:`   '
+					`💊 **${_t.name}** (**${_t.symbol}**)\n` +
+					'  ├ `' +
+					`${_t.address}` +
+					'`\n' +
+					`  └ 🔴 [Solscan](https://solscan.io/address/${_t.address})  ` +
+					`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${_t.coinGeckoId})  ` +
+					'\n     🔗Links\n'
 				);
 				if (!!_t.telegram) {
 					token_message += `[TG](https://t.me/${_t.telegram})`;
