@@ -71,12 +71,12 @@ export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 		const imageData = await fs.readFile(imagePath);
 		const _keyboards = [
 			[
-				{ text: '🏆 Top Traders', callback_data: 'topTraders' },
+				{ text: '🟣Sword Best Traders Bot📈', callback_data: 'topTraders' },
 				{ text: '⚙️ Settings', callback_data: 'admin' },
 				// { text: '👎 Falling Tokens', callback_data: 'fallingTokens' }
 			],
 			[
-				{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
+				{ text: '🟠 BULL X', url: 'https://bullx.io/veutino' },
 			],
 		]
 
@@ -264,12 +264,13 @@ export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot, subscri
 				reply_markup: {
 					inline_keyboard: [
 						[
-							{ text: '🏆 Top Traders', callback_data: 'topTraders' },
+							// { text: '🏆Top Traders ', callback_data: 'topTraders' },
+							{ text: '🟣Sword Best Traders Bot📈', callback_data: 'topTraders' },
 							{ text: '⚙️ Settings', callback_data: 'admin' },
 							// { text: '👎 Falling Tokens', callback_data: 'fallingTokens' }
 						],
 						[
-							{ text: '🔄 BullX', url: 'https://bullx.io/veutino' },
+							{ text: '🟠 BULL X', url: 'https://bullx.io/veutino' },
 						],
 						[
 							{ text: 'Buy Bot 🏆: 47€/month', callback_data: 'buyBot' }
