@@ -316,7 +316,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 					'\n  ├ `1H:`     ' +
 					`${_t.price1HPercent > 0 ? '+' : ''}${(_t.price1HPercent || 0).toFixed(0)}%` +
 					'\n  └ `ATH:`   ' +
-					`$${formatBigNumber(_t.ath || 0)} (-${((_t.ath - _t.price) / _t.ath * 100).toFixed(0)}%)` +
+					`$${formatBigNumber(_t.ath || 0)} (${(_t.ath - _t.price) >= 0 ? '-' : '+'}${Math.abs(((_t.ath - _t.price) / _t.ath * 100)).toFixed(0)}%)` +
 					'\n\n🔗Links\n  └ '
 				);
 				if (!!_t.telegram) {
