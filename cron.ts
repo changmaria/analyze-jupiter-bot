@@ -130,7 +130,6 @@ const analyzeSignature = async (transactionSignature: any) => {
 	}
 
 	if (transferInstructions.length == 2) {
-		console.log("accept signatures ===>", transactionSignature);
 		await analyzeSwapInstructions(transferInstructions, transactionSignature);
 	}
 }
@@ -231,6 +230,8 @@ const analyzeSwapInstructions = async (instructions: SwapInstruction[], transact
 		}
 	}
 	_transaction.signature = transactionSignature;
+
+	console.log("accept signatures ===>", transactionSignature);
 	stored_transactions.push({ ..._transaction, created: currentTime() });
 	index++;
 
