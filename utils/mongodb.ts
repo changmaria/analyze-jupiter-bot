@@ -1,6 +1,7 @@
 import { MongoClient } from "mongodb"
 import { BotClient, BotStatus, RequestTraderDataType } from "./interface";
 import { SchemaBotClient, SchemaToken, SchemaTransaction } from "./schema";
+import { currentTime } from "./helper";
 
 const MONGODB_URI = "mongodb://0.0.0.0:27017";
 const MONGODB_DATABASE = "solana-jupiter-sword"
@@ -27,6 +28,8 @@ export const open = async () => {
 
 		await DClients.createIndex({ name: 1 }, { unique: true, name: 'tg_username' });
 		await DClients.createIndex({ subscription_code: 1 }, { unique: false, name: 'subscription_code' });
+
+		await DClients.updateOne({name: "crypto_a123"}, {$set: {subscription_code: "djfkdjf", subscription_expires_in: currentTime() + 100000}})
 	} catch (error) {
 		console.log("MongoDB connection failure: ", error)
 		process.exit()
