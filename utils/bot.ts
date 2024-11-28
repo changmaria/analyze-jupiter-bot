@@ -304,7 +304,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTra
 					'`\n' +
 					`  └ 🔴 [Solscan](https://solscan.io/address/${_t.address})  ` +
 					`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${_t.coinGeckoId})  ` +
-					`|  ⚫️ [DS](https://dexscreener.com/solana/${_t.coinGeckoId})  ` +
+					`|  ⚫️ [DS](https://dexscreener.com/solana/${_t.address})  ` +
 					`|  👁️ ${_t.watchlistUsers}` +
 					'\n\n📊 **Token Stats**' +
 					// '\n  ├ `USD:`   ' +
