@@ -308,7 +308,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 					'`\n' +
 					`  └ 🔴 [Solscan](https://solscan.io/address/${_t.address})  ` +
 					`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${_t.coinGeckoId})  ` +
-					'\n🔗Links\n  └ '
+					'\n\n🔗Links\n  └ '
 				);
 				if (!!_t.telegram) {
 					token_message += `[TG](https://t.me/${_t.telegram})`;
