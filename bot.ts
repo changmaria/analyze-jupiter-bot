@@ -1,17 +1,17 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import dotenv from 'dotenv';
-import { onLogin, onSettings, onStart, addBot, setATHPercent, setMinimumVolume, setWinRate, showTopTradersMessage, showFallingTokenMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setBotPauseStatus } from './utils/bot';
+import { onLogin, onSettings, onStart, addBot, setMinimumVolume, setWinRate, showTopTradersMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setBotPauseStatus } from './utils/bot';
 import { isNumber } from './utils/helper';
-import { BotClient, BotStatus, RequestTraderDataType } from './utils/interface';
-import { getClientData, getClients, getTokensByATHPercent, getTokensCountByATHPercent, getTraderByWinRate, open, updateClientData } from "./utils/mongodb";
+import { BotClient, BotStatus } from './utils/interface';
+import { getClientData, getClients, getTraderByWinRate, open, updateClientData } from "./utils/mongodb";
 
 dotenv.config();
 
 const bot_token = process.env.bot_token != undefined ? process.env.bot_token : "";
 const bot = new TelegramBot(bot_token, { polling: true });
 
-const traderCountPerPage = 3;
+// const traderCountPerPage = 3;
 // const tokenCountPerPage = 5;
 
 bot.setMyCommands([
@@ -55,7 +55,7 @@ bot.on('callback_query', async (callbackQuery) => {
 		await setWinRate(message, bot);
 	} else if (_cmd == 'setMinimumVolume') {
 		await setMinimumVolume(message, bot);
-	} else if (_cmd == 'setATHPercent') {
+	// } else if (_cmd == 'setATHPercent') {
 		// setATHPercent(message, bot);
 	} else if (_cmd == 'setBotPauseStatus') {
 		setBotPauseStatus(message, bot);
@@ -126,7 +126,8 @@ bot.on('message', async (msg) => {
 		clientData.status = BotStatus.UsualMode;
 		await updateClientData(clientData);
 		await bot.sendMessage(msg.chat.id, `Minimum Volume is updated successfully. $${clientData.minVolume}`);
-	} else if (clientData.status == BotStatus.InputATHPercent) {
+	}
+	//  else if (clientData.status == BotStatus.InputATHPercent) {
 		// if (!isNumber(msg.text)) {
 		// 	await bot.sendMessage(msg.chat.id, 'You have to input number as ATH Percent. Not Correct Format!!');
 		// 	return;
@@ -135,7 +136,7 @@ bot.on('message', async (msg) => {
 		// clientData.status = BotStatus.UsualMode;
 		// await updateClientData(clientData);
 		// await bot.sendMessage(msg.chat.id, `ATH Percent is updated successfully. ${clientData.athPercent}%`);
-	}
+	// }
 })
 
 const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: string, /* page: number = 1, */ messageId: number) => {
@@ -151,7 +152,7 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: s
 				(clientData.minVolume * LAMPORTS_PER_SOL) / 175
 			);
 
-			await showTopTradersMessage(bot, trader, /* count,  */clientData.chatId, /* page, traderCountPerPage,  */messageId);
+			await showTopTradersMessage(bot, trader, /* count,  */clientData, /* page, traderCountPerPage,  */messageId);
 		}
 		// if (type === 'falling-token') {
 
@@ -182,7 +183,7 @@ const sendUpdatesToBot = async () => {
 			if (/* !_tokens.length ||  */!trader) continue;
 
 			// await showFallingTokenMessage(bot, _tokens, _count, i.chatId, 1, tokenCountPerPage, 0);
-			await showTopTradersMessage(bot, trader, /* count,  */i.chatId, /* 1, traderCountPerPage, */ 0);
+			await showTopTradersMessage(bot, trader, /* count,  */i, /* 1, traderCountPerPage, */ 0);
 		}
 	} catch (error) {
 		console.log("Send updates to bot error: ", error);

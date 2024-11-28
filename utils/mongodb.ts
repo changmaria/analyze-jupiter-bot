@@ -6,7 +6,7 @@ const MONGODB_URI = "mongodb://0.0.0.0:27017";
 const MONGODB_DATABASE = "solana-jupiter-sword"
 export const defaultWinRate: number = 40;
 export const defaultMinVolume: number = 1000;
-export const defaultATHPercent: number = 80;
+// export const defaultATHPercent: number = 80;
 
 const client = new MongoClient(MONGODB_URI);
 const db = client.db(MONGODB_DATABASE);
@@ -54,7 +54,7 @@ export const getClientData = async (tgUserName: string) => {
 		name: '',
 		winRate: 0,
 		minVolume: 0,
-		athPercent: 0,
+		// athPercent: 0,
 		lastedTokensCount: 0,
 		status: BotStatus.UsualMode,
 		isPaused: false,
@@ -86,7 +86,7 @@ export const addClient = async (tgUserName: string, chatId: number) => {
 			name: tgUserName,
 			winRate: defaultWinRate,
 			minVolume: defaultMinVolume,
-			athPercent: defaultATHPercent,
+			// athPercent: defaultATHPercent,
 			status: BotStatus.UsualMode,
 			isPaused: false,
 			chatId,
@@ -113,7 +113,7 @@ export const updateClientData = async (_data: BotClient) => {
 				$set: {
 					winRate: _data.winRate,
 					minVolume: _data.minVolume,
-					athPercent: _data.athPercent,
+					// athPercent: _data.athPercent,
 					isPaused: _data.isPaused,
 					status: _data.status,
 					subscription_created_at: _data.subscription_created_at,

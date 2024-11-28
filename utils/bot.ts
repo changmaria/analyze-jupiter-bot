@@ -3,7 +3,7 @@ import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { promises as fs } from 'fs';
 import path from 'path';
 
-import { BotClient, BotStatus, RequestTraderDataType, TokenDataType, Trader } from "./interface";
+import { BotClient, BotStatus, RequestTraderDataType, TokenDataType } from "./interface";
 import { currentTime, formatBigNumber } from "./helper";
 import { addClient, getClientData, updateClientData } from "./mongodb";
 import { verifySubscriptionCode } from "./subscription";
@@ -238,18 +238,18 @@ export const setMinimumVolume = async (msg: TelegramBot.Message, bot: TelegramBo
 	}
 }
 
-export const setATHPercent = async (msg: TelegramBot.Message, bot: TelegramBot) => {
-	try {
-		if (!msg.chat.username) return;
-		const clientData = await getClientData(msg.chat.username) as BotClient;
-		if (!clientData.name) return;
-		await bot.sendMessage(msg.chat.id, `Please input the ATH Percent for filtering. Now ATH Percent is ${clientData.athPercent}%`);
-		clientData.status = BotStatus.InputATHPercent;
-		await updateClientData(clientData);
-	} catch (error) {
-		console.log("Set ATH percent error: ", error);
-	}
-}
+// export const setATHPercent = async (msg: TelegramBot.Message, bot: TelegramBot) => {
+// 	try {
+// 		if (!msg.chat.username) return;
+// 		const clientData = await getClientData(msg.chat.username) as BotClient;
+// 		if (!clientData.name) return;
+// 		await bot.sendMessage(msg.chat.id, `Please input the ATH Percent for filtering. Now ATH Percent is ${clientData.athPercent}%`);
+// 		clientData.status = BotStatus.InputATHPercent;
+// 		await updateClientData(clientData);
+// 	} catch (error) {
+// 		console.log("Set ATH percent error: ", error);
+// 	}
+// }
 
 export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot, subscription_created_at: number, subscription_expires_in: number) => {
 	try {
@@ -288,7 +288,7 @@ const sliceAddress = (address: string) => {
 	return `${address.slice(0, 5)}...${address.slice(-5)}`
 }
 
-export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTraderDataType | null, /* totalCount: number,  */chatId: number, /* page: number, countPerPage: number,  */messageId: number) => {
+export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTraderDataType | null, /* totalCount: number,  */clientData: BotClient, /* page: number, countPerPage: number,  */messageId: number) => {
 	try {
 		// const totalPage = (totalCount % countPerPage === 0) ? totalCount / countPerPage : Math.floor(totalCount / countPerPage) + 1;
 		let message = '🟣Sword Best Traders Bot📈\n\n';
@@ -354,7 +354,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTra
 				'\n  └ `SOL Balance:`          ' +
 				`${Math.round(_balance * 1e3) / 1e3}SOL`);
 		} else {
-			message += 'There is no top trader yet';
+			message += `Currently there is no trader has achieved a win rate above ${clientData.winRate}%.`;
 		}
 
 		const reply_markup = {
@@ -378,14 +378,14 @@ export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTra
 				message,
 				{
 					message_id: messageId,
-					chat_id: chatId,
+					chat_id: clientData.chatId,
 					parse_mode: 'Markdown',
 					reply_markup
 				}
 			);
 		} else {
 			await bot.sendMessage(
-				chatId,
+				clientData.chatId,
 				message,
 				{
 					parse_mode: 'Markdown',
