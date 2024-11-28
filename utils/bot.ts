@@ -293,21 +293,30 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 		let message = '🏆🏆🏆Good Traders🏆🏆🏆\n\n';
 
 		for (let i = 0; i < traders.length; i++) {
-			let token_message = '\n\n';
-			// let token_message = '\n\n⏰ **Latest Token**';
+			let token_message = '';
 			const _t = traders[i].latestToken;
-			if (!!_t.address) {
+			if (!!_t?.address) {
 				token_message += (
-					// '\n  └ ' +
-					// `${sliceAddress(_t.address)}` +
-					// `   [Solscan](https://solscan.io/address/${_t.address})` +
-					// '\n     └ `Links:`   '
-					`💊 **${_t.name || "Unknown"}** (**${_t.symbol || "Unknown"}**)\n` +
+					`\n\n💊 **${_t.name || "Unknown"}** (**${_t.symbol || "Unknown"}**)\n` +
 					'  ├ `' +
 					`${_t.address}` +
 					'`\n' +
 					`  └ 🔴 [Solscan](https://solscan.io/address/${_t.address})  ` +
 					`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${_t.coinGeckoId})  ` +
+					`|  👁️ ${_t.watchlistUsers}` +
+					'\n\n📊 **Token Stats**' +
+					'\n  ├ `USD:`   ' +
+					`$${formatBigNumber(_t.price || 0)}` +
+					'\n  ├ `MC:`     ' +
+					`$${formatBigNumber(_t.marketCap || 0)}` +
+					'\n  ├ `VOL:`   ' +
+					`$${formatBigNumber(_t.volume || 0)}` +
+					'\n  ├ `LP:`     ' +
+					`$${formatBigNumber(_t.lp || 0)}` +
+					'\n  ├ `1H:`     ' +
+					`${_t.price1HPercent > 0 ? '+' : ''}${(_t.price1HPercent || 0).toFixed(0)}%` +
+					'\n  └ `ATH:`   ' +
+					`$${formatBigNumber(_t.ath || 0)} (-${((_t.ath - _t.price) / _t.ath * 100).toFixed(0)}%)` +
 					'\n\n🔗Links\n  └ '
 				);
 				if (!!_t.telegram) {
@@ -334,7 +343,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, traders: RequestTr
 				'`\n' +
 				`  └ 🔴 [Solscan](https://solscan.io/address/${traders[i]._id})` +
 				token_message +
-				'\n\n📊 **Detail**' +
+				'\n\n📈 **Detail**' +
 				'\n  ├ `Win Rate:`                ' +
 				`${(traders[i].winTransaction / traders[i].totalTransaction * 100).toFixed(0)}%` +
 				'\n  ├ `Trading Volume:`   ' +

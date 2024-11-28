@@ -27,9 +27,6 @@ export const open = async () => {
 
 		await DClients.createIndex({ name: 1 }, { unique: true, name: 'tg_username' });
 		await DClients.createIndex({ subscription_code: 1 }, { unique: false, name: 'subscription_code' });
-
-		await DTokens.deleteMany({})
-		await DTransactions.deleteMany({})
 	} catch (error) {
 		console.log("MongoDB connection failure: ", error)
 		process.exit()
@@ -325,15 +322,7 @@ export const getTradersByWinRate = async (winRate: number, minVolume: number, pa
 					totalVolume: i?.totalVolume || 0,
 					winTransaction: i?.winTransaction || 0,
 					winRate: i?.winRate || 0,
-					latestToken: {
-						address,
-						name: _token?.name || "",
-						symbol: _token?.symbol || "",
-						coinGeckoId: _token?.coinGeckoId || "",
-						telegram: _token?.telegram || "",
-						twitter: _token?.twitter || "",
-						website: _token?.website || ""
-					}
+					latestToken: _token
 				})
 			}
 

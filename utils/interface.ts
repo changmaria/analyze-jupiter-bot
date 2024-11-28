@@ -84,13 +84,5 @@ export interface RequestTraderDataType {
 	totalVolume: number;
 	winTransaction: number;
 	winRate: number;
-	latestToken: {
-		address: string;
-		name: string;
-		symbol: string;
-		coinGeckoId: string;
-		twitter: string;
-		telegram: string;
-		website: string;
-	}
+	latestToken: TokenDataType|null;
 }
