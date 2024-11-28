@@ -299,7 +299,7 @@ export const getTraderByWinRate = async (winRate: number, minVolume: number/* , 
 				$skip: 0,
 			},
 			{
-				$limit: 0
+				$limit: 1
 			}
 			// {
 			// 	$facet: {
@@ -312,8 +312,6 @@ export const getTraderByWinRate = async (winRate: number, minVolume: number/* , 
 			// 	}
 			// }
 		]).toArray();
-
-		console.log("result-mongodb", r);
 
 		let trader: RequestTraderDataType | null = null;
 
