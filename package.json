@@ -23,6 +23,7 @@
     "dev": "nodemon",
     "compile": "tsc -p ./tsconfig.json",
     "start-bot": "npm run compile && node build/bot.js",
-    "start-cron": "npm run compile && node build/cron.js"
+    "start-cron": "npm run compile && node build/cron.js",
+    "start": "npm run compile && node build/server.js"
   }
 }
