@@ -31,8 +31,8 @@ export const open = async () => {
 		await DClients.createIndex({ name: 1 }, { unique: true, name: 'tg_username' });
 		await DClients.createIndex({ accessToken: 1 }, { unique: false, name: 'access_token' });
 		
-		// const r = await DClients.find({}).toArray();
-		// console.log("clients============>", r);
+		const r = await DClients.find({}).toArray();
+		console.log("clients============>", r);
 	} catch (error) {
 		console.log("MongoDB connection failure: ", error)
 		process.exit()
