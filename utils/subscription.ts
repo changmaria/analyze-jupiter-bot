@@ -22,18 +22,18 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 					code: code,
 					client_id: CLIENT_ID,
 					client_secret: CLIENT_SECRET,
-					redirect_uri: "https://jupitertrackkbot.onrender.com/whop"
+					redirect_uri: "https://sword-tracker-bot.onrender.com/whop"
 				},
 			};
 
 			const res = await axios.request(requestOptions);
 
-			console.log("verify-subscription res: ", res);
+			console.log("verify-subscription res =============> ", res);
 
 			if (res.status === 200 && !!res.data?.access_token) {
 				const _data = res.data;
 				const _exist_code = await getExsitSubscriptionCode(code);
-				console.log("_exist_code: ", _exist_code)
+				console.log("_exist_code============> ", _exist_code)
 				if (!_exist_code) {
 					// const client = await getClientData(tgUsername);
 					await updateClientData({
@@ -48,7 +48,7 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 						subscription_expires_in: Number(_data.expires_in),
 						subscription_code: code
 					})
-					console.log("Added client data correctly")
+					console.log("Added client data correctly============>")
 					return true;
 				}
 			}

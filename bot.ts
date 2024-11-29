@@ -26,7 +26,7 @@ bot.onText(/\/login/, (msg) => {
 bot.onText(/\/start/, async (msg) => {
 	if (msg.text?.startsWith('/start code=')) {
 		const code = msg.text?.replace('/start code=', '');
-		console.log("Start-code: ", code);
+		console.log("Start-code============> ", code);
 		if (!!code && !!msg.chat.username) {
 			await onVerifyCode(msg, bot, code);
 			return;
