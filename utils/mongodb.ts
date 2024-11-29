@@ -29,8 +29,8 @@ export const open = async () => {
 		await DClients.createIndex({ name: 1 }, { unique: true, name: 'tg_username' });
 		await DClients.createIndex({ subscription_code: 1 }, { unique: false, name: 'subscription_code' });
 
-		const r = await DClients.find({}).toArray();
-		console.log("clients============>", r);
+		// const r = await DClients.find({}).toArray();
+		// console.log("clients============>", r);
 	} catch (error) {
 		console.log("MongoDB connection failure: ", error)
 		process.exit()
@@ -122,7 +122,8 @@ export const updateClientData = async (_data: BotClient) => {
 					isPaused: _data.isPaused,
 					status: _data.status,
 					subscription_created_at: _data.subscription_created_at,
-					subscription_expires_in: _data.subscription_expires_in
+					subscription_expires_in: _data.subscription_expires_in,
+					subscription_code: _data.subscription_code
 				},
 				$setOnInsert: {
 					name: _data.name,
