@@ -28,23 +28,27 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 
 			const res = await axios.request(requestOptions);
 
+			console.log("verify-subscription res: ", res);
+
 			if (res.status === 200 && !!res.data?.access_token) {
 				const _data = res.data;
 				const _exist_code = await getExsitSubscriptionCode(code);
+				console.log("_exist_code: ", _exist_code)
 				if (!_exist_code) {
-					const client = await getClientData(tgUsername);
+					// const client = await getClientData(tgUsername);
 					await updateClientData({
 						name: tgUsername,
-						winRate: client?.winRate || defaultWinRate,
-						minVolume: client?.minVolume || defaultMinVolume,
-						// athPercent: client?.athPercent || defaultATHPercent,
+						winRate: defaultWinRate,
+						minVolume: defaultMinVolume,
+						// athPercent: defaultATHPercent,
 						status: BotStatus.UsualMode,
-						isPaused: client?.isPaused === undefined ? false : client?.isPaused,
+						isPaused: false,
 						chatId: chatId,
 						subscription_created_at: Number(_data.created_at),
 						subscription_expires_in: Number(_data.expires_in),
 						subscription_code: code
 					})
+					console.log("Added client data correctly")
 					return true;
 				}
 			}

@@ -7,12 +7,14 @@ try {
     app.use(bodyParser.urlencoded({ extended: false }));
     app.get("/whop", (req: Request, res: Response) => {
         const code = req.url.replace('/whop?', '');
+        console.log("whop code: ", code);
         let _url = ''
         if (!code) {
-            _url = 'https://t.me/jupitertrackkbot';
+            _url = 'https://t.me/swordtrackerbot';
         } else {
-            _url = `https://t.me/jupitertrackkbot?start=${code}`;
+            _url = `https://t.me/swordtrackerbot?start=${code}`;
         }
+        console.log("Redirection url: ", _url);
         return res.redirect(_url);
     });
 
