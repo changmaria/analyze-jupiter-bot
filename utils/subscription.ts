@@ -28,12 +28,14 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 
 			const res = await axios.request(requestOptions);
 
-			console.log("verify-subscription res =============> ", res);
-
 			if (res.status === 200 && !!res.data?.access_token) {
 				const _data = res.data;
+
+				console.log("verify-subscription res =============> ", _data);
+
 				const _exist_token = await getExsitSubscriptionCode(_data.access_token);
-				console.log("_exist_token============> ", _exist_token)
+				console.log("_exist_token============> ", _exist_token);
+
 				if (!_exist_token) {
 					const client = await getClientData(tgUsername);
 					await updateClientData({

@@ -30,8 +30,7 @@ export const open = async () => {
 
 		await DClients.createIndex({ name: 1 }, { unique: true, name: 'tg_username' });
 		await DClients.createIndex({ accessToken: 1 }, { unique: false, name: 'access_token' });
-
-		await DClients.deleteMany({})
+		
 		// const r = await DClients.find({}).toArray();
 		// console.log("clients============>", r);
 	} catch (error) {
