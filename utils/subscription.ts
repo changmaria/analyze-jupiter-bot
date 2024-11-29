@@ -35,14 +35,14 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 				const _exist_code = await getExsitSubscriptionCode(code);
 				console.log("_exist_code============> ", _exist_code)
 				if (!_exist_code) {
-					// const client = await getClientData(tgUsername);
+					const client = await getClientData(tgUsername);
 					await updateClientData({
 						name: tgUsername,
-						winRate: defaultWinRate,
-						minVolume: defaultMinVolume,
+						winRate: client?.winRate || defaultWinRate,
+						minVolume: client?.minVolume || defaultMinVolume,
 						// athPercent: defaultATHPercent,
-						status: BotStatus.UsualMode,
-						isPaused: false,
+						status: client?.status || BotStatus.UsualMode,
+						isPaused: client?.isPaused === undefined ? false : client?.isPaused,
 						chatId: chatId,
 						subscription_created_at: Number(_data.created_at),
 						subscription_expires_in: Number(_data.expires_in),
