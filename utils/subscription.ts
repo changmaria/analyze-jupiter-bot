@@ -38,6 +38,10 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 
 				if (!_exist_token) {
 					const client = await getClientData(tgUsername);
+
+					const one_month = 60 * 60 * 24 * 31
+					const expires_in = Number(_data.expires_in) > one_month ? one_month : Number(_data.expires_in);
+
 					await updateClientData({
 						name: tgUsername,
 						winRate: client?.winRate || defaultWinRate,
@@ -47,7 +51,7 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 						isPaused: client?.isPaused === undefined ? false : client?.isPaused,
 						chatId: chatId,
 						subscriptionCreatedAt: Number(_data.created_at),
-						subscriptionExpiresIn: Number(_data.expires_in) + Number(_data.created_at),
+						subscriptionExpiresIn: expires_in + Number(_data.created_at),
 						accessToken: _data.access_token
 					})
 					console.log("Added client data correctly============>")
