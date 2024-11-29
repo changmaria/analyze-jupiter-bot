@@ -1,7 +1,7 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import dotenv from 'dotenv';
-import { onLogin, onSettings, onStart, addBot, setMinimumVolume, setWinRate, showTopTradersMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setBotPauseStatus } from './utils/bot';
+import { onLogin, onSettings, onStart, setMinimumVolume, setWinRate, showTopTradersMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setBotPauseStatus } from './utils/bot';
 import { isNumber } from './utils/helper';
 import { BotClient, BotStatus } from './utils/interface';
 import { getClientData, getClients, getTraderByWinRate, open, updateClientData } from "./utils/mongodb";
@@ -10,6 +10,7 @@ dotenv.config();
 
 const bot_token = process.env.bot_token != undefined ? process.env.bot_token : "";
 const bot = new TelegramBot(bot_token, { polling: true });
+
 
 // const traderCountPerPage = 3;
 // const tokenCountPerPage = 5;

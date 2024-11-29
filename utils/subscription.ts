@@ -32,9 +32,9 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 
 			if (res.status === 200 && !!res.data?.access_token) {
 				const _data = res.data;
-				const _exist_code = await getExsitSubscriptionCode(code);
-				console.log("_exist_code============> ", _exist_code)
-				if (!_exist_code) {
+				const _exist_token = await getExsitSubscriptionCode(_data.access_token);
+				console.log("_exist_token============> ", _exist_token)
+				if (!_exist_token) {
 					const client = await getClientData(tgUsername);
 					await updateClientData({
 						name: tgUsername,
@@ -44,9 +44,9 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 						status: client?.status || BotStatus.UsualMode,
 						isPaused: client?.isPaused === undefined ? false : client?.isPaused,
 						chatId: chatId,
-						subscription_created_at: Number(_data.created_at),
-						subscription_expires_in: Number(_data.expires_in) + Number(_data.created_at),
-						subscription_code: code
+						subscriptionCreatedAt: Number(_data.created_at),
+						subscriptionExpiresIn: Number(_data.expires_in) + Number(_data.created_at),
+						accessToken: _data.access_token
 					})
 					console.log("Added client data correctly============>")
 					return true;
@@ -57,4 +57,17 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 		console.log("Verify subscription code error: ", error);
 	}
 	return false;
+}
+
+export const checkAccess = async (accessToken: string) => {
+	try {
+		const response = await axios.get(`https://api.whop.com/api/v5/me`, {
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+			},
+		});
+		console.log("res", response);
+	} catch (error) {
+		console.log("Check access error: ", error);
+	}
 }

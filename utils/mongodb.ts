@@ -27,7 +27,7 @@ export const open = async () => {
 		await DTokens.createIndex({ athPercent: 1 }, { unique: false, name: 'token_ath_percent' });
 
 		await DClients.createIndex({ name: 1 }, { unique: true, name: 'tg_username' });
-		await DClients.createIndex({ subscription_code: 1 }, { unique: false, name: 'subscription_code' });
+		await DClients.createIndex({ accessToken: 1 }, { unique: false, name: 'access_token' });
 
 		const r = await DClients.find({}).toArray();
 		console.log("clients============>", r);
@@ -63,16 +63,16 @@ export const getClientData = async (tgUserName: string) => {
 		status: BotStatus.UsualMode,
 		isPaused: false,
 		chatId: 0,
-		subscription_created_at: 0,
-		subscription_expires_in: 0,
-		subscription_code: ''
+		subscriptionCreatedAt: 0,
+		subscriptionExpiresIn: 0,
+		accessToken: ''
 	};
 }
 
 export const getClients = async () => {
 	try {
 		const now = currentTime();
-		const r = await DClients.find({ isPaused: false, status: BotStatus.UsualMode, subscription_expires_in: {$gte: now} }).toArray();
+		const r = await DClients.find({ isPaused: false, status: BotStatus.UsualMode, subscriptionExpiresIn: {$gte: now} }).toArray();
 		return r;
 	} catch (error) {
 		console.log("Get clients error: ", error);
@@ -95,9 +95,9 @@ export const addClient = async (tgUserName: string, chatId: number) => {
 			status: BotStatus.UsualMode,
 			isPaused: false,
 			chatId,
-			subscription_created_at: 0,
-			subscription_expires_in: 0,
-			subscription_code: ''
+			subscriptionCreatedAt: 0,
+			subscriptionExpiresIn: 0,
+			accessToken: ''
 		});
 
 		if (!!r.insertedId) return true;
@@ -121,9 +121,9 @@ export const updateClientData = async (_data: BotClient) => {
 					// athPercent: _data.athPercent,
 					isPaused: _data.isPaused,
 					status: _data.status,
-					subscription_created_at: _data.subscription_created_at,
-					subscription_expires_in: _data.subscription_expires_in,
-					subscription_code: _data.subscription_code
+					subscriptionCreatedAt: _data.subscriptionCreatedAt,
+					subscriptionExpiresIn: _data.subscriptionExpiresIn,
+					accessToken: _data.accessToken
 				},
 				$setOnInsert: {
 					name: _data.name,
@@ -142,9 +142,9 @@ export const updateClientData = async (_data: BotClient) => {
 	return false;
 }
 
-export const getExsitSubscriptionCode = async (code: string) => {
+export const getExsitSubscriptionCode = async (accessToken: string) => {
 	try {
-		const r = await DClients.findOne({ subscription_code: code });
+		const r = await DClients.findOne({ accessToken });
 		if (!!r?._id) return true;
 	} catch (error) {
 		console.log("Get exsit subscription code error: ", error);

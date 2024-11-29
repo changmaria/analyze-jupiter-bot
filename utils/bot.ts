@@ -236,7 +236,7 @@ export const setMinimumVolume = async (msg: TelegramBot.Message, bot: TelegramBo
 // 	}
 // }
 
-export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot, subscription_created_at: number, subscription_expires_in: number) => {
+export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
 		if (!msg.chat.username) return;
 		const status = await addClient(msg.chat.username, msg.chat.id);
@@ -482,9 +482,9 @@ export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramB
 		let caption = '';
 		let bot_description = 'Meet the *Sword Track Bot*—your go-to tool for real-time insights on the Solana blockchain! It tracks falling tokens and successful traders to help you make smarter crypto decisions. Simplify your trading experience and boost your success with *Sword Track Bot*!'
 
-		if (!client_data || !client_data?.subscription_code) {
+		if (!client_data || !client_data?.accessToken) {
 			caption = `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _You have to buy bot first_ ⭣⭣⭣`;
-		} else if ( client_data.subscription_expires_in < now ) {
+		} else if ( client_data.subscriptionExpiresIn < now ) {
 			caption = `👋👋_Welcome Back ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _Your memebership is expired, please buy bot_ ⭣⭣⭣`;
 		} else {
 			return true;

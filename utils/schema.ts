@@ -42,7 +42,7 @@ export interface SchemaBotClient {
 	status: BotStatus;
 	isPaused: boolean;
 	chatId: number;
-	subscription_created_at: number;
-	subscription_expires_in: number;
-	subscription_code: string;
+	subscriptionCreatedAt: number;
+	subscriptionExpiresIn: number;
+	accessToken: string;
 }
