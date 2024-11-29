@@ -2,6 +2,7 @@ import { MongoClient } from "mongodb"
 import { BotClient, BotStatus, RequestTraderDataType } from "./interface";
 import { SchemaBotClient, SchemaToken, SchemaTransaction } from "./schema";
 import { currentTime } from "./helper";
+import { checkAccess } from "./subscription";
 
 const MONGODB_URI = "mongodb://0.0.0.0:27017";
 const MONGODB_DATABASE = "solana-jupiter-sword"
@@ -78,6 +79,24 @@ export const getClients = async () => {
 		console.log("Get clients error: ", error);
 	}
 	return [];
+}
+
+export const checkMembershipValid = async (clientData: SchemaBotClient) => {
+	let isValid = false;
+	try {
+		const now = currentTime();
+		if (!clientData.accessToken || clientData.subscriptionExpiresIn < now) return false;
+
+		isValid = await checkAccess(clientData.accessToken);
+	} catch (error) {
+		console.log("Check membership valid error: ", error);
+	}
+	if (isValid) {
+		return true;
+	} else {
+		await updateClientData({...clientData, accessToken: "", subscriptionExpiresIn: 0});
+		return false;
+	}
 }
 
 export const addClient = async (tgUserName: string, chatId: number) => {
@@ -269,6 +288,9 @@ export const getTraderByWinRate = async (winRate: number, minVolume: number/* , 
 						$sum: {
 							$cond: { if: { $eq: ["$win", true] }, then: 1, else: 0 }
 						}
+					},
+					createdSum: {
+						$sum: "$created"
 					}
 				}
 			},
@@ -280,10 +302,17 @@ export const getTraderByWinRate = async (winRate: number, minVolume: number/* , 
 					winRate: {
 						$cond: {
 							if: { $ne: ['$totalTransaction', 0] },
-							then: { $divide: ['$winTransaction', '$totalTransaction'] },
+							then: { $divide: ['$createdSum', '$totalTransaction'] },
 							else: 0
 						}
-					}
+					},
+					created: {
+						$cond: {
+							if: { $ne: ['$totalTransaction', 0] },
+							then: { $divide: ['$createdSum', '$totalTransaction'] },
+							else: 0
+						}
+					},
 				}
 			},
 			{
@@ -299,7 +328,7 @@ export const getTraderByWinRate = async (winRate: number, minVolume: number/* , 
 				}
 			},
 			{
-				$sort: { winRate: -1 }
+				$sort: { created: -1, winRate: -1 }
 			},
 			{
 				$skip: 0,

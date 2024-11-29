@@ -4,13 +4,14 @@ import dotenv from 'dotenv';
 import { onLogin, onSettings, onStart, setMinimumVolume, setWinRate, showTopTradersMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setBotPauseStatus } from './utils/bot';
 import { isNumber } from './utils/helper';
 import { BotClient, BotStatus } from './utils/interface';
-import { getClientData, getClients, getTraderByWinRate, open, updateClientData } from "./utils/mongodb";
+import { checkMembershipValid, getClientData, getClients, getTraderByWinRate, open, updateClientData } from "./utils/mongodb";
 
 dotenv.config();
 
 const bot_token = process.env.bot_token != undefined ? process.env.bot_token : "";
 const bot = new TelegramBot(bot_token, { polling: true });
 
+let latestTopTrader = "";
 
 // const traderCountPerPage = 3;
 // const tokenCountPerPage = 5;
@@ -174,6 +175,10 @@ const sendUpdatesToBot = async () => {
 		if (!clients.length) return;
 
 		for (let i of clients) {
+
+			const membershipValid = await checkMembershipValid(i);
+			if (!membershipValid) continue;
+
 			const trader = await getTraderByWinRate(
 				i.winRate / 100,
 				(i.minVolume * LAMPORTS_PER_SOL) / 175,
@@ -183,9 +188,12 @@ const sendUpdatesToBot = async () => {
 			// const _count = await getTokensCountByATHPercent(i.athPercent);
 
 			if (/* !_tokens.length ||  */!trader) continue;
+			if (trader._id !== latestTopTrader) {
+				latestTopTrader = trader._id;
+				await showTopTradersMessage(bot, trader, /* count,  */i, /* 1, traderCountPerPage, */ 0);
+			}
 
 			// await showFallingTokenMessage(bot, _tokens, _count, i.chatId, 1, tokenCountPerPage, 0);
-			await showTopTradersMessage(bot, trader, /* count,  */i, /* 1, traderCountPerPage, */ 0);
 		}
 	} catch (error) {
 		console.log("Send updates to bot error: ", error);

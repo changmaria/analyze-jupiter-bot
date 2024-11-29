@@ -61,13 +61,16 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 
 export const checkAccess = async (accessToken: string) => {
 	try {
-		const response = await axios.get(`https://api.whop.com/api/v5/me`, {
+		const res = await axios.get(`https://api.whop.com/api/v5/me`, {
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
 			},
 		});
-		console.log("res", response);
+		if (res.status === 200 && !!res.data?.id) {
+			return true;
+		}
 	} catch (error) {
 		console.log("Check access error: ", error);
 	}
+	return false;
 }

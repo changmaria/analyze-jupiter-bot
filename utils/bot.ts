@@ -5,7 +5,7 @@ import path from 'path';
 
 import { BotClient, BotStatus, RequestTraderDataType, TokenDataType } from "./interface";
 import { currentTime, formatBigNumber } from "./helper";
-import { addClient, getClientData, updateClientData } from "./mongodb";
+import { addClient, checkMembershipValid, getClientData, updateClientData } from "./mongodb";
 import { verifySubscriptionCode } from "./subscription";
 
 const connection: Connection = new Connection('https://proportionate-distinguished-bush.solana-mainnet.quiknode.pro/23d40a5fef0e147c06129a62e0cc0b975f38fd42');
@@ -476,47 +476,53 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 
 export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.chat.username) return;
-		const client_data = await getClientData(msg.chat.username);
-		const now = currentTime();
-		let caption = '';
-		let bot_description = 'Meet the *Sword Track Bot*—your go-to tool for real-time insights on the Solana blockchain! It tracks falling tokens and successful traders to help you make smarter crypto decisions. Simplify your trading experience and boost your success with *Sword Track Bot*!'
+		return true;
+		// if (!msg.chat.username) return;
+		// const client_data = await getClientData(msg.chat.username);
+		// const now = currentTime();
+		// let caption = '';
+		// let bot_description = 'Meet the *Sword Track Bot*—your go-to tool for real-time insights on the Solana blockchain! It tracks falling tokens and successful traders to help you make smarter crypto decisions. Simplify your trading experience and boost your success with *Sword Track Bot*!'
 
-		if (!client_data || !client_data?.accessToken) {
-			caption = `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _You have to buy bot first_ ⭣⭣⭣`;
-		} else if ( client_data.subscriptionExpiresIn < now ) {
-			caption = `👋👋_Welcome Back ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _Your memebership is expired, please buy bot_ ⭣⭣⭣`;
-		} else {
-			return true;
-		}
-
-		// if (!client_data.name) {
+		// if (!client_data || !client_data?.accessToken) {
 		// 	caption = `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _You have to buy bot first_ ⭣⭣⭣`;
+		// } else if ( client_data.subscriptionExpiresIn < now ) {
+		// 	caption = `👋👋_Welcome Back ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _Your memebership is expired, please buy bot_ ⭣⭣⭣`;
 		// } else {
-		// 	return true;
+		// 	const valid = await checkMembershipValid(client_data);
+		// 	if (valid) {
+		// 		return true;
+		// 	} else {
+		// 		caption = `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _You have to buy bot first_ ⭣⭣⭣`;
+		// 	}
 		// }
 
-		const imageData = await fs.readFile(imagePath);
-		const reply_markup = {
-			inline_keyboard: [
-				// [
-				// 	{ text: 'Add Bot', callback_data: 'addBot' }
-				// ],
-				[
-					{ text: 'Buy Bot 🏆: 47€/month', callback_data: 'buyBot' }
-				],
-			]
-		};
+		// // if (!client_data.name) {
+		// // 	caption = `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _You have to buy bot first_ ⭣⭣⭣`;
+		// // } else {
+		// // 	return true;
+		// // }
 
-		await bot.sendPhoto(
-			msg.chat.id,
-			imageData,
-			{
-				caption,
-				parse_mode: 'Markdown',
-				reply_markup,
-			}
-		);
+		// const imageData = await fs.readFile(imagePath);
+		// const reply_markup = {
+		// 	inline_keyboard: [
+		// 		// [
+		// 		// 	{ text: 'Add Bot', callback_data: 'addBot' }
+		// 		// ],
+		// 		[
+		// 			{ text: 'Buy Bot 🏆: 47€/month', callback_data: 'buyBot' }
+		// 		],
+		// 	]
+		// };
+
+		// await bot.sendPhoto(
+		// 	msg.chat.id,
+		// 	imageData,
+		// 	{
+		// 		caption,
+		// 		parse_mode: 'Markdown',
+		// 		reply_markup,
+		// 	}
+		// );
 	} catch (error) {
 		console.log("Check subscription error: ", error);
 	}
