@@ -3,6 +3,7 @@ import { BotClient, BotStatus, RequestTraderDataType } from "./interface";
 import { SchemaBotClient, SchemaToken, SchemaTransaction } from "./schema";
 import { currentTime } from "./helper";
 import { checkAccess } from "./subscription";
+import { C } from "@upstash/redis/zmscore-Dc6Llqgr";
 
 const MONGODB_URI = "mongodb://0.0.0.0:27017";
 const MONGODB_DATABASE = "solana-jupiter-sword"
@@ -302,7 +303,7 @@ export const getTraderByWinRate = async (winRate: number, minVolume: number/* , 
 					winRate: {
 						$cond: {
 							if: { $ne: ['$totalTransaction', 0] },
-							then: { $divide: ['$createdSum', '$totalTransaction'] },
+							then: { $divide: ['$winTransaction', '$totalTransaction'] },
 							else: 0
 						}
 					},
@@ -347,6 +348,8 @@ export const getTraderByWinRate = async (winRate: number, minVolume: number/* , 
 			// 	}
 			// }
 		]).toArray();
+		
+		console.log("resdfdkfdlkfld", r)
 
 		let trader: RequestTraderDataType | null = null;
 
