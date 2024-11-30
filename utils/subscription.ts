@@ -36,31 +36,29 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 
 				console.log("verify-subscription res =============> ", _data);
 
-				const _exist_token = await getExsitSubscriptionCode(_data.access_token);
-				console.log("_exist_token============> ", _exist_token);
+				// const _exist_token = await getExsitSubscriptionCode(_data.access_token);
+				// console.log("_exist_token============> ", _exist_token);
 
-				if (!_exist_token) {
-					const client = await getClientData(tgUsername);
+				const client = await getClientData(tgUsername);
 
-					const created_at = Number(_data?.created_at) || currentTime();
-					const one_month = 60 * 60 * 24 * 31
-					const expires_in = !!_data?.expires_in ? (Number(_data.expires_in) > one_month ? one_month : Number(_data.expires_in)) : one_month;
+				const created_at = Number(_data?.created_at) || currentTime();
+				const one_month = 60 * 60 * 24 * 31
+				const expires_in = !!_data?.expires_in ? (Number(_data.expires_in) > one_month ? one_month : Number(_data.expires_in)) : one_month;
 
-					await updateClientData({
-						name: tgUsername,
-						winRate: client?.winRate || defaultWinRate,
-						minVolume: client?.minVolume || defaultMinVolume,
-						// athPercent: defaultATHPercent,
-						status: client?.status || BotStatus.UsualMode,
-						isPaused: client?.isPaused === undefined ? false : client?.isPaused,
-						chatId: chatId,
-						subscriptionCreatedAt: created_at,
-						subscriptionExpiresIn: expires_in + created_at,
-						accessToken: _data.access_token
-					})
-					console.log("Added client data correctly============>", _data.access_token, expires_in, created_at)
-					return true;
-				}
+				await updateClientData({
+					name: tgUsername,
+					winRate: client?.winRate || defaultWinRate,
+					minVolume: client?.minVolume || defaultMinVolume,
+					// athPercent: defaultATHPercent,
+					status: client?.status || BotStatus.UsualMode,
+					isPaused: client?.isPaused === undefined ? false : client?.isPaused,
+					chatId: chatId,
+					subscriptionCreatedAt: created_at,
+					subscriptionExpiresIn: expires_in + created_at,
+					accessToken: _data.access_token
+				})
+				console.log("Added client data correctly============>", _data.access_token, expires_in, created_at)
+				return true;
 			}
 		}
 	} catch (error) {
