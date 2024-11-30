@@ -6,6 +6,7 @@ import { currentTime } from "./helper";
 
 dotenv.config();
 
+const API_KEY = process.env.API_KEY;
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
@@ -16,6 +17,7 @@ export const verifySubscriptionCode = async (code: string, tgUsername: string, c
 				method: "POST",
 				url: "https://api.whop.com/v5/oauth/token",
 				headers: {
+					Authorization: `Bearer ${API_KEY}`,
 					"Content-Type": "application/json",
 				},
 				data: {
