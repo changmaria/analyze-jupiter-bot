@@ -33,7 +33,7 @@ const getPaymentsList = async (email: string) => {
 			if (res.status === 200 && !!res.data?.pagination) {
 				const _data = res.data;
 				for (let i of _data.data) {
-					if (i.user_email === email) {
+					if (i.user_email.toLowerCase() === email.toLowerCase()) {
 						user_id = i.user_id;
 						isContinue = false;
 						break;
