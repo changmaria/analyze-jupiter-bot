@@ -120,6 +120,7 @@ bot.on('callback_query', async (callbackQuery) => {
 });
 
 bot.on('message', async (msg) => {
+	console.log("msg", msg)
 	if (msg.text == undefined || (!!msg.entities?.length && msg.entities?.[0].type === 'bot_command')) return;
 
 	if (msg.chat.username == undefined) return;
