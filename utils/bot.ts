@@ -249,6 +249,8 @@ export const confirmPremium = async (msg: TelegramBot.Message, bot: TelegramBot)
 export const checkMembershipEmail = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
 		if (!msg.chat.username || !msg.chat.id || !msg.text) return;
+
+		console.log("msg.text", msg.text)
 		const _result = await checkMembershipData(msg.chat.username, msg.chat.id, msg.text);
 
 		let message = '';

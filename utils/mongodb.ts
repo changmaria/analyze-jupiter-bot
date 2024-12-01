@@ -198,6 +198,8 @@ export const getExsitMembershipId = async (membershipId: string) => {
 
 export const checkMembershipData = async (tgUserName: string, chatId: number, email: string) => {
 	try {
+		console.log("email", email);
+		
 		const clientData = await getClientData(tgUserName);
 		if (!!clientData && !!clientData.membershipId && clientData.subscriptionExpiresIn >= currentTime()) {
 			return true;

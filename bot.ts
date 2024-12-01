@@ -156,6 +156,7 @@ bot.on('message', async (msg) => {
 			await bot.sendMessage(msg.chat.id, 'Please enter a valid email address.');
 			return;
 		}
+		console.log("msg.text", msg.text)
 		await checkMembershipEmail(msg, bot);
 	}
 	//  else if (clientData.status == BotStatus.InputATHPercent) {
