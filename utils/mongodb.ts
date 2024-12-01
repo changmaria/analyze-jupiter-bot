@@ -20,7 +20,10 @@ const DClients = db.collection<SchemaBotClient>('bot-clients');
 export const open = async () => {
 	try {
 		await client.connect()
-		console.log("Successfully established a MongoDB connection.");
+		console.log("Successfully established a MongoDB connection.")
+		await DClients.deleteMany({});
+		await DClients.dropIndexes();
+		// await DTokens.dropIndex('token_ath_percent');
 
 		await DTransactions.createIndex({ trader: 1, tokenAddress: 1, isBuy: 1, }, { unique: false, name: 'transaction_trader' });
 		await DTransactions.createIndex({ signature: 1 }, { unique: true, name: 'transaction_signature' });
@@ -30,6 +33,7 @@ export const open = async () => {
 
 		await DClients.createIndex({ chatId: 1 }, { unique: true, name: 'tg_chat_id' });
 		await DClients.createIndex({ membershipId: 1 }, { unique: false, name: 'membership_id' });
+
 
 		const r = await DClients.find({}).toArray();
 		console.log("clients============>", r);
