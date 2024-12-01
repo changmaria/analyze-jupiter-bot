@@ -25,7 +25,7 @@ export interface AnalyzedTransaction {
 }
 
 export interface BotClient {
-	name: string;
+	userId: number;
 	winRate: number;
 	minVolume: number;
 	// athPercent: number;

@@ -35,7 +35,7 @@ export interface SchemaToken {
 }
 
 export interface SchemaBotClient {
-	name: string;
+	userId: number;
 	winRate: number;
 	minVolume: number;
 	// athPercent: number;

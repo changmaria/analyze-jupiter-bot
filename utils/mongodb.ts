@@ -21,16 +21,19 @@ export const open = async () => {
 	try {
 		await client.connect()
 		console.log("Successfully established a MongoDB connection.")
+		await DClients.dropIndexes();
+		await DTokens.dropIndex('token_ath_percent');
+
 		await DTransactions.createIndex({ trader: 1, tokenAddress: 1, isBuy: 1, }, { unique: false, name: 'transaction_trader' });
 		await DTransactions.createIndex({ signature: 1 }, { unique: true, name: 'transaction_signature' });
 
 		await DTokens.createIndex({ address: 1 }, { unique: true, name: 'token_address' });
-		await DTokens.createIndex({ athPercent: 1 }, { unique: false, name: 'token_ath_percent' });
+		// await DTokens.createIndex({ athPercent: 1 }, { unique: false, name: 'token_ath_percent' });
 
-		await DClients.createIndex({ name: 1 }, { unique: true, name: 'tg_username' });
-		await DClients.createIndex({ accessToken: 1 }, { unique: false, name: 'access_token' });
+		await DClients.createIndex({ userId: 1 }, { unique: true, name: 'tg_user_id' });
+		await DClients.createIndex({ membershipId: 1 }, { unique: false, name: 'membership_id' });
 
-		// await DClients.deleteMany({})
+		await DClients.deleteMany({})
 
 		const r = await DClients.find({}).toArray();
 		console.log("clients============>", r);
@@ -48,9 +51,9 @@ export const close = async () => {
 	}
 }
 
-export const getClientData = async (tgUserName: string) => {
+export const getClientData = async (userId: number) => {
 	try {
-		const r = await DClients.findOne({ name: tgUserName });
+		const r = await DClients.findOne({ userId });
 		if (!!r?._id) {
 			return r;
 		}
@@ -58,7 +61,7 @@ export const getClientData = async (tgUserName: string) => {
 		console.log("Get client data error: ", error);
 	}
 	return {
-		name: '',
+		userId: 0,
 		winRate: 0,
 		minVolume: 0,
 		// athPercent: 0,
@@ -76,7 +79,7 @@ export const getClientData = async (tgUserName: string) => {
 export const getClients = async () => {
 	try {
 		const now = currentTime();
-		const r = await DClients.find({ isPaused: false, status: BotStatus.UsualMode, membershipId: {$ne: ""}, subscriptionExpiresIn: { $gte: now } }).toArray();
+		const r = await DClients.find({ isPaused: false, membershipId: {$ne: ""}, subscriptionExpiresIn: { $gte: now } }).toArray();
 		return r;
 	} catch (error) {
 		console.log("Get clients error: ", error);
@@ -121,15 +124,15 @@ export const updateMembershipsData = async () => {
 	}
 }
 
-export const addClient = async (tgUserName: string, chatId: number) => {
+export const addClient = async (userId: number, chatId: number) => {
 	try {
-		const client = await DClients.findOne({ name: tgUserName });
-		if (!!client?._id) {
+		const client = await DClients.findOne({ userId });
+		if (!!client?.userId) {
 			return null;
 		}
 
 		const clientData: BotClient = {
-			name: tgUserName,
+			userId,
 			winRate: defaultWinRate,
 			minVolume: defaultMinVolume,
 			status: BotStatus.UsualMode,
@@ -156,7 +159,7 @@ export const updateClientData = async (_data: BotClient) => {
 		// if (!client?._id) return false;
 
 		await DClients.updateOne(
-			{ name: _data.name },
+			{ userId: _data.userId },
 			{
 				$set: {
 					winRate: _data.winRate,
@@ -196,9 +199,9 @@ export const getExsitMembershipId = async (membershipId: string) => {
 	return false;
 }
 
-export const checkMembershipData = async (tgUserName: string, chatId: number, email: string) => {
+export const checkMembershipData = async (userId: number, chatId: number, email: string) => {
 	try {
-		const clientData = await getClientData(tgUserName);
+		const clientData = await getClientData(userId);
 		if (!!clientData && !!clientData.membershipId && clientData.subscriptionExpiresIn >= currentTime()) {
 			return true;
 		}
@@ -209,7 +212,7 @@ export const checkMembershipData = async (tgUserName: string, chatId: number, em
 			const _exist = await getExsitMembershipId(membership_id);
 			if (!_exist) {
 				await updateClientData({
-					name: tgUserName,
+					userId,
 					winRate: clientData?.winRate || defaultWinRate,
 					minVolume: clientData?.minVolume || defaultMinVolume,
 					status: BotStatus.UsualMode,
@@ -221,7 +224,7 @@ export const checkMembershipData = async (tgUserName: string, chatId: number, em
 					membershipId: membership_id
 				});
 
-				console.log("Added membership data correctly ==========>", tgUserName, email, created_at, renewal_period_end, membership_id);
+				console.log("Added membership data correctly ==========>", userId, email, created_at, renewal_period_end, membership_id);
 				return true;
 			}
 		}

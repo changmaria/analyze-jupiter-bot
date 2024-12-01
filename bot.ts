@@ -24,7 +24,7 @@ dotenv.config();
 const bot_token = process.env.bot_token != undefined ? process.env.bot_token : "";
 const bot = new TelegramBot(bot_token, { polling: true });
 
-let latestTopTrader: { [tgUsername: string]: string } = {};
+let latestTopTrader: { [userId: number]: string } = {};
 let timer_index = 0;
 
 // const traderCountPerPage = 3;
@@ -33,7 +33,7 @@ let timer_index = 0;
 bot.setMyCommands([
 	{ command: '/start', description: 'start the bot' },
 	{ command: '/admin', description: 'modify the filter settings' },
-	{ command: '/confirm-premium', description: 'confirm premium after whop payment' },
+	// { command: '/confirm_premium', description: 'confirm premium after whop payment' },
 ])
 
 // bot.onText(/\/login/, (msg) => {
@@ -60,7 +60,7 @@ bot.onText(/\/admin/, async (msg) => {
 	await onSettings(msg, bot);
 })
 
-bot.onText(/\/confirm-premium/, async (msg) => {
+bot.onText(/\/confirm_premium/, async (msg) => {
 	await confirmPremium(msg, bot);
 })
 
@@ -92,43 +92,42 @@ bot.on('callback_query', async (callbackQuery) => {
 	} else if (_cmd === 'start') {
 		await onStart(message, bot);
 	} else if (_cmd === 'topTraders') {
-		await sendDataToBot('top-trader', message?.chat?.username, 0);
+		await sendDataToBot('top-trader', message.from?.id || 0, 0);
 	} else if (_cmd === 'fallingTokens') {
-		// await sendDataToBot('falling-token', message?.chat?.username, 1, 0);
+		// await sendDataToBot('falling-token', message.from?.id || 0, 1, 0);
 	} else if (_cmd?.startsWith('previousPageOfTraders')) {
 		const page = Number(_cmd.replace('previousPageOfTraders_', '')) || 0;
 		if (!!page && page - 1 >= 1) {
-			await sendDataToBot('top-trader', message?.chat?.username, message?.message_id);
+			await sendDataToBot('top-trader', message.from?.id || 0, message?.message_id);
 		}
 	} else if (_cmd?.startsWith('nextPageOfTraders')) {
 		const page = Number(_cmd.replace('nextPageOfTraders_', '')) || 0;
 		if (!!page) {
-			await sendDataToBot('top-trader', message?.chat?.username, message?.message_id);
+			await sendDataToBot('top-trader', message.from?.id || 0, message?.message_id);
 		}
 	} else if (_cmd?.startsWith('previousPageOfTokens')) {
 		// const page = Number(_cmd.replace('previousPageOfTokens_', '')) || 0;
 		// if (!!page && page - 1 >= 1) {
-		// 	await sendDataToBot('falling-token', message?.chat?.username, message?.message_id);
+		// 	await sendDataToBot('falling-token', message.from?.id || 0, message?.message_id);
 		// }
 	} else if (_cmd?.startsWith('nextPageOfTokens')) {
 		// const page = Number(_cmd.replace('nextPageOfTokens_', '')) || 0;
 		// if (!!page) {
-		// 	await sendDataToBot('falling-token', message?.chat?.username, page + 1, message?.message_id);
+		// 	await sendDataToBot('falling-token', message.from?.id || 0, page + 1, message?.message_id);
 		// }
 	}
 	bot.answerCallbackQuery(callbackQuery.id);
 });
 
 bot.on('message', async (msg) => {
-	console.log("msg", msg)
 	if (msg.text == undefined || (!!msg.entities?.length && msg.entities?.[0].type === 'bot_command')) return;
 
-	if (msg.chat.username == undefined) return;
-	const clientData: BotClient = await getClientData(msg.chat.username);
+	if (!msg.from?.id) return;
+	const clientData: BotClient = await getClientData(msg.from.id);
 
-	if (!clientData || clientData.status === BotStatus.UsualMode) return;
+	if (!!clientData && clientData.status === BotStatus.UsualMode) return;
 
-	if (clientData.status !== BotStatus.InputEmail) {
+	if (clientData?.status !== BotStatus.InputEmail) {
 		const res = await checkSubscription(msg, bot);
 		if (!res) return;
 	}
@@ -169,11 +168,11 @@ bot.on('message', async (msg) => {
 	// }
 })
 
-const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: string, /* page: number = 1, */ messageId: number) => {
+const sendDataToBot = async (type: 'top-trader' | 'falling-token', userId: number, /* page: number = 1, */ messageId: number) => {
 	try {
-		const clientData = await getClientData(tgUserName);
+		const clientData = await getClientData(userId);
 
-		if (!clientData || clientData.status != BotStatus.UsualMode) return;
+		if (!clientData) return;
 
 		if (type == 'top-trader') {
 
@@ -181,6 +180,16 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: s
 				clientData.winRate / 100,
 				(clientData.minVolume * LAMPORTS_PER_SOL) / 175
 			);
+
+			if (!!trader) {
+				if (!!latestTopTrader?.[clientData.userId]) {
+					if (latestTopTrader[clientData.userId] !== trader._id) {
+						latestTopTrader[clientData.userId] = trader._id;
+					}
+				} else {
+					latestTopTrader = { ...latestTopTrader, [clientData.userId]: trader._id };
+				}
+			}
 
 			await showTopTradersMessage(bot, trader, /* count,  */clientData, /* page, traderCountPerPage,  */messageId);
 		}
@@ -220,14 +229,14 @@ const sendUpdatesToBot = async () => {
 
 			if (/* !_tokens.length ||  */!trader) continue;
 			
-			if (!!latestTopTrader?.[i.name]) {
-				if (latestTopTrader[i.name] === trader._id) {
+			if (!!latestTopTrader?.[i.userId]) {
+				if (latestTopTrader[i.userId] === trader._id) {
 					continue;
 				} else {
-					latestTopTrader[i.name] = trader._id;
+					latestTopTrader[i.userId] = trader._id;
 				}
 			} else {
-				latestTopTrader = { ...latestTopTrader, [i.name]: trader._id };
+				latestTopTrader = { ...latestTopTrader, [i.userId]: trader._id };
 			}
 			await showTopTradersMessage(bot, trader, /* count,  */i, /* 1, traderCountPerPage, */ 0);
 

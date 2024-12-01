@@ -5,7 +5,7 @@ import path from 'path';
 
 import { BotClient, BotStatus, RequestTraderDataType, TokenDataType } from "./interface";
 import { currentTime, formatBigNumber } from "./helper";
-import { addClient, checkMembershipData, defaultMinVolume, defaultWinRate, getClientData, updateClientData } from "./mongodb";
+import { addClient, checkMembershipData, getClientData, updateClientData } from "./mongodb";
 
 const connection: Connection = new Connection('https://proportionate-distinguished-bush.solana-mainnet.quiknode.pro/23d40a5fef0e147c06129a62e0cc0b975f38fd42');
 const imagePath = path.normalize(`${path.normalize(`${__dirname}/../../`)}/assets/swordbanner.png`);
@@ -23,10 +23,10 @@ export const getUserSolBalance = async (address: string) => {
 
 export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (msg.chat.username == undefined) return;
+		if (!msg.from?.id) return;
 
-		const clientData = await getClientData(msg.chat.username) as BotClient;
-		if (!clientData.name) return;
+		const clientData = await getClientData(msg.from.id) as BotClient;
+		if (!clientData.userId) return;
 
 		const imageData = await fs.readFile(imagePath);
 
@@ -58,12 +58,12 @@ export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 
 export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (msg.chat.username == undefined) return;
+		if (!msg.from?.id) return;
 
-		const client = await getClientData(msg.chat.username);
+		const client = await getClientData(msg.from.id);
 
-		if (!client.name) {
-			const status = await addClient(msg.chat.username, msg.chat.id);
+		if (!client.userId) {
+			const status = await addClient(msg.from.id, msg.chat.id);
 			if (!status) return;
 		}
 
@@ -97,7 +97,7 @@ export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 
 export const onBuyBot = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (msg.chat.username == undefined) return;
+		if (!msg.from?.id) return;
 
 		const reply_markup = {
 			inline_keyboard: [
@@ -128,7 +128,7 @@ export const onBuyBot = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 
 export const onCancelSubscription = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (msg.chat.username == undefined) return;
+		if (!msg.from?.id) return;
 		const messageId = msg.message_id;
 		const chatId = msg.chat.id;
 
@@ -178,9 +178,9 @@ export const onLogin = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 
 export const setBotPauseStatus = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.chat.username) return;
-		const clientData = await getClientData(msg.chat.username) as BotClient;
-		if (!clientData.name) return;
+		if (!msg.from?.id) return;
+		const clientData = await getClientData(msg.from.id) as BotClient;
+		if (!clientData.userId) return;
 
 		if (clientData.isPaused) {
 			clientData.isPaused = false;
@@ -198,9 +198,9 @@ export const setBotPauseStatus = async (msg: TelegramBot.Message, bot: TelegramB
 
 export const setWinRate = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.chat.username) return;
-		const clientData = await getClientData(msg.chat.username) as BotClient;
-		if (!clientData.name) return;
+		if (!msg.from?.id) return;
+		const clientData = await getClientData(msg.from.id) as BotClient;
+		if (!clientData.userId) return;
 		await bot.sendMessage(msg.chat.id, `Please input the win rate for filtering. Now Win Rate is ${clientData.winRate}%`)
 		clientData.status = BotStatus.InputWinRate;
 		await updateClientData(clientData);
@@ -211,9 +211,9 @@ export const setWinRate = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 
 export const setMinimumVolume = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.chat.username) return;
-		const clientData = await getClientData(msg.chat.username) as BotClient;
-		if (!clientData.name) return;
+		if (!msg.from?.id) return;
+		const clientData = await getClientData(msg.from.id) as BotClient;
+		if (!clientData.userId) return;
 		await bot.sendMessage(msg.chat.id, `Please input the Minimum Volume for filtering. Now Minimum Volume is $${clientData.minVolume}`)
 		clientData.status = BotStatus.InputMinVolume;
 		await updateClientData(clientData);
@@ -224,11 +224,11 @@ export const setMinimumVolume = async (msg: TelegramBot.Message, bot: TelegramBo
 
 export const confirmPremium = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.chat.username) return;
-		let clientData = await getClientData(msg.chat.username) as BotClient;
+		if (!msg.from?.id) return;
+		let clientData = await getClientData(msg.from.id) as BotClient;
 
-		if (!clientData.name) {
-			const _result = await addClient(msg.chat.username, msg.chat.id);
+		if (!clientData.userId) {
+			const _result = await addClient(msg.from.id, msg.chat.id);
 			if (!_result) return;
 			clientData = _result;
 		};
@@ -248,9 +248,9 @@ export const confirmPremium = async (msg: TelegramBot.Message, bot: TelegramBot)
 
 export const checkMembershipEmail = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.chat.username || !msg.chat.id || !msg.text) return;
+		if (!msg.from?.id || !msg.chat.id || !msg.text) return;
 
-		const _result = await checkMembershipData(msg.chat.username, msg.chat.id, msg.text);
+		const _result = await checkMembershipData(msg.from.id, msg.chat.id, msg.text);
 
 		let message = '';
 
@@ -258,8 +258,8 @@ export const checkMembershipEmail = async (msg: TelegramBot.Message, bot: Telegr
 			message = '👋👋Congratulations, your subscription has been successfully completed!!!';
 		} else {
 			message = 'Sorry, your subscription email is invalid. Please try again.';
-			const clientData = await getClientData(msg.chat.username);
-			if (!!clientData.name) {
+			const clientData = await getClientData(msg.from.id);
+			if (!!clientData.userId) {
 				await updateClientData({...clientData, status: BotStatus.UsualMode});
 			}
 		}
@@ -278,9 +278,9 @@ export const checkMembershipEmail = async (msg: TelegramBot.Message, bot: Telegr
 
 // export const setATHPercent = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 // 	try {
-// 		if (!msg.chat.username) return;
+// 		if (!msg.from?.id) return;
 // 		const clientData = await getClientData(msg.chat.username) as BotClient;
-// 		if (!clientData.name) return;
+// 		if (!clientData.userId) return;
 // 		await bot.sendMessage(msg.chat.id, `Please input the ATH Percent for filtering. Now ATH Percent is ${clientData.athPercent}%`);
 // 		clientData.status = BotStatus.InputATHPercent;
 // 		await updateClientData(clientData);
@@ -291,8 +291,8 @@ export const checkMembershipEmail = async (msg: TelegramBot.Message, bot: Telegr
 
 export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.chat.username) return;
-		const status = await addClient(msg.chat.username, msg.chat.id);
+		if (!msg.from?.id) return;
+		const status = await addClient(msg.from.id, msg.chat.id);
 		if (status) bot.sendVideo(
 			msg.chat.id,
 			'https://media.tenor.com/1IPOZiZ6Z4AAAAAM/congratulations.gif',
@@ -529,8 +529,8 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 
 export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.chat.username) return false;
-		const client_data = await getClientData(msg.chat.username);
+		if (!msg.from?.id) return false;
+		const client_data = await getClientData(msg.from.id);
 		const now = currentTime();
 		let caption = '';
 		let bot_description = 'Meet the *Sword Track Bot*—your go-to tool for real-time insights on the Solana blockchain! It tracks falling tokens and successful traders to help you make smarter crypto decisions. Simplify your trading experience and boost your success with *Sword Track Bot*!'
@@ -584,7 +584,7 @@ export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramB
 
 // export const onVerifyCode = async (msg: TelegramBot.Message, bot: TelegramBot, code: string) => {
 // 	try {
-// 		if (!msg.chat.username) return;
+// 		if (!msg.from?.id) return;
 // 		const verify = await verifySubscriptionCode(code, msg.chat.username, msg.chat.id);
 
 // 		let message = '';
