@@ -121,7 +121,7 @@ bot.on('callback_query', async (callbackQuery) => {
 });
 
 bot.on('message', async (msg) => {
-
+	console.log("msg=====>", msg)
 	if (msg.entities != undefined || msg.text == undefined) return;
 
 	if (msg.chat.username == undefined) return;
