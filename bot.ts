@@ -122,16 +122,17 @@ bot.on('callback_query', async (callbackQuery) => {
 bot.on('message', async (msg) => {
 	console.log("msg", msg);
 	if (msg.text == undefined || (!!msg.entities?.length && msg.entities?.[0].type === 'bot_command')) return;
-
+	console.log("enter1")
 	if (!msg.from?.id) return;
 	const clientData: BotClient = await getClientData(msg.from.id);
-
+	console.log("enter2")
 	if (!!clientData && clientData.status === BotStatus.UsualMode) return;
-
+	console.log("enter3")
 	if (clientData?.status !== BotStatus.InputEmail) {
 		const res = await checkSubscription(msg, bot);
 		if (!res) return;
 	}
+	console.log("enter4")
 	if (clientData.status == BotStatus.InputWinRate) {
 		if (!isNumber(msg.text)) {
 			await bot.sendMessage(msg.chat.id, 'You have to input number as Win Rate. Not Correct Format!!');
