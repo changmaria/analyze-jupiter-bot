@@ -125,10 +125,10 @@ export const addClient = async (tgUserName: string, chatId: number) => {
 	try {
 		const client = await DClients.findOne({ name: tgUserName });
 		if (!!client?._id) {
-			return false;
+			return null;
 		}
 
-		const r = await DClients.insertOne({
+		const clientData: BotClient = {
 			name: tgUserName,
 			winRate: defaultWinRate,
 			minVolume: defaultMinVolume,
@@ -139,13 +139,15 @@ export const addClient = async (tgUserName: string, chatId: number) => {
 			subscriptionCreatedAt: 0,
 			subscriptionExpiresIn: 0,
 			membershipId: ""
-		});
+		}
 
-		if (!!r.insertedId) return true;
+		await DClients.insertOne(clientData);
+
+		return clientData;
 	} catch (error) {
 		console.log("Add client data error: ", error);
 	}
-	return false;
+	return null;
 }
 
 export const updateClientData = async (_data: BotClient) => {

@@ -225,8 +225,13 @@ export const setMinimumVolume = async (msg: TelegramBot.Message, bot: TelegramBo
 export const confirmPremium = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
 		if (!msg.chat.username) return;
-		const clientData = await getClientData(msg.chat.username) as BotClient;
-		if (!clientData.name) return;
+		let clientData = await getClientData(msg.chat.username) as BotClient;
+		
+		if (!clientData.name) {
+			const _result = await addClient(msg.chat.username, msg.chat.id);
+			if (!_result) return;
+			clientData = _result;
+		};
 		
 		if (!!clientData.membershipId && clientData.subscriptionExpiresIn >= currentTime()) {
 			await bot.sendMessage(msg.chat.id, 'Your subscription has already been successfully confirmed.');
