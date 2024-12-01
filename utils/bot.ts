@@ -224,12 +224,15 @@ export const setMinimumVolume = async (msg: TelegramBot.Message, bot: TelegramBo
 
 export const confirmPremium = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
+		console.log("confirm premidfdfd", msg);
 		if (!msg.from?.id) return;
 		let clientData = await getClientData(msg.from.id) as BotClient;
 
 		if (!clientData.userId) {
+			console.log("erjekrjekrjkejrkek")
 			const _result = await addClient(msg.from.id, msg.chat.id);
 			if (!_result) return;
+			console.log("erjekrjekrjkejrkekdfdddddddddd")
 			clientData = _result;
 		};
 
