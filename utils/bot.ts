@@ -5,7 +5,7 @@ import path from 'path';
 
 import { BotClient, BotStatus, RequestTraderDataType, TokenDataType } from "./interface";
 import { currentTime, formatBigNumber } from "./helper";
-import { addClient, checkMembershipData, getClientData, updateClientData } from "./mongodb";
+import { addClient, checkMembershipData, defaultMinVolume, defaultWinRate, getClientData, updateClientData } from "./mongodb";
 
 const connection: Connection = new Connection('https://proportionate-distinguished-bush.solana-mainnet.quiknode.pro/23d40a5fef0e147c06129a62e0cc0b975f38fd42');
 const imagePath = path.normalize(`${path.normalize(`${__dirname}/../../`)}/assets/swordbanner.png`);
@@ -226,13 +226,13 @@ export const confirmPremium = async (msg: TelegramBot.Message, bot: TelegramBot)
 	try {
 		if (!msg.chat.username) return;
 		let clientData = await getClientData(msg.chat.username) as BotClient;
-		
+
 		if (!clientData.name) {
 			const _result = await addClient(msg.chat.username, msg.chat.id);
 			if (!_result) return;
 			clientData = _result;
 		};
-		
+
 		if (!!clientData.membershipId && clientData.subscriptionExpiresIn >= currentTime()) {
 			await bot.sendMessage(msg.chat.id, 'Your subscription has already been successfully confirmed.');
 			return;
@@ -257,6 +257,19 @@ export const checkMembershipEmail = async (msg: TelegramBot.Message, bot: Telegr
 			message = '👋👋Congratulations, your subscription has been successfully completed!!!';
 		} else {
 			message = 'Sorry, your subscription email is invalid. Please try again.';
+			const clientData = await getClientData(msg.chat.username);
+			await updateClientData({
+				name: msg.chat.username,
+				winRate: clientData?.winRate || defaultWinRate,
+				minVolume: clientData?.minVolume || defaultMinVolume,
+				status: clientData?.status || BotStatus.UsualMode,
+				isPaused: clientData?.isPaused || false,
+				chatId: msg.chat.id,
+				email: clientData?.email || "",
+				subscriptionCreatedAt: clientData?.subscriptionCreatedAt || 0,
+				subscriptionExpiresIn: clientData?.subscriptionExpiresIn || 0,
+				membershipId: clientData?.membershipId || ""
+			});
 		}
 
 		await bot.sendMessage(
@@ -532,7 +545,7 @@ export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramB
 
 		if (!client_data || !client_data?.membershipId) {
 			caption = `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _You have to buy bot first_ ⭣⭣⭣`;
-		} else if ( client_data.subscriptionExpiresIn < now ) {
+		} else if (client_data.subscriptionExpiresIn < now) {
 			caption = `👋👋_Welcome Back ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _Your memebership is expired, please buy bot_ ⭣⭣⭣`;
 		} else {
 			// const valid = await checkMembershipValid(client_data);
