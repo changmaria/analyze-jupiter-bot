@@ -121,18 +121,18 @@ bot.on('callback_query', async (callbackQuery) => {
 });
 
 bot.on('message', async (msg) => {
-	console.log("msg=====>", msg)
-	if (msg.entities != undefined || msg.text == undefined) return;
-
-	if (msg.chat.username == undefined) return;
-
-	const clientData: BotClient = await getClientData(msg.chat.username);
 	
+	if (msg.entities != undefined || msg.text == undefined) return;
+	console.log("enter-1")
+	if (msg.chat.username == undefined) return;
+	console.log("enter-2")
+	const clientData: BotClient = await getClientData(msg.chat.username);
+	console.log("enter-3")
 	if (clientData?.status !== BotStatus.InputEmail) {
 		const res = await checkSubscription(msg, bot);
 		if (!res) return;
 	}
-
+	console.log("msg=====>", msg)
 	if (clientData.status == BotStatus.InputWinRate) {
 		if (!isNumber(msg.text)) {
 			await bot.sendMessage(msg.chat.id, 'You have to input number as Win Rate. Not Correct Format!!');
@@ -151,11 +151,14 @@ bot.on('message', async (msg) => {
 		clientData.status = BotStatus.UsualMode;
 		await updateClientData(clientData);
 		await bot.sendMessage(msg.chat.id, `Minimum Volume is updated successfully. $${clientData.minVolume}`);
-	} else if (clientData.status == BotStatus.InputEmail) {
+	} else if (clientData.status === BotStatus.InputEmail) {
+		console.log("enter1===========")
 		if (!msg.text) {
+			console.log("enter2===========")
 			await bot.sendMessage(msg.chat.id, 'Please enter a valid email address.');
 			return;
 		}
+		console.log("enter3===========")
 		console.log("msg.text", msg.text)
 		await checkMembershipEmail(msg, bot);
 	}
