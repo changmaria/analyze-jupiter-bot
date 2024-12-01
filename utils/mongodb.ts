@@ -21,7 +21,8 @@ export const open = async () => {
 	try {
 		await client.connect()
 		console.log("Successfully established a MongoDB connection.")
-		// await DClients.dropIndexes();
+		await DClients.deleteMany({});
+		await DClients.dropIndexes();
 		// await DTokens.dropIndex('token_ath_percent');
 
 		await DTransactions.createIndex({ trader: 1, tokenAddress: 1, isBuy: 1, }, { unique: false, name: 'transaction_trader' });
@@ -33,7 +34,6 @@ export const open = async () => {
 		await DClients.createIndex({ userId: 1 }, { unique: true, name: 'tg_user_id' });
 		await DClients.createIndex({ membershipId: 1 }, { unique: false, name: 'membership_id' });
 
-		await DClients.deleteMany({})
 
 		const r = await DClients.find({}).toArray();
 		console.log("clients============>", r);
