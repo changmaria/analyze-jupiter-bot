@@ -21,8 +21,8 @@ export const open = async () => {
 	try {
 		await client.connect()
 		console.log("Successfully established a MongoDB connection.")
-		await DClients.dropIndexes();
-		await DTokens.dropIndex('token_ath_percent');
+		// await DClients.dropIndexes();
+		// await DTokens.dropIndex('token_ath_percent');
 
 		await DTransactions.createIndex({ trader: 1, tokenAddress: 1, isBuy: 1, }, { unique: false, name: 'transaction_trader' });
 		await DTransactions.createIndex({ signature: 1 }, { unique: true, name: 'transaction_signature' });
