@@ -3,7 +3,6 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import dotenv from 'dotenv';
 
 import {
-	onLogin,
 	onSettings,
 	onStart,
 	setMinimumVolume,
@@ -25,7 +24,7 @@ dotenv.config();
 const bot_token = process.env.bot_token != undefined ? process.env.bot_token : "";
 const bot = new TelegramBot(bot_token, { polling: true });
 
-let latestTopTrader = "";
+let latestTopTrader: { [tgUsername: string]: string } = {};
 let timer_index = 0;
 
 // const traderCountPerPage = 3;
@@ -84,8 +83,8 @@ bot.on('callback_query', async (callbackQuery) => {
 		await setBotPauseStatus(message, bot);
 	} else if (_cmd == 'buyBot') {
 		await onBuyBot(message, bot);
-	// } else if (_cmd == 'addBot') {
-	// 	await addBot(message, bot, 0, 0);
+		// } else if (_cmd == 'addBot') {
+		// 	await addBot(message, bot, 0, 0);
 	} else if (_cmd == 'cancelSubscription') {
 		await onCancelSubscription(message, bot);
 	} else if (_cmd === 'admin') {
@@ -126,7 +125,9 @@ bot.on('message', async (msg) => {
 	if (msg.chat.username == undefined) return;
 	const clientData: BotClient = await getClientData(msg.chat.username);
 
-	if (clientData?.status !== BotStatus.InputEmail) {
+	if (!clientData || clientData.status === BotStatus.UsualMode) return;
+
+	if (clientData.status !== BotStatus.InputEmail) {
 		const res = await checkSubscription(msg, bot);
 		if (!res) return;
 	}
@@ -156,14 +157,14 @@ bot.on('message', async (msg) => {
 		await checkMembershipEmail(msg, bot);
 	}
 	//  else if (clientData.status == BotStatus.InputATHPercent) {
-		// if (!isNumber(msg.text)) {
-		// 	await bot.sendMessage(msg.chat.id, 'You have to input number as ATH Percent. Not Correct Format!!');
-		// 	return;
-		// }
-		// clientData.athPercent = Math.abs(parseInt(msg.text));
-		// clientData.status = BotStatus.UsualMode;
-		// await updateClientData(clientData);
-		// await bot.sendMessage(msg.chat.id, `ATH Percent is updated successfully. ${clientData.athPercent}%`);
+	// if (!isNumber(msg.text)) {
+	// 	await bot.sendMessage(msg.chat.id, 'You have to input number as ATH Percent. Not Correct Format!!');
+	// 	return;
+	// }
+	// clientData.athPercent = Math.abs(parseInt(msg.text));
+	// clientData.status = BotStatus.UsualMode;
+	// await updateClientData(clientData);
+	// await bot.sendMessage(msg.chat.id, `ATH Percent is updated successfully. ${clientData.athPercent}%`);
 	// }
 })
 
@@ -217,10 +218,17 @@ const sendUpdatesToBot = async () => {
 			// const _count = await getTokensCountByATHPercent(i.athPercent);
 
 			if (/* !_tokens.length ||  */!trader) continue;
-			if (trader._id !== latestTopTrader) {
-				latestTopTrader = trader._id;
-				await showTopTradersMessage(bot, trader, /* count,  */i, /* 1, traderCountPerPage, */ 0);
+			
+			if (!!latestTopTrader?.[i.name]) {
+				if (latestTopTrader[i.name] === trader._id) {
+					continue;
+				} else {
+					latestTopTrader[i.name] = trader._id;
+				}
+			} else {
+				latestTopTrader = { ...latestTopTrader, [i.name]: trader._id };
 			}
+			await showTopTradersMessage(bot, trader, /* count,  */i, /* 1, traderCountPerPage, */ 0);
 
 			// await showFallingTokenMessage(bot, _tokens, _count, i.chatId, 1, tokenCountPerPage, 0);
 		}
