@@ -258,18 +258,9 @@ export const checkMembershipEmail = async (msg: TelegramBot.Message, bot: Telegr
 		} else {
 			message = 'Sorry, your subscription email is invalid. Please try again.';
 			const clientData = await getClientData(msg.chat.username);
-			await updateClientData({
-				name: msg.chat.username,
-				winRate: clientData?.winRate || defaultWinRate,
-				minVolume: clientData?.minVolume || defaultMinVolume,
-				status: clientData?.status || BotStatus.UsualMode,
-				isPaused: clientData?.isPaused || false,
-				chatId: msg.chat.id,
-				email: clientData?.email || "",
-				subscriptionCreatedAt: clientData?.subscriptionCreatedAt || 0,
-				subscriptionExpiresIn: clientData?.subscriptionExpiresIn || 0,
-				membershipId: clientData?.membershipId || ""
-			});
+			if (!!clientData.name) {
+				await updateClientData({...clientData, status: BotStatus.UsualMode});
+			}
 		}
 
 		await bot.sendMessage(
