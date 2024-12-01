@@ -250,7 +250,6 @@ export const checkMembershipEmail = async (msg: TelegramBot.Message, bot: Telegr
 	try {
 		if (!msg.chat.username || !msg.chat.id || !msg.text) return;
 
-		console.log("msg.text", msg.text)
 		const _result = await checkMembershipData(msg.chat.username, msg.chat.id, msg.text);
 
 		let message = '';

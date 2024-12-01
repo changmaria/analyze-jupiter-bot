@@ -30,7 +30,7 @@ export const open = async () => {
 		await DClients.createIndex({ name: 1 }, { unique: true, name: 'tg_username' });
 		await DClients.createIndex({ accessToken: 1 }, { unique: false, name: 'access_token' });
 
-		// await DClients.deleteMany({})
+		await DClients.deleteMany({})
 
 		const r = await DClients.find({}).toArray();
 		console.log("clients============>", r);
@@ -198,8 +198,6 @@ export const getExsitMembershipId = async (membershipId: string) => {
 
 export const checkMembershipData = async (tgUserName: string, chatId: number, email: string) => {
 	try {
-		console.log("email", email);
-		
 		const clientData = await getClientData(tgUserName);
 		if (!!clientData && !!clientData.membershipId && clientData.subscriptionExpiresIn >= currentTime()) {
 			return true;
@@ -214,7 +212,7 @@ export const checkMembershipData = async (tgUserName: string, chatId: number, em
 					name: tgUserName,
 					winRate: clientData?.winRate || defaultWinRate,
 					minVolume: clientData?.minVolume || defaultMinVolume,
-					status: clientData?.status || BotStatus.UsualMode,
+					status: BotStatus.UsualMode,
 					isPaused: clientData?.isPaused || false,
 					chatId,
 					email,
