@@ -31,7 +31,7 @@ export const open = async () => {
 		await DTokens.createIndex({ address: 1 }, { unique: true, name: 'token_address' });
 		// await DTokens.createIndex({ athPercent: 1 }, { unique: false, name: 'token_ath_percent' });
 
-		await DClients.createIndex({ userId: 1 }, { unique: true, name: 'tg_user_id' });
+		await DClients.createIndex({ chatId: 1 }, { unique: true, name: 'tg_chat_id' });
 		await DClients.createIndex({ membershipId: 1 }, { unique: false, name: 'membership_id' });
 
 
@@ -51,9 +51,9 @@ export const close = async () => {
 	}
 }
 
-export const getClientData = async (userId: number) => {
+export const getClientData = async (chatId: number) => {
 	try {
-		const r = await DClients.findOne({ userId });
+		const r = await DClients.findOne({ chatId });
 		if (!!r?._id) {
 			return r;
 		}
@@ -61,14 +61,14 @@ export const getClientData = async (userId: number) => {
 		console.log("Get client data error: ", error);
 	}
 	return {
-		userId: 0,
+		chatId: 0,
 		winRate: 0,
 		minVolume: 0,
 		// athPercent: 0,
 		lastedTokensCount: 0,
 		status: BotStatus.UsualMode,
 		isPaused: false,
-		chatId: 0,
+		// chatId: 0,
 		email: '',
 		subscriptionCreatedAt: 0,
 		subscriptionExpiresIn: 0,
@@ -124,20 +124,19 @@ export const updateMembershipsData = async () => {
 	}
 }
 
-export const addClient = async (userId: number, chatId: number) => {
+export const addClient = async (chatId: number) => {
 	try {
-		const client = await DClients.findOne({ userId });
-		if (!!client?.userId) {
+		const client = await DClients.findOne({ chatId });
+		if (!!client?.chatId) {
 			return null;
 		}
 
 		const clientData: BotClient = {
-			userId,
+			chatId,
 			winRate: defaultWinRate,
 			minVolume: defaultMinVolume,
 			status: BotStatus.UsualMode,
 			isPaused: false,
-			chatId,
 			email: "",
 			subscriptionCreatedAt: 0,
 			subscriptionExpiresIn: 0,
@@ -159,7 +158,7 @@ export const updateClientData = async (_data: BotClient) => {
 		// if (!client?._id) return false;
 
 		await DClients.updateOne(
-			{ userId: _data.userId },
+			{ chatId: _data.chatId },
 			{
 				$set: {
 					winRate: _data.winRate,
@@ -172,10 +171,10 @@ export const updateClientData = async (_data: BotClient) => {
 					membershipId: _data.membershipId,
 					email: _data.email
 				},
-				$setOnInsert: {
-					// name: _data.name,
-					chatId: _data.chatId
-				}
+				// $setOnInsert: {
+				// 	// name: _data.name,
+				// 	chatId: _data.chatId
+				// }
 			},
 			{
 				upsert: true
@@ -199,9 +198,9 @@ export const getExsitMembershipId = async (membershipId: string) => {
 	return false;
 }
 
-export const checkMembershipData = async (userId: number, chatId: number, email: string) => {
+export const checkMembershipData = async (chatId: number, email: string) => {
 	try {
-		const clientData = await getClientData(userId);
+		const clientData = await getClientData(chatId);
 		if (!!clientData && !!clientData.membershipId && clientData.subscriptionExpiresIn >= currentTime()) {
 			return true;
 		}
@@ -212,19 +211,18 @@ export const checkMembershipData = async (userId: number, chatId: number, email:
 			const _exist = await getExsitMembershipId(membership_id);
 			if (!_exist) {
 				await updateClientData({
-					userId,
+					chatId,
 					winRate: clientData?.winRate || defaultWinRate,
 					minVolume: clientData?.minVolume || defaultMinVolume,
 					status: BotStatus.UsualMode,
 					isPaused: clientData?.isPaused || false,
-					chatId,
 					email,
 					subscriptionCreatedAt: created_at,
 					subscriptionExpiresIn: renewal_period_end,
 					membershipId: membership_id
 				});
 
-				console.log("Added membership data correctly ==========>", userId, email, created_at, renewal_period_end, membership_id);
+				console.log("Added membership data correctly ==========>", chatId, email, created_at, renewal_period_end, membership_id);
 				return true;
 			}
 		}

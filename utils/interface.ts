@@ -25,13 +25,13 @@ export interface AnalyzedTransaction {
 }
 
 export interface BotClient {
-	userId: number;
+	chatId: number;
 	winRate: number;
 	minVolume: number;
 	// athPercent: number;
 	status: BotStatus;
 	isPaused: boolean;
-	chatId: number;
+	// chatId: number;
 	email: string;
 	subscriptionCreatedAt: number;
 	subscriptionExpiresIn: number;

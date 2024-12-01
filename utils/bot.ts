@@ -23,10 +23,10 @@ export const getUserSolBalance = async (address: string) => {
 
 export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.from?.id) return;
+		if (!msg.chat?.id) return;
 
-		const clientData = await getClientData(msg.from.id) as BotClient;
-		if (!clientData.userId) return;
+		const clientData = await getClientData(msg.chat.id) as BotClient;
+		if (!clientData.chatId) return;
 
 		const imageData = await fs.readFile(imagePath);
 
@@ -58,12 +58,12 @@ export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 
 export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.from?.id) return;
+		if (!msg.chat?.id) return;
 
-		const client = await getClientData(msg.from.id);
+		const client = await getClientData(msg.chat.id);
 
-		if (!client.userId) {
-			const status = await addClient(msg.from.id, msg.chat.id);
+		if (!client.chatId) {
+			const status = await addClient(msg.chat.id);
 			if (!status) return;
 		}
 
@@ -97,7 +97,7 @@ export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 
 export const onBuyBot = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.from?.id) return;
+		if (!msg.chat?.id) return;
 
 		const reply_markup = {
 			inline_keyboard: [
@@ -128,7 +128,7 @@ export const onBuyBot = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 
 export const onCancelSubscription = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.from?.id) return;
+		if (!msg.chat?.id) return;
 		const messageId = msg.message_id;
 		const chatId = msg.chat.id;
 
@@ -178,9 +178,9 @@ export const onLogin = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 
 export const setBotPauseStatus = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.from?.id) return;
-		const clientData = await getClientData(msg.from.id) as BotClient;
-		if (!clientData.userId) return;
+		if (!msg.chat?.id) return;
+		const clientData = await getClientData(msg.chat.id) as BotClient;
+		if (!clientData.chatId) return;
 
 		if (clientData.isPaused) {
 			clientData.isPaused = false;
@@ -198,9 +198,9 @@ export const setBotPauseStatus = async (msg: TelegramBot.Message, bot: TelegramB
 
 export const setWinRate = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.from?.id) return;
-		const clientData = await getClientData(msg.from.id) as BotClient;
-		if (!clientData.userId) return;
+		if (!msg.chat?.id) return;
+		const clientData = await getClientData(msg.chat.id) as BotClient;
+		if (!clientData.chatId) return;
 		await bot.sendMessage(msg.chat.id, `Please input the win rate for filtering. Now Win Rate is ${clientData.winRate}%`)
 		clientData.status = BotStatus.InputWinRate;
 		await updateClientData(clientData);
@@ -211,9 +211,9 @@ export const setWinRate = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 
 export const setMinimumVolume = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.from?.id) return;
-		const clientData = await getClientData(msg.from.id) as BotClient;
-		if (!clientData.userId) return;
+		if (!msg.chat?.id) return;
+		const clientData = await getClientData(msg.chat.id) as BotClient;
+		if (!clientData.chatId) return;
 		await bot.sendMessage(msg.chat.id, `Please input the Minimum Volume for filtering. Now Minimum Volume is $${clientData.minVolume}`)
 		clientData.status = BotStatus.InputMinVolume;
 		await updateClientData(clientData);
@@ -224,15 +224,12 @@ export const setMinimumVolume = async (msg: TelegramBot.Message, bot: TelegramBo
 
 export const confirmPremium = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		console.log("confirm premidfdfd", msg);
-		if (!msg.from?.id) return;
-		let clientData = await getClientData(msg.from.id) as BotClient;
+		if (!msg.chat?.id) return;
+		let clientData = await getClientData(msg.chat.id) as BotClient;
 
-		if (!clientData.userId) {
-			console.log("erjekrjekrjkejrkek")
-			const _result = await addClient(msg.from.id, msg.chat.id);
+		if (!clientData.chatId) {
+			const _result = await addClient(msg.chat.id);
 			if (!_result) return;
-			console.log("erjekrjekrjkejrkekdfdddddddddd")
 			clientData = _result;
 		};
 
@@ -251,9 +248,9 @@ export const confirmPremium = async (msg: TelegramBot.Message, bot: TelegramBot)
 
 export const checkMembershipEmail = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.from?.id || !msg.chat.id || !msg.text) return;
+		if (!msg.chat?.id || !msg.chat.id || !msg.text) return;
 
-		const _result = await checkMembershipData(msg.from.id, msg.chat.id, msg.text);
+		const _result = await checkMembershipData(msg.chat.id, msg.text);
 
 		let message = '';
 
@@ -261,8 +258,8 @@ export const checkMembershipEmail = async (msg: TelegramBot.Message, bot: Telegr
 			message = '👋👋Congratulations, your subscription has been successfully completed!!!';
 		} else {
 			message = 'Sorry, your subscription email is invalid. Please try again.';
-			const clientData = await getClientData(msg.from.id);
-			if (!!clientData.userId) {
+			const clientData = await getClientData(msg.chat.id);
+			if (!!clientData.chatId) {
 				await updateClientData({...clientData, status: BotStatus.UsualMode});
 			}
 		}
@@ -281,9 +278,9 @@ export const checkMembershipEmail = async (msg: TelegramBot.Message, bot: Telegr
 
 // export const setATHPercent = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 // 	try {
-// 		if (!msg.from?.id) return;
+// 		if (!msg.chat?.id) return;
 // 		const clientData = await getClientData(msg.chat.username) as BotClient;
-// 		if (!clientData.userId) return;
+// 		if (!clientData.chatId) return;
 // 		await bot.sendMessage(msg.chat.id, `Please input the ATH Percent for filtering. Now ATH Percent is ${clientData.athPercent}%`);
 // 		clientData.status = BotStatus.InputATHPercent;
 // 		await updateClientData(clientData);
@@ -294,8 +291,8 @@ export const checkMembershipEmail = async (msg: TelegramBot.Message, bot: Telegr
 
 export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.from?.id) return;
-		const status = await addClient(msg.from.id, msg.chat.id);
+		if (!msg.chat?.id) return;
+		const status = await addClient(msg.chat.id);
 		if (status) bot.sendVideo(
 			msg.chat.id,
 			'https://media.tenor.com/1IPOZiZ6Z4AAAAAM/congratulations.gif',
@@ -532,8 +529,8 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 
 export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.from?.id) return false;
-		const client_data = await getClientData(msg.from.id);
+		if (!msg.chat?.id) return false;
+		const client_data = await getClientData(msg.chat.id);
 		const now = currentTime();
 		let caption = '';
 		let bot_description = 'Meet the *Sword Track Bot*—your go-to tool for real-time insights on the Solana blockchain! It tracks falling tokens and successful traders to help you make smarter crypto decisions. Simplify your trading experience and boost your success with *Sword Track Bot*!'
@@ -587,7 +584,7 @@ export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramB
 
 // export const onVerifyCode = async (msg: TelegramBot.Message, bot: TelegramBot, code: string) => {
 // 	try {
-// 		if (!msg.from?.id) return;
+// 		if (!msg.chat?.id) return;
 // 		const verify = await verifySubscriptionCode(code, msg.chat.username, msg.chat.id);
 
 // 		let message = '';

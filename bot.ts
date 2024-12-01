@@ -24,7 +24,7 @@ dotenv.config();
 const bot_token = process.env.bot_token != undefined ? process.env.bot_token : "";
 const bot = new TelegramBot(bot_token, { polling: true });
 
-let latestTopTrader: { [userId: number]: string } = {};
+let latestTopTrader: { [chatId: number]: string } = {};
 let timer_index = 0;
 
 // const traderCountPerPage = 3;
@@ -92,47 +92,43 @@ bot.on('callback_query', async (callbackQuery) => {
 	} else if (_cmd === 'start') {
 		await onStart(message, bot);
 	} else if (_cmd === 'topTraders') {
-		await sendDataToBot('top-trader', message.from?.id || 0, 0);
+		await sendDataToBot('top-trader', message.chat?.id || 0, 0);
 	} else if (_cmd === 'fallingTokens') {
-		// await sendDataToBot('falling-token', message.from?.id || 0, 1, 0);
+		// await sendDataToBot('falling-token', message.chat?.id || 0, 1, 0);
 	} else if (_cmd?.startsWith('previousPageOfTraders')) {
 		const page = Number(_cmd.replace('previousPageOfTraders_', '')) || 0;
 		if (!!page && page - 1 >= 1) {
-			await sendDataToBot('top-trader', message.from?.id || 0, message?.message_id);
+			await sendDataToBot('top-trader', message.chat?.id || 0, message?.message_id);
 		}
 	} else if (_cmd?.startsWith('nextPageOfTraders')) {
 		const page = Number(_cmd.replace('nextPageOfTraders_', '')) || 0;
 		if (!!page) {
-			await sendDataToBot('top-trader', message.from?.id || 0, message?.message_id);
+			await sendDataToBot('top-trader', message.chat?.id || 0, message?.message_id);
 		}
 	} else if (_cmd?.startsWith('previousPageOfTokens')) {
 		// const page = Number(_cmd.replace('previousPageOfTokens_', '')) || 0;
 		// if (!!page && page - 1 >= 1) {
-		// 	await sendDataToBot('falling-token', message.from?.id || 0, message?.message_id);
+		// 	await sendDataToBot('falling-token', message.chat?.id || 0, message?.message_id);
 		// }
 	} else if (_cmd?.startsWith('nextPageOfTokens')) {
 		// const page = Number(_cmd.replace('nextPageOfTokens_', '')) || 0;
 		// if (!!page) {
-		// 	await sendDataToBot('falling-token', message.from?.id || 0, page + 1, message?.message_id);
+		// 	await sendDataToBot('falling-token', message.chat?.id || 0, page + 1, message?.message_id);
 		// }
 	}
 	bot.answerCallbackQuery(callbackQuery.id);
 });
 
 bot.on('message', async (msg) => {
-	console.log("msg", msg);
+	console.log("message-msg", msg);
 	if (msg.text == undefined || (!!msg.entities?.length && msg.entities?.[0].type === 'bot_command')) return;
-	console.log("enter1")
-	if (!msg.from?.id) return;
-	const clientData: BotClient = await getClientData(msg.from.id);
-	console.log("enter2")
+	if (!msg.chat?.id) return;
+	const clientData: BotClient = await getClientData(msg.chat.id);
 	// if (!!clientData && clientData.status === BotStatus.UsualMode) return;
-	console.log("enter3")
 	if (clientData?.status !== BotStatus.InputEmail) {
 		const res = await checkSubscription(msg, bot);
 		if (!res) return;
 	}
-	console.log("enter4")
 	if (clientData.status == BotStatus.InputWinRate) {
 		if (!isNumber(msg.text)) {
 			await bot.sendMessage(msg.chat.id, 'You have to input number as Win Rate. Not Correct Format!!');
@@ -170,9 +166,9 @@ bot.on('message', async (msg) => {
 	// }
 })
 
-const sendDataToBot = async (type: 'top-trader' | 'falling-token', userId: number, /* page: number = 1, */ messageId: number) => {
+const sendDataToBot = async (type: 'top-trader' | 'falling-token', chatId: number, /* page: number = 1, */ messageId: number) => {
 	try {
-		const clientData = await getClientData(userId);
+		const clientData = await getClientData(chatId);
 
 		if (!clientData) return;
 
@@ -184,12 +180,12 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', userId: numbe
 			);
 
 			if (!!trader) {
-				if (!!latestTopTrader?.[clientData.userId]) {
-					if (latestTopTrader[clientData.userId] !== trader._id) {
-						latestTopTrader[clientData.userId] = trader._id;
+				if (!!latestTopTrader?.[clientData.chatId]) {
+					if (latestTopTrader[clientData.chatId] !== trader._id) {
+						latestTopTrader[clientData.chatId] = trader._id;
 					}
 				} else {
-					latestTopTrader = { ...latestTopTrader, [clientData.userId]: trader._id };
+					latestTopTrader = { ...latestTopTrader, [clientData.chatId]: trader._id };
 				}
 			}
 
@@ -231,14 +227,14 @@ const sendUpdatesToBot = async () => {
 
 			if (/* !_tokens.length ||  */!trader) continue;
 			
-			if (!!latestTopTrader?.[i.userId]) {
-				if (latestTopTrader[i.userId] === trader._id) {
+			if (!!latestTopTrader?.[i.chatId]) {
+				if (latestTopTrader[i.chatId] === trader._id) {
 					continue;
 				} else {
-					latestTopTrader[i.userId] = trader._id;
+					latestTopTrader[i.chatId] = trader._id;
 				}
 			} else {
-				latestTopTrader = { ...latestTopTrader, [i.userId]: trader._id };
+				latestTopTrader = { ...latestTopTrader, [i.chatId]: trader._id };
 			}
 			await showTopTradersMessage(bot, trader, /* count,  */i, /* 1, traderCountPerPage, */ 0);
 
