@@ -37,9 +37,9 @@ bot.setMyCommands([
 	{ command: '/confirm-premium', description: 'confirm premium after whop payment' },
 ])
 
-bot.onText(/\/login/, (msg) => {
-	onLogin(msg, bot);
-});
+// bot.onText(/\/login/, (msg) => {
+// 	onLogin(msg, bot);
+// });
 
 bot.onText(/\/start/, async (msg) => {
 	// if (msg.text?.startsWith('/start code=')) {
@@ -121,6 +121,7 @@ bot.on('callback_query', async (callbackQuery) => {
 });
 
 bot.on('message', async (msg) => {
+	console.log("msg", msg)
 	if (msg.text == undefined) return;
 
 	if (msg.chat.username == undefined) return;

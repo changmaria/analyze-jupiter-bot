@@ -529,7 +529,7 @@ export const showFallingTokenMessage = async (bot: TelegramBot, tokenList: Token
 
 export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
-		if (!msg.chat.username) return;
+		if (!msg.chat.username) return false;
 		const client_data = await getClientData(msg.chat.username);
 		const now = currentTime();
 		let caption = '';
