@@ -5,8 +5,7 @@ import path from 'path';
 
 import { BotClient, BotStatus, RequestTraderDataType, TokenDataType } from "./interface";
 import { currentTime, formatBigNumber } from "./helper";
-import { addClient, checkMembershipValid, getClientData, updateClientData } from "./mongodb";
-import { verifySubscriptionCode } from "./subscription";
+import { addClient, checkMembershipData, getClientData, updateClientData } from "./mongodb";
 
 const connection: Connection = new Connection('https://proportionate-distinguished-bush.solana-mainnet.quiknode.pro/23d40a5fef0e147c06129a62e0cc0b975f38fd42');
 const imagePath = path.normalize(`${path.normalize(`${__dirname}/../../`)}/assets/swordbanner.png`);
@@ -220,6 +219,50 @@ export const setMinimumVolume = async (msg: TelegramBot.Message, bot: TelegramBo
 		await updateClientData(clientData);
 	} catch (error) {
 		console.log("Set minimum volume error: ", error);
+	}
+}
+
+export const confirmPremium = async (msg: TelegramBot.Message, bot: TelegramBot) => {
+	try {
+		if (!msg.chat.username) return;
+		const clientData = await getClientData(msg.chat.username) as BotClient;
+		if (!clientData.name) return;
+		
+		if (!!clientData.membershipId && clientData.subscriptionExpiresIn >= currentTime()) {
+			await bot.sendMessage(msg.chat.id, 'Your subscription has already been successfully confirmed.');
+			return;
+		} else {
+			await bot.sendMessage(msg.chat.id, `Please enter the email you used to pay for your subscription.`);
+		}
+		clientData.status = BotStatus.InputEmail;
+		await updateClientData(clientData);
+	} catch (error) {
+		console.log("Set minimum volume error: ", error);
+	}
+}
+
+export const checkMembershipEmail = async (msg: TelegramBot.Message, bot: TelegramBot) => {
+	try {
+		if (!msg.chat.username || !msg.chat.id || !msg.text) return;
+		const _result = await checkMembershipData(msg.chat.username, msg.chat.id, msg.text);
+
+		let message = '';
+
+		if (_result) {
+			message = '👋👋Congratulations, your subscription has been successfully completed!!!';
+		} else {
+			message = 'Sorry, your subscription email is invalid. Please try again.';
+		}
+
+		await bot.sendMessage(
+			msg.chat.id,
+			message,
+			{
+				parse_mode: 'Markdown',
+			}
+		);
+	} catch (error) {
+		console.log("Check membership email error: ", error);
 	}
 }
 
@@ -482,17 +525,18 @@ export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramB
 		let caption = '';
 		let bot_description = 'Meet the *Sword Track Bot*—your go-to tool for real-time insights on the Solana blockchain! It tracks falling tokens and successful traders to help you make smarter crypto decisions. Simplify your trading experience and boost your success with *Sword Track Bot*!'
 
-		if (!client_data || !client_data?.accessToken) {
+		if (!client_data || !client_data?.membershipId) {
 			caption = `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _You have to buy bot first_ ⭣⭣⭣`;
 		} else if ( client_data.subscriptionExpiresIn < now ) {
 			caption = `👋👋_Welcome Back ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _Your memebership is expired, please buy bot_ ⭣⭣⭣`;
 		} else {
-			const valid = await checkMembershipValid(client_data);
-			if (valid) {
-				return true;
-			} else {
-				caption = `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _You have to buy bot first_ ⭣⭣⭣`;
-			}
+			// const valid = await checkMembershipValid(client_data);
+			// if (valid) {
+			// 	return true;
+			// } else {
+			// 	caption = `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _You have to buy bot first_ ⭣⭣⭣`;
+			// }
+			return true;
 		}
 
 		// if (!client_data.name) {
@@ -504,11 +548,11 @@ export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramB
 		const imageData = await fs.readFile(imagePath);
 		const reply_markup = {
 			inline_keyboard: [
-				// [
-				// 	{ text: 'Add Bot', callback_data: 'addBot' }
-				// ],
 				[
 					{ text: 'Buy Bot 🏆: 47€/month', callback_data: 'buyBot' }
+				],
+				[
+					{ text: 'Confirm Premium if you completed payment', callback_data: 'confirmPremium' }
 				],
 			]
 		};
@@ -528,28 +572,28 @@ export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramB
 	return false;
 }
 
-export const onVerifyCode = async (msg: TelegramBot.Message, bot: TelegramBot, code: string) => {
-	try {
-		if (!msg.chat.username) return;
-		const verify = await verifySubscriptionCode(code, msg.chat.username, msg.chat.id);
+// export const onVerifyCode = async (msg: TelegramBot.Message, bot: TelegramBot, code: string) => {
+// 	try {
+// 		if (!msg.chat.username) return;
+// 		const verify = await verifySubscriptionCode(code, msg.chat.username, msg.chat.id);
 
-		let message = '';
+// 		let message = '';
 
-		if (verify) {
-			message = '👋👋Congratulations, your subscription has been successfully completed!!!';
-		} else {
-			message = 'Sorry, your subscription code is invalid. Please try again.';
-		}
+// 		if (verify) {
+// 			message = '👋👋Congratulations, your subscription has been successfully completed!!!';
+// 		} else {
+// 			message = 'Sorry, your subscription code is invalid. Please try again.';
+// 		}
 
-		await bot.sendMessage(
-			msg.chat.id,
-			message,
-			{
-				parse_mode: 'Markdown',
-			}
-		);
+// 		await bot.sendMessage(
+// 			msg.chat.id,
+// 			message,
+// 			{
+// 				parse_mode: 'Markdown',
+// 			}
+// 		);
 
-	} catch (error) {
-		console.log("Verify code error: ", error);
-	}
-}
+// 	} catch (error) {
+// 		console.log("Verify code error: ", error);
+// 	}
+// }

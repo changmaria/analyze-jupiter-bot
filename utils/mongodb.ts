@@ -2,8 +2,7 @@ import { MongoClient } from "mongodb"
 import { BotClient, BotStatus, RequestTraderDataType } from "./interface";
 import { SchemaBotClient, SchemaToken, SchemaTransaction } from "./schema";
 import { currentTime } from "./helper";
-import { checkAccess } from "./subscription";
-import { C } from "@upstash/redis/zmscore-Dc6Llqgr";
+import { checkMembershipWithEmail, getActiveMembershipIds } from "./subscription";
 
 const MONGODB_URI = "mongodb://0.0.0.0:27017";
 const MONGODB_DATABASE = "solana-jupiter-sword"
@@ -30,7 +29,7 @@ export const open = async () => {
 
 		await DClients.createIndex({ name: 1 }, { unique: true, name: 'tg_username' });
 		await DClients.createIndex({ accessToken: 1 }, { unique: false, name: 'access_token' });
-		
+
 		const r = await DClients.find({}).toArray();
 		console.log("clients============>", r);
 	} catch (error) {
@@ -65,16 +64,17 @@ export const getClientData = async (tgUserName: string) => {
 		status: BotStatus.UsualMode,
 		isPaused: false,
 		chatId: 0,
+		email: '',
 		subscriptionCreatedAt: 0,
 		subscriptionExpiresIn: 0,
-		accessToken: ''
+		membershipId: ''
 	};
 }
 
 export const getClients = async () => {
 	try {
 		const now = currentTime();
-		const r = await DClients.find({ isPaused: false, status: BotStatus.UsualMode, subscriptionExpiresIn: {$gte: now} }).toArray();
+		const r = await DClients.find({ isPaused: false, status: BotStatus.UsualMode, membershipId: {$ne: ""}, subscriptionExpiresIn: { $gte: now } }).toArray();
 		return r;
 	} catch (error) {
 		console.log("Get clients error: ", error);
@@ -82,21 +82,40 @@ export const getClients = async () => {
 	return [];
 }
 
-export const checkMembershipValid = async (clientData: SchemaBotClient) => {
-	let isValid = false;
+export const updateMembershipsData = async () => {
 	try {
-		const now = currentTime();
-		if (!clientData.accessToken || clientData.subscriptionExpiresIn < now) return false;
+		const {success, membership_ids} = await getActiveMembershipIds();
 
-		isValid = await checkAccess(clientData.accessToken);
+		if (!success || !membership_ids.length) return;
+
+		const r = await DClients.find(
+			{
+				membershipId: {$nin: membership_ids},
+				subscriptionCreatedAt: {$ne: 0},
+				subscriptionExpiresIn: {$ne: 0},
+				email: {$ne: ""}
+			}
+		).toArray();
+
+		console.log("Delete membership info from these clients =========>", r);
+
+		await DClients.updateMany(
+			{
+				membershipId: {$nin: membership_ids},
+				subscriptionCreatedAt: {$ne: 0},
+				subscriptionExpiresIn: {$ne: 0},
+				email: {$ne: ""}
+			},
+			{
+				$set: {
+					membershipId: "",
+					subscriptionCreatedAt: 0,
+					subscriptionExpiresIn: 0
+				}
+			}
+		);
 	} catch (error) {
 		console.log("Check membership valid error: ", error);
-	}
-	if (isValid) {
-		return true;
-	} else {
-		await updateClientData({...clientData, accessToken: "", subscriptionExpiresIn: 0});
-		return false;
 	}
 }
 
@@ -111,13 +130,13 @@ export const addClient = async (tgUserName: string, chatId: number) => {
 			name: tgUserName,
 			winRate: defaultWinRate,
 			minVolume: defaultMinVolume,
-			// athPercent: defaultATHPercent,
 			status: BotStatus.UsualMode,
 			isPaused: false,
 			chatId,
+			email: "",
 			subscriptionCreatedAt: 0,
 			subscriptionExpiresIn: 0,
-			accessToken: ''
+			membershipId: ""
 		});
 
 		if (!!r.insertedId) return true;
@@ -143,7 +162,8 @@ export const updateClientData = async (_data: BotClient) => {
 					status: _data.status,
 					subscriptionCreatedAt: _data.subscriptionCreatedAt,
 					subscriptionExpiresIn: _data.subscriptionExpiresIn,
-					accessToken: _data.accessToken
+					membershipId: _data.membershipId,
+					email: _data.email
 				},
 				$setOnInsert: {
 					// name: _data.name,
@@ -162,12 +182,48 @@ export const updateClientData = async (_data: BotClient) => {
 	return false;
 }
 
-export const getExsitSubscriptionCode = async (accessToken: string) => {
+export const getExsitMembershipId = async (membershipId: string) => {
 	try {
-		const r = await DClients.findOne({ accessToken });
+		const r = await DClients.findOne({ membershipId });
 		if (!!r?._id) return true;
 	} catch (error) {
-		console.log("Get exsit subscription code error: ", error);
+		console.log("Get exsit membership id error: ", error);
+	}
+	return false;
+}
+
+export const checkMembershipData = async (tgUserName: string, chatId: number, email: string) => {
+	try {
+		const clientData = await getClientData(tgUserName);
+		if (!!clientData && !!clientData.membershipId && clientData.subscriptionExpiresIn >= currentTime()) {
+			return true;
+		}
+
+		const { created_at, renewal_period_end, membership_id } = await checkMembershipWithEmail(email);
+
+		if (!!created_at && !!renewal_period_end && !!membership_id) {
+			const _exist = await getExsitMembershipId(membership_id);
+			if (!_exist) {
+				await updateClientData({
+					name: tgUserName,
+					winRate: clientData?.winRate || defaultWinRate,
+					minVolume: clientData?.minVolume || defaultMinVolume,
+					status: clientData?.status || BotStatus.UsualMode,
+					isPaused: clientData?.isPaused || false,
+					chatId,
+					email,
+					subscriptionCreatedAt: created_at,
+					subscriptionExpiresIn: renewal_period_end,
+					membershipId: membership_id
+				});
+
+				console.log("Added membership data correctly ==========>", tgUserName, email, created_at, renewal_period_end, membership_id);
+				return true;
+			}
+		}
+
+	} catch (error) {
+		console.log("Check membership data error: ", error);
 	}
 	return false;
 }

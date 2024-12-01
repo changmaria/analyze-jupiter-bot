@@ -1,10 +1,24 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import dotenv from 'dotenv';
-import { onLogin, onSettings, onStart, setMinimumVolume, setWinRate, showTopTradersMessage, onBuyBot, onCancelSubscription, checkSubscription, onVerifyCode, setBotPauseStatus } from './utils/bot';
+
+import {
+	onLogin,
+	onSettings,
+	onStart,
+	setMinimumVolume,
+	setWinRate,
+	showTopTradersMessage,
+	onBuyBot,
+	onCancelSubscription,
+	checkSubscription,
+	setBotPauseStatus,
+	confirmPremium,
+	checkMembershipEmail
+} from './utils/bot';
 import { isNumber } from './utils/helper';
 import { BotClient, BotStatus } from './utils/interface';
-import { checkMembershipValid, getClientData, getClients, getTraderByWinRate, open, updateClientData } from "./utils/mongodb";
+import { getClientData, getClients, getTraderByWinRate, open, updateClientData, updateMembershipsData } from "./utils/mongodb";
 
 dotenv.config();
 
@@ -12,6 +26,7 @@ const bot_token = process.env.bot_token != undefined ? process.env.bot_token : "
 const bot = new TelegramBot(bot_token, { polling: true });
 
 let latestTopTrader = "";
+let timer_index = 0;
 
 // const traderCountPerPage = 3;
 // const tokenCountPerPage = 5;
@@ -19,6 +34,7 @@ let latestTopTrader = "";
 bot.setMyCommands([
 	{ command: '/start', description: 'start the bot' },
 	{ command: '/admin', description: 'modify the filter settings' },
+	{ command: '/confirm-premium', description: 'confirm premium after whop payment' },
 ])
 
 bot.onText(/\/login/, (msg) => {
@@ -26,14 +42,14 @@ bot.onText(/\/login/, (msg) => {
 });
 
 bot.onText(/\/start/, async (msg) => {
-	if (msg.text?.startsWith('/start code=')) {
-		const code = msg.text?.replace('/start code=', '');
-		console.log("Start-code============> ", code);
-		if (!!code && !!msg.chat.username) {
-			await onVerifyCode(msg, bot, code);
-			return;
-		}
-	}
+	// if (msg.text?.startsWith('/start code=')) {
+	// 	const code = msg.text?.replace('/start code=', '');
+	// 	console.log("Start-code============> ", code);
+	// 	if (!!code && !!msg.chat.username) {
+	// 		await onVerifyCode(msg, bot, code);
+	// 		return;
+	// 	}
+	// }
 	const res = await checkSubscription(msg, bot);
 	if (!res) return;
 	await onStart(msg, bot);
@@ -45,11 +61,15 @@ bot.onText(/\/admin/, async (msg) => {
 	await onSettings(msg, bot);
 })
 
+bot.onText(/\/confirm-premium/, async (msg) => {
+	await confirmPremium(msg, bot);
+})
+
 bot.on('callback_query', async (callbackQuery) => {
 	const message: any = callbackQuery.message;
 	const _cmd = callbackQuery.data || '';
 
-	if (/* _cmd !== 'addBot' &&  */_cmd !== 'buyBot' && _cmd !== 'cancelSubscription') {
+	if (_cmd !== 'confirmPremium' && _cmd !== 'buyBot' && _cmd !== 'cancelSubscription') {
 		const res = await checkSubscription(message, bot);
 		if (!res) return bot.answerCallbackQuery(callbackQuery.id);
 	}
@@ -58,10 +78,10 @@ bot.on('callback_query', async (callbackQuery) => {
 		await setWinRate(message, bot);
 	} else if (_cmd == 'setMinimumVolume') {
 		await setMinimumVolume(message, bot);
-	// } else if (_cmd == 'setATHPercent') {
-		// setATHPercent(message, bot);
+	} else if (_cmd == 'confirmPremium') {
+		await confirmPremium(message, bot);
 	} else if (_cmd == 'setBotPauseStatus') {
-		setBotPauseStatus(message, bot);
+		await setBotPauseStatus(message, bot);
 	} else if (_cmd == 'buyBot') {
 		await onBuyBot(message, bot);
 	// } else if (_cmd == 'addBot') {
@@ -106,10 +126,12 @@ bot.on('message', async (msg) => {
 
 	if (msg.chat.username == undefined) return;
 
-	const res = await checkSubscription(msg, bot);
-	if (!res) return;
-
 	const clientData: BotClient = await getClientData(msg.chat.username);
+	
+	if (clientData?.status !== BotStatus.InputEmail) {
+		const res = await checkSubscription(msg, bot);
+		if (!res) return;
+	}
 
 	if (clientData.status == BotStatus.InputWinRate) {
 		if (!isNumber(msg.text)) {
@@ -129,6 +151,12 @@ bot.on('message', async (msg) => {
 		clientData.status = BotStatus.UsualMode;
 		await updateClientData(clientData);
 		await bot.sendMessage(msg.chat.id, `Minimum Volume is updated successfully. $${clientData.minVolume}`);
+	} else if (clientData.status == BotStatus.InputEmail) {
+		if (!msg.text) {
+			await bot.sendMessage(msg.chat.id, 'Please enter a valid email address.');
+			return;
+		}
+		await checkMembershipEmail(msg, bot);
 	}
 	//  else if (clientData.status == BotStatus.InputATHPercent) {
 		// if (!isNumber(msg.text)) {
@@ -171,14 +199,18 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', tgUserName: s
 
 const sendUpdatesToBot = async () => {
 	try {
+
+		timer_index++;
+		if (timer_index === 3) {
+			console.log("Update memberships data ========>");
+			await updateMembershipsData();
+			timer_index = 0;
+		}
+
 		const clients = await getClients();
 		if (!clients.length) return;
 
 		for (let i of clients) {
-
-			const membershipValid = await checkMembershipValid(i);
-			if (!membershipValid) continue;
-
 			const trader = await getTraderByWinRate(
 				i.winRate / 100,
 				(i.minVolume * LAMPORTS_PER_SOL) / 175,

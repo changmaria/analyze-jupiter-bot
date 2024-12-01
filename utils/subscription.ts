@@ -1,85 +1,171 @@
 import axios from "axios";
 import dotenv from 'dotenv';
-import { defaultMinVolume, defaultWinRate, getClientData, getExsitSubscriptionCode, updateClientData } from "./mongodb";
-import { BotStatus } from "./interface";
-import { currentTime } from "./helper";
 
 dotenv.config();
 
 const API_KEY = process.env.API_KEY;
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const PRODUCT_ID = process.env.PRODUCT_ID;
 
-export const verifySubscriptionCode = async (code: string, tgUsername: string, chatId: number) => {
+const getPaymentsList = async (email: string) => {
+	let isContinue = true;
+	let page = 1;
+	let per = 100;
+	let user_id: string = "";
+
 	try {
-		if (!!code) {
+		while (isContinue) {
 			const requestOptions = {
-				method: "POST",
-				url: "https://api.whop.com/v5/oauth/token",
+				method: "GET",
+				url: "https://api.whop.com/api/v5/company/payments",
 				headers: {
 					Authorization: `Bearer ${API_KEY}`,
 					"Content-Type": "application/json",
 				},
 				data: {
-					grant_type: "authorization_code",
-					code: code,
-					client_id: CLIENT_ID,
-					client_secret: CLIENT_SECRET,
-					redirect_uri: "https://sword-tracker-bot.onrender.com/whop"
+					product_id: PRODUCT_ID,
+					page,
+					per
 				},
 			};
 
 			const res = await axios.request(requestOptions);
 
-			if (res.status === 200 && !!res.data?.access_token) {
+			if (res.status === 200 && !!res.data?.pagination) {
 				const _data = res.data;
-
-				console.log("verify-subscription res =============> ", _data);
-
-				// const _exist_token = await getExsitSubscriptionCode(_data.access_token);
-				// console.log("_exist_token============> ", _exist_token);
-
-				const client = await getClientData(tgUsername);
-
-				const created_at = Number(_data?.created_at) || currentTime();
-				const one_month = 60 * 60 * 24 * 31
-				const expires_in = !!_data?.expires_in ? (Number(_data.expires_in) > one_month ? one_month : Number(_data.expires_in)) : one_month;
-
-				await updateClientData({
-					name: tgUsername,
-					winRate: client?.winRate || defaultWinRate,
-					minVolume: client?.minVolume || defaultMinVolume,
-					// athPercent: defaultATHPercent,
-					status: client?.status || BotStatus.UsualMode,
-					isPaused: client?.isPaused === undefined ? false : client?.isPaused,
-					chatId: chatId,
-					subscriptionCreatedAt: created_at,
-					subscriptionExpiresIn: expires_in + created_at,
-					accessToken: _data.access_token
-				})
-				console.log("Added client data correctly============>", _data.access_token, expires_in, created_at)
-				return true;
+				for (let i of _data.data) {
+					if (i.user_email === email) {
+						user_id = i.user_id;
+						isContinue = false;
+						break;
+					}
+				}
+				if (!_data.pagination.next_page) {
+					isContinue = false;
+				}
+			} else {
+				isContinue = false;
 			}
 		}
 	} catch (error) {
-		console.log("Verify subscription code error: ", error);
+		console.log("Get payments list error: ", error);
 	}
-	return false;
+	return user_id;
 }
 
-export const checkAccess = async (accessToken: string) => {
+const getMembershipsList = async (user_id: string) => {
+	let isContinue = true;
+	let page = 1;
+	let per = 100;
+	let created_at = 0, renewal_period_end = 0, membership_id = "";
 	try {
-		const res = await axios.get(`https://api.whop.com/v5/me`, {
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-			},
-		});
-		console.log("checkAccess ================>", res);
-		if (res.status === 200 && !!res.data?.id) {
-			return true;
+		while (isContinue) {
+			const requestOptions = {
+				method: "GET",
+				url: "https://api.whop.com/api/v5/company/memberships",
+				headers: {
+					Authorization: `Bearer ${API_KEY}`,
+					"Content-Type": "application/json",
+				},
+				data: {
+					product_id: PRODUCT_ID,
+					statuses: ['active', 'trialing', 'past_due'],
+					page,
+					per
+				},
+			};
+
+			const res = await axios.request(requestOptions);
+
+			if (res.status === 200 && !!res.data?.pagination) {
+				const _data = res.data;
+				for (let i of _data.data) {
+					if (i.user_id === user_id) {
+						membership_id = i.id;
+						created_at = i.created_at;
+						renewal_period_end = i.renewal_period_end;
+						isContinue = false;
+						break;
+					}
+				}
+				if (!_data.pagination.next_page) {
+					isContinue = false;
+				}
+			} else {
+				isContinue = false;
+			}
 		}
 	} catch (error) {
-		console.log("Check access error: ", error);
+		console.log("Get payments list error: ", error);
 	}
-	return false;
+	return { created_at, renewal_period_end, membership_id }
+}
+
+export const getActiveMembershipIds = async () => {
+	let isContinue = true;
+	let page = 1;
+	let per = 100;
+	let membership_ids = [] as string[];
+	let success: boolean = false;
+	try {
+		while (isContinue) {
+			const requestOptions = {
+				method: "GET",
+				url: "https://api.whop.com/api/v5/company/memberships",
+				headers: {
+					Authorization: `Bearer ${API_KEY}`,
+					"Content-Type": "application/json",
+				},
+				data: {
+					product_id: PRODUCT_ID,
+					statuses: ['active', 'trialing', 'past_due'],
+					page,
+					per
+				},
+			};
+
+			const res = await axios.request(requestOptions);
+
+			if (res.status === 200 && !!res.data?.pagination) {
+				const _data = res.data;
+				for (let i of _data.data) {
+					membership_ids.push(i.id);
+				}
+				if (!_data.pagination.next_page) {
+					success = true;
+					isContinue = false;
+				}
+			} else {
+				isContinue = false;
+			}
+		}
+		membership_ids = [...new Set(membership_ids)];
+	} catch (error) {
+		console.log("Get payments list error: ", error);
+	}
+	console.log("membership_ids", membership_ids)
+	console.log("success", success)
+	return {
+		success,
+		membership_ids
+	};
+}
+
+export const checkMembershipWithEmail = async (email: string) => {
+	try {
+		//radojicaleksa87@gmail.com
+		console.log("check membership user email =============>", email);
+
+		const user_id = await getPaymentsList(email);
+		console.log("check membership user_id =============>", user_id);
+
+		if (!!user_id) {
+			const { created_at, renewal_period_end, membership_id } = await getMembershipsList(user_id);
+			console.log("check membership created_at, renewal_period_end, membership_id =============>", created_at, renewal_period_end, membership_id);
+
+			return { created_at, renewal_period_end, membership_id };
+		}
+	} catch (error) {
+		console.log("Check membership with mail error: ", error);
+	}
+	return { created_at: 0, renewal_period_end: 0, membership_id: '' };
 }

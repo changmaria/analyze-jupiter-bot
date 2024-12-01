@@ -2,6 +2,7 @@ export enum BotStatus {
 	InputWinRate = "Inputing Win Rate",
 	InputMinVolume = "Inputing Min Volume",
 	// InputATHPercent = "Inputing ATH Percent",
+	InputEmail = "Inputing Email",
 	UsualMode = "Normal Mode"
 }
 
@@ -31,9 +32,11 @@ export interface BotClient {
 	status: BotStatus;
 	isPaused: boolean;
 	chatId: number;
+	email: string;
 	subscriptionCreatedAt: number;
 	subscriptionExpiresIn: number;
-	accessToken: string;
+	// accessToken: string;
+	membershipId: string;
 }
 
 export interface Trader {
