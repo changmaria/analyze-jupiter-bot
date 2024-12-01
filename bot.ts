@@ -126,7 +126,7 @@ bot.on('message', async (msg) => {
 	if (!msg.from?.id) return;
 	const clientData: BotClient = await getClientData(msg.from.id);
 	console.log("enter2")
-	if (!!clientData && clientData.status === BotStatus.UsualMode) return;
+	// if (!!clientData && clientData.status === BotStatus.UsualMode) return;
 	console.log("enter3")
 	if (clientData?.status !== BotStatus.InputEmail) {
 		const res = await checkSubscription(msg, bot);
