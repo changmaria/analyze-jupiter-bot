@@ -562,7 +562,7 @@ export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramB
 					{ text: 'Buy Bot 🏆: 47€/month', callback_data: 'buyBot' }
 				],
 				[
-					{ text: 'Confirm Premium if you completed payment', callback_data: 'confirmPremium' }
+					{ text: 'Confirm if you completed payment', callback_data: 'confirmPremium' }
 				],
 			]
 		};
