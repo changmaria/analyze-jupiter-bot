@@ -408,7 +408,7 @@ export const getTraderByWinRate = async (winRate: number, minVolume: number/* , 
 
 		let trader: RequestTraderDataType | null = null;
 
-		if (!!r?.[0]._id) {
+		if (!!r?.[0]?._id) {
 			const _r = r[0];
 			const _latestToken = await DTransactions.find({ trader: _r._id, isBuy: true }).sort({ created: -1 }).skip(0).limit(1).toArray();
 			const address = _latestToken?.[0]?.tokenAddress || "";
