@@ -328,12 +328,12 @@ export const getTokensCountByATHPercent = async (athPercent: number) => {
 	return 0;
 }
 
-export const getTraderByWinRate = async (winRate: number, minVolume: number, excludeTrader: string | null/* , page: number, countPerPage: number */) => {
+export const getTraderByWinRate = async (winRate: number, minVolume: number, excludeTrader: string[]/* , page: number, countPerPage: number */) => {
 	try {
 		let _match = {}
-		if (!!excludeTrader) {
+		if (!!excludeTrader.length) {
 			_match = {
-				trader: {$ne: excludeTrader}
+				trader: {$nin: excludeTrader}
 			}
 		}
 		const r = await DTransactions.aggregate([
