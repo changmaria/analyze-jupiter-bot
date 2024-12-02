@@ -536,9 +536,6 @@ export const checkSubscription = async (msg: TelegramBot.Message, bot: TelegramB
 		let bot_description = 'Meet the *Sword Track Bot*—your go-to tool for real-time insights on the Solana blockchain! It tracks falling tokens and successful traders to help you make smarter crypto decisions. Simplify your trading experience and boost your success with *Sword Track Bot*!'
 
 		if (!client_data || !client_data?.membershipId) {
-			if (client_data.chatId === 6571162255) {
-				return true;
-			}
 			caption = `👋👋_Welcome ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _You have to buy bot first_ ⭣⭣⭣`;
 		} else if (client_data.subscriptionExpiresIn < now) {
 			caption = `👋👋_Welcome Back ${msg.chat.first_name}!_👋👋\n\n${bot_description}\n\n\n ⭣⭣⭣ _Your memebership is expired, please buy bot_ ⭣⭣⭣`;
