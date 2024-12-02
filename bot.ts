@@ -242,7 +242,7 @@ const sendUpdatesToBot = async () => {
 			} else {
 				latestTopTrader = { ...latestTopTrader, [i.chatId]: trader._id };
 			}
-			
+
 			await showTopTradersMessage(bot, trader, /* count,  */i, /* 1, traderCountPerPage, */ 0);
 
 			// await showFallingTokenMessage(bot, _tokens, _count, i.chatId, 1, tokenCountPerPage, 0);
@@ -259,7 +259,7 @@ const startRunning = async () => {
 		} catch (err) {
 			console.log("sending token error ===>", err);
 		}
-	}, 1000 * 60 * 1);
+	}, 1000 * 60 * 10);
 }
 
 open().then(async () => {
