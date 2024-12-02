@@ -212,7 +212,7 @@ export const checkMembershipData = async (chatId: number, email: string) => {
 					minVolume: clientData?.minVolume || defaultMinVolume,
 					status: BotStatus.UsualMode,
 					isPaused: clientData?.isPaused || false,
-					email,
+					email: email.toLowerCase(),
 					subscriptionCreatedAt: created_at,
 					subscriptionExpiresIn: renewal_period_end,
 					membershipId: membership_id
