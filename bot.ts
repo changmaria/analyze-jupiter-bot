@@ -176,7 +176,8 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', chatId: numbe
 
 			const trader = await getTraderByWinRate(
 				clientData.winRate / 100,
-				(clientData.minVolume * LAMPORTS_PER_SOL) / 175
+				(clientData.minVolume * LAMPORTS_PER_SOL) / 175,
+				!!latestTopTrader?.[clientData.chatId] ? latestTopTrader[clientData.chatId] : null
 			);
 
 			console.log("trader", trader)
@@ -224,6 +225,7 @@ const sendUpdatesToBot = async () => {
 			const trader = await getTraderByWinRate(
 				i.winRate / 100,
 				(i.minVolume * LAMPORTS_PER_SOL) / 175,
+				!!latestTopTrader?.[i.chatId] ? latestTopTrader[i.chatId] : null
 			);
 
 			// const _tokens = await getTokensByATHPercent(i.athPercent, 1, tokenCountPerPage);

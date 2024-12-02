@@ -31,8 +31,8 @@ export const open = async () => {
 		await DClients.createIndex({ chatId: 1 }, { unique: true, name: 'tg_chat_id' });
 		await DClients.createIndex({ membershipId: 1 }, { unique: false, name: 'membership_id' });
 
-		const r = await DClients.find({}).toArray();
-		console.log("clients============>", r);
+		// const r = await DClients.find({}).toArray();
+		// console.log("clients============>", r);
 	} catch (error) {
 		console.log("MongoDB connection failure: ", error)
 		process.exit()
@@ -328,9 +328,18 @@ export const getTokensCountByATHPercent = async (athPercent: number) => {
 	return 0;
 }
 
-export const getTraderByWinRate = async (winRate: number, minVolume: number/* , page: number, countPerPage: number */) => {
+export const getTraderByWinRate = async (winRate: number, minVolume: number, excludeTrader: string | null/* , page: number, countPerPage: number */) => {
 	try {
+		let _match = {}
+		if (!!excludeTrader) {
+			_match = {
+				trader: {$ne: excludeTrader}
+			}
+		}
 		const r = await DTransactions.aggregate([
+			{
+				$match: _match
+			},
 			{
 				$group: {
 					_id: "$trader",
