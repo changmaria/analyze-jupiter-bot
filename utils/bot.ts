@@ -38,7 +38,11 @@ export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 					inline_keyboard: [
 						[
 							{ text: `Win Rate ${clientData.winRate.toFixed(0)}%`, callback_data: 'setWinRate' },
+						],
+						[
 							{ text: `Min Volume $${clientData.minVolume.toFixed(0)}`, callback_data: 'setMinimumVolume' },
+						],
+						[
 							{ text: !clientData.isPaused ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotPauseStatus' },
 						],
 						[
@@ -255,7 +259,7 @@ export const checkMembershipEmail = async (msg: TelegramBot.Message, bot: Telegr
 		let message = '';
 
 		if (_result) {
-			message = '👋👋Congratulations, your subscription has been successfully completed!!!';
+			message = '👋👋Congratulations, your subscription has been successfully completed!!!\n\n\nPlease join the telegram group according to your language:\n\nEnglish Telegram: https://t.me/swordeng\n\nFrench Telegram: https://t.me/swordfr';
 		} else {
 			message = 'Sorry, your subscription email is invalid. Please try again.';
 			const clientData = await getClientData(msg.chat.id);
