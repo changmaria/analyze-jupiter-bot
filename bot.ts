@@ -192,6 +192,7 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', chatId: numbe
 				} else {
 					latestTopTrader = { ...latestTopTrader, [clientData.chatId]: [trader._id] };
 				}
+				console.log("latestTopTrader[clientData.chatId]", latestTopTrader[clientData.chatId]);
 			}
 
 			await showTopTradersMessage(bot, trader, /* count,  */clientData, /* page, traderCountPerPage,  */messageId);
