@@ -329,7 +329,7 @@ export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTraderDataType | null, /* totalCount: number,  */clientData: BotClient, /* page: number, countPerPage: number,  */messageId: number) => {
 	try {
 		// const totalPage = (totalCount % countPerPage === 0) ? totalCount / countPerPage : Math.floor(totalCount / countPerPage) + 1;
-		let message = '🟣Sword Best Traders Bot📈\n\n';
+		let message = '';
 
 		if (!!trader) {
 			let token_message = '';
@@ -403,7 +403,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTra
 				// 	{ text: '>>', callback_data: page + 1 <= totalPage ? `nextPageOfTraders_${page}` : 'page' },
 				// ],
 				[
-					{ text: 'BULL X', url: 'https://bullx.io/veutino' },
+					{ text: 'BULL X', url: `${!!trader?.latestToken?.address ? `https://bullx.io/terminal?chainId=1399811149&address=${trader.latestToken.address}` : 'https://bullx.io/veutino'}` },
 				],
 				[
 					{ text: 'Back', callback_data: 'start' },
