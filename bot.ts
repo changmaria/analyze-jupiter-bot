@@ -24,7 +24,8 @@ dotenv.config();
 const bot_token = process.env.bot_token != undefined ? process.env.bot_token : "";
 const bot = new TelegramBot(bot_token, { polling: true });
 
-let latestTopTrader: { [chatId: number]: string[] } = {};
+let latestTopTraders: { [chatId: number]: string[] } = {};
+let updatedLatestTopTraders: {[chatId: number]: string} = {};
 let timer_index = 0;
 
 // const traderCountPerPage = 3;
@@ -177,22 +178,22 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', chatId: numbe
 			const trader = await getTraderByWinRate(
 				clientData.winRate / 100,
 				(clientData.minVolume * LAMPORTS_PER_SOL) / 175,
-				!!latestTopTrader?.[clientData.chatId] ? latestTopTrader[clientData.chatId] : []
+				!!latestTopTraders?.[clientData.chatId] ? latestTopTraders[clientData.chatId] : []
 			)
 
 			if (!!trader) {
-				if (!!latestTopTrader?.[clientData.chatId]) {
-					let _traders = latestTopTrader?.[clientData.chatId];
+				if (!!latestTopTraders?.[clientData.chatId]) {
+					let _traders = latestTopTraders?.[clientData.chatId];
 					_traders.push(trader._id);
 					_traders = [...new Set(_traders)];
 					if (_traders.length > 5) {
 						_traders = _traders.slice(-5);
 					}
-					latestTopTrader = { ...latestTopTrader, [clientData.chatId]: _traders };
+					latestTopTraders = { ...latestTopTraders, [clientData.chatId]: _traders };
 				} else {
-					latestTopTrader = { ...latestTopTrader, [clientData.chatId]: [trader._id] };
+					latestTopTraders = { ...latestTopTraders, [clientData.chatId]: [trader._id] };
 				}
-				console.log("latestTopTrader[clientData.chatId]", latestTopTrader[clientData.chatId]);
+				console.log("latestTopTraders[clientData.chatId]", latestTopTraders[clientData.chatId]);
 			}
 
 			await showTopTradersMessage(bot, trader, /* count,  */clientData, /* page, traderCountPerPage,  */messageId);
@@ -226,7 +227,7 @@ const sendUpdatesToBot = async () => {
 			const trader = await getTraderByWinRate(
 				i.winRate / 100,
 				(i.minVolume * LAMPORTS_PER_SOL) / 175,
-				!!latestTopTrader?.[i.chatId] ? latestTopTrader[i.chatId] : []
+				[]
 			);
 
 			// const _tokens = await getTokensByATHPercent(i.athPercent, 1, tokenCountPerPage);
@@ -234,19 +235,17 @@ const sendUpdatesToBot = async () => {
 
 			if (/* !_tokens.length ||  */!trader) continue;
 
-			if (!!latestTopTrader?.[i.chatId]) {
-				let _traders = latestTopTrader?.[i.chatId];
-				_traders.push(trader._id);
-				_traders = [...new Set(_traders)];
-				if (_traders.length > 5) {
-					_traders = _traders.slice(-5);
+			if (!!updatedLatestTopTraders?.[i.chatId]) {
+				if (updatedLatestTopTraders[i.chatId] === trader._id) {
+					continue;
+				} else {
+					updatedLatestTopTraders[i.chatId] = trader._id;
 				}
-				latestTopTrader = { ...latestTopTrader, [i.chatId]: _traders };
 			} else {
-				latestTopTrader = { ...latestTopTrader, [i.chatId]: [trader._id] };
+				updatedLatestTopTraders = {...updatedLatestTopTraders, [i.chatId]: trader._id}
 			}
 
-			console.log("latestTopTrader", latestTopTrader);
+			console.log("updatedLatestTopTraders", updatedLatestTopTraders);
 
 			await showTopTradersMessage(bot, trader, /* count,  */i, /* 1, traderCountPerPage, */ 0);
 
