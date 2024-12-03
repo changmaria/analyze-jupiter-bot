@@ -245,12 +245,10 @@ const sendUpdatesToBot = async () => {
 				updatedLatestTopTraders = {...updatedLatestTopTraders, [i.chatId]: trader._id}
 			}
 
-			console.log("updatedLatestTopTraders", updatedLatestTopTraders);
-
 			await showTopTradersMessage(bot, trader, /* count,  */i, /* 1, traderCountPerPage, */ 0);
-
 			// await showFallingTokenMessage(bot, _tokens, _count, i.chatId, 1, tokenCountPerPage, 0);
 		}
+		console.log("updatedLatestTopTraders", updatedLatestTopTraders);
 	} catch (error) {
 		console.log("Send updates to bot error: ", error);
 	}
