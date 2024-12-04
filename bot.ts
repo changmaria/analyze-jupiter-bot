@@ -25,7 +25,7 @@ const bot_token = process.env.bot_token != undefined ? process.env.bot_token : "
 const bot = new TelegramBot(bot_token, { polling: true });
 
 let latestTopTraders: { [chatId: number]: string[] } = {};
-let updatedLatestTopTraders: {[chatId: number]: string} = {};
+let updatedLatestTopTraders: { [chatId: number]: string[] } = {};
 let timer_index = 0;
 
 // const traderCountPerPage = 3;
@@ -236,13 +236,16 @@ const sendUpdatesToBot = async () => {
 			if (/* !_tokens.length ||  */!trader) continue;
 
 			if (!!updatedLatestTopTraders?.[i.chatId]) {
-				if (updatedLatestTopTraders[i.chatId] === trader._id) {
-					continue;
-				} else {
-					updatedLatestTopTraders[i.chatId] = trader._id;
+				let _traders = updatedLatestTopTraders?.[i.chatId];
+				if (_traders.includes(trader._id)) continue;
+				_traders.push(trader._id);
+				_traders = [...new Set(_traders)];
+				if (_traders.length > 7) {
+					_traders = _traders.slice(-7);
 				}
+				updatedLatestTopTraders = {...updatedLatestTopTraders, [i.chatId]: _traders};
 			} else {
-				updatedLatestTopTraders = {...updatedLatestTopTraders, [i.chatId]: trader._id}
+				updatedLatestTopTraders = { ...updatedLatestTopTraders, [i.chatId]: [trader._id] };
 			}
 
 			await showTopTradersMessage(bot, trader, /* count,  */i, /* 1, traderCountPerPage, */ 0);
