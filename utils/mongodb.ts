@@ -408,7 +408,7 @@ export const getTraderByWinRate = async (winRate: number, minVolume: number, min
 				$skip: 0,
 			},
 			{
-				$limit: 2
+				$limit: 50
 			}
 			// {
 			// 	$facet: {

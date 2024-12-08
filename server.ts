@@ -1,6 +1,5 @@
 import express, { Express, Request, Response } from "express";
 import bodyParser from "body-parser";
-import { getUserSolBalance } from "./utils/helper";
 
 const app: Express = express();
 
@@ -20,7 +19,6 @@ try {
     });
 
     const port = 3000;
-    getUserSolBalance("85TmrVw3YQWkkonnQkEkJ2WAYh13zq486BKRVQAjRN6t");
     app.listen(port, () => {
         console.log(`Express is running at port: ${port}`);
     });
