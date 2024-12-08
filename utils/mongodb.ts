@@ -3,7 +3,8 @@ import { BotClient, BotStatus, RequestTraderDataType } from "./interface";
 import { SchemaBotClient, SchemaToken, SchemaTransaction } from "./schema";
 import { currentTime } from "./helper";
 import { checkMembershipWithEmail, getActiveMembershipIds } from "./subscription";
-import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+// import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { getUserSolBalance } from "./bot";
 
 const MONGODB_URI = "mongodb://0.0.0.0:27017";
 const MONGODB_DATABASE = "solana-jupiter-sword"
@@ -13,7 +14,6 @@ export const defaultMinSolBalance: number = 1000;
 // export const defaultATHPercent: number = 80;
 export const SOL_PRICE = 235;
 
-const connection: Connection = new Connection('https://proportionate-distinguished-bush.solana-mainnet.quiknode.pro/23d40a5fef0e147c06129a62e0cc0b975f38fd42');
 const client = new MongoClient(MONGODB_URI);
 const db = client.db(MONGODB_DATABASE);
 
@@ -333,19 +333,6 @@ export const getTokensCountByATHPercent = async (athPercent: number) => {
 		return count;
 	} catch (error) {
 		console.log("Get tokens by ATH percent error: ", error);
-	}
-	return 0;
-}
-
-export const getUserSolBalance = async (address: string) => {
-	try {
-		const publicKey = new PublicKey(address);
-		console.log("publicKey", publicKey);
-		const balance = await connection.getBalance(publicKey);
-		console.log("balance", balance);
-		return balance / LAMPORTS_PER_SOL;
-	} catch (error) {
-		console.log("Getting user's sol balance: ", error);
 	}
 	return 0;
 }

@@ -1,5 +1,5 @@
 import TelegramBot from "node-telegram-bot-api";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -7,8 +7,19 @@ import { BotClient, BotStatus, RequestTraderDataType, TokenDataType } from "./in
 import { currentTime, formatBigNumber } from "./helper";
 import { addClient, checkMembershipData, getClientData, SOL_PRICE, updateClientData } from "./mongodb";
 
+const connection: Connection = new Connection('https://proportionate-distinguished-bush.solana-mainnet.quiknode.pro/23d40a5fef0e147c06129a62e0cc0b975f38fd42');
 const imagePath = path.normalize(`${path.normalize(`${__dirname}/../../`)}/assets/swordbanner.png`);
 
+export const getUserSolBalance = async (address: string) => {
+	try {
+		const publicKey = new PublicKey(address);
+		const balance = await connection.getBalance(publicKey);
+		return balance / LAMPORTS_PER_SOL;
+	} catch (error) {
+		console.log("Getting user's sol balance: ", error);
+	}
+	return 0;
+}
 
 export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
