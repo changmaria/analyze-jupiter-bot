@@ -1,25 +1,14 @@
 import TelegramBot from "node-telegram-bot-api";
-import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { promises as fs } from 'fs';
 import path from 'path';
 
 import { BotClient, BotStatus, RequestTraderDataType, TokenDataType } from "./interface";
 import { currentTime, formatBigNumber } from "./helper";
-import { addClient, checkMembershipData, getClientData, updateClientData } from "./mongodb";
+import { addClient, checkMembershipData, getClientData, SOL_PRICE, updateClientData } from "./mongodb";
 
-const connection: Connection = new Connection('https://proportionate-distinguished-bush.solana-mainnet.quiknode.pro/23d40a5fef0e147c06129a62e0cc0b975f38fd42');
 const imagePath = path.normalize(`${path.normalize(`${__dirname}/../../`)}/assets/swordbanner.png`);
 
-export const getUserSolBalance = async (address: string) => {
-	try {
-		const publicKey = new PublicKey(address);
-		const balance = await connection.getBalance(publicKey);
-		return balance / LAMPORTS_PER_SOL;
-	} catch (error) {
-		console.log("Getting user's sol balance: ", error);
-	}
-	return 0;
-}
 
 export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
@@ -41,6 +30,9 @@ export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => 
 						],
 						[
 							{ text: `Min Volume $${clientData.minVolume.toFixed(0)}`, callback_data: 'setMinimumVolume' },
+						],
+						[
+							{ text: `Min Sol Balance $${clientData.minSolBalance.toFixed(0)}`, callback_data: 'setMinimumSolBalance' },
 						],
 						[
 							{ text: !clientData.isPaused ? '❌ Pause bot' : '🚀 Start bot', callback_data: 'setBotPauseStatus' },
@@ -226,6 +218,19 @@ export const setMinimumVolume = async (msg: TelegramBot.Message, bot: TelegramBo
 	}
 }
 
+export const setMinimumSolBalance = async (msg: TelegramBot.Message, bot: TelegramBot) => {
+	try {
+		if (!msg.chat?.id) return;
+		const clientData = await getClientData(msg.chat.id) as BotClient;
+		if (!clientData.chatId) return;
+		await bot.sendMessage(msg.chat.id, `Please input the Minimum Sol Balance for filtering. Now Minimum Sol Balance is $${clientData.minSolBalance}`)
+		clientData.status = BotStatus.InputMinSolBalance;
+		await updateClientData(clientData);
+	} catch (error) {
+		console.log("Set minimum sol balance error: ", error);
+	}
+}
+
 export const confirmPremium = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 	try {
 		if (!msg.chat?.id) return;
@@ -380,7 +385,6 @@ export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTra
 			} else {
 				token_message += '\n  └ N/A ‼️';
 			}
-			const _balance = await getUserSolBalance(trader._id);
 			message += (
 				token_message +
 				'\n\n👜 **Wallet** 👇\n' +
@@ -392,9 +396,9 @@ export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTra
 				'\n  ├ `Win Rate:`                ' +
 				`${(trader.winTransaction / trader.totalTransaction * 100).toFixed(0)}%` +
 				'\n  ├ `Trading Volume:`   ' +
-				`$${formatBigNumber((trader.totalVolume / LAMPORTS_PER_SOL * 175))}` +
+				`$${formatBigNumber((trader.totalVolume / LAMPORTS_PER_SOL * SOL_PRICE))}` +
 				'\n  └ `SOL Balance:`          ' +
-				`${Math.round(_balance * 1e3) / 1e3}SOL`);
+				`${Math.round(trader.solBalance * 1e3) / 1e3}SOL`);
 		} else {
 			message += `Currently there is no trader has achieved a win rate above ${clientData.winRate}%.`;
 		}

@@ -3,13 +3,17 @@ import { BotClient, BotStatus, RequestTraderDataType } from "./interface";
 import { SchemaBotClient, SchemaToken, SchemaTransaction } from "./schema";
 import { currentTime } from "./helper";
 import { checkMembershipWithEmail, getActiveMembershipIds } from "./subscription";
+import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 const MONGODB_URI = "mongodb://0.0.0.0:27017";
 const MONGODB_DATABASE = "solana-jupiter-sword"
 export const defaultWinRate: number = 40;
 export const defaultMinVolume: number = 1000;
+export const defaultMinSolBalance: number = 1000;
 // export const defaultATHPercent: number = 80;
+export const SOL_PRICE = 235;
 
+const connection: Connection = new Connection('https://proportionate-distinguished-bush.solana-mainnet.quiknode.pro/23d40a5fef0e147c06129a62e0cc0b975f38fd42');
 const client = new MongoClient(MONGODB_URI);
 const db = client.db(MONGODB_DATABASE);
 
@@ -31,8 +35,9 @@ export const open = async () => {
 		await DClients.createIndex({ chatId: 1 }, { unique: true, name: 'tg_chat_id' });
 		await DClients.createIndex({ membershipId: 1 }, { unique: false, name: 'membership_id' });
 
-		// const r = await DClients.find({}).toArray();
-		// console.log("clients============>", r);
+		await DClients.updateMany({}, {$set: {minSolBalance: 1000}});
+		const r = await DClients.find({}).toArray();
+		console.log("clients============>", r);
 	} catch (error) {
 		console.log("MongoDB connection failure: ", error)
 		process.exit()
@@ -60,6 +65,7 @@ export const getClientData = async (chatId: number) => {
 		chatId: 0,
 		winRate: 0,
 		minVolume: 0,
+		minSolBalance: 0,
 		// athPercent: 0,
 		lastedTokensCount: 0,
 		status: BotStatus.UsualMode,
@@ -75,7 +81,7 @@ export const getClientData = async (chatId: number) => {
 export const getClients = async () => {
 	try {
 		const now = currentTime();
-		const r = await DClients.find({ isPaused: false, membershipId: {$ne: ""}, subscriptionExpiresIn: { $gte: now } }).toArray();
+		const r = await DClients.find({ isPaused: false, membershipId: { $ne: "" }, subscriptionExpiresIn: { $gte: now } }).toArray();
 		return r;
 	} catch (error) {
 		console.log("Get clients error: ", error);
@@ -85,16 +91,16 @@ export const getClients = async () => {
 
 export const updateMembershipsData = async () => {
 	try {
-		const {success, membership_ids} = await getActiveMembershipIds();
+		const { success, membership_ids } = await getActiveMembershipIds();
 
 		if (!success || !membership_ids.length) return;
 
 		const r = await DClients.find(
 			{
-				membershipId: {$nin: membership_ids},
-				subscriptionCreatedAt: {$ne: 0},
-				subscriptionExpiresIn: {$ne: 0},
-				email: {$ne: ""}
+				membershipId: { $nin: membership_ids },
+				subscriptionCreatedAt: { $ne: 0 },
+				subscriptionExpiresIn: { $ne: 0 },
+				email: { $ne: "" }
 			}
 		).toArray();
 
@@ -102,10 +108,10 @@ export const updateMembershipsData = async () => {
 
 		await DClients.updateMany(
 			{
-				membershipId: {$nin: membership_ids},
-				subscriptionCreatedAt: {$ne: 0},
-				subscriptionExpiresIn: {$ne: 0},
-				email: {$ne: ""}
+				membershipId: { $nin: membership_ids },
+				subscriptionCreatedAt: { $ne: 0 },
+				subscriptionExpiresIn: { $ne: 0 },
+				email: { $ne: "" }
 			},
 			{
 				$set: {
@@ -131,6 +137,7 @@ export const addClient = async (chatId: number) => {
 			chatId,
 			winRate: defaultWinRate,
 			minVolume: defaultMinVolume,
+			minSolBalance: defaultMinSolBalance,
 			status: BotStatus.UsualMode,
 			isPaused: false,
 			email: "",
@@ -159,6 +166,7 @@ export const updateClientData = async (_data: BotClient) => {
 				$set: {
 					winRate: _data.winRate,
 					minVolume: _data.minVolume,
+					minSolBalance: _data.minSolBalance,
 					// athPercent: _data.athPercent,
 					isPaused: _data.isPaused,
 					status: _data.status,
@@ -210,6 +218,7 @@ export const checkMembershipData = async (chatId: number, email: string) => {
 					chatId,
 					winRate: clientData?.winRate || defaultWinRate,
 					minVolume: clientData?.minVolume || defaultMinVolume,
+					minSolBalance: clientData?.minSolBalance || defaultMinSolBalance,
 					status: BotStatus.UsualMode,
 					isPaused: clientData?.isPaused || false,
 					email: email.toLowerCase(),
@@ -328,12 +337,23 @@ export const getTokensCountByATHPercent = async (athPercent: number) => {
 	return 0;
 }
 
-export const getTraderByWinRate = async (winRate: number, minVolume: number, excludeTrader: string[]/* , page: number, countPerPage: number */) => {
+export const getUserSolBalance = async (address: string) => {
+	try {
+		const publicKey = new PublicKey(address);
+		const balance = await connection.getBalance(publicKey);
+		return balance / LAMPORTS_PER_SOL;
+	} catch (error) {
+		console.log("Getting user's sol balance: ", error);
+	}
+	return 0;
+}
+
+export const getTraderByWinRate = async (winRate: number, minVolume: number, minSolBalance: number, excludeTrader: string[]/* , page: number, countPerPage: number */) => {
 	try {
 		let _match = {}
 		if (!!excludeTrader.length) {
 			_match = {
-				trader: {$nin: excludeTrader}
+				trader: { $nin: excludeTrader }
 			}
 		}
 		const r = await DTransactions.aggregate([
@@ -401,7 +421,7 @@ export const getTraderByWinRate = async (winRate: number, minVolume: number, exc
 				$skip: 0,
 			},
 			{
-				$limit: 1
+				$limit: 50
 			}
 			// {
 			// 	$facet: {
@@ -417,19 +437,25 @@ export const getTraderByWinRate = async (winRate: number, minVolume: number, exc
 
 		let trader: RequestTraderDataType | null = null;
 
-		if (!!r?.[0]?._id) {
-			const _r = r[0];
-			const _latestToken = await DTransactions.find({ trader: _r._id, isBuy: true }).sort({ created: -1 }).skip(0).limit(1).toArray();
-			const address = _latestToken?.[0]?.tokenAddress || "";
-
-			const _token = await DTokens.findOne({ address });
-			trader = {
-				_id: _r._id || "",
-				totalTransaction: _r.totalTransaction || 0,
-				totalVolume: _r.totalVolume || 0,
-				winTransaction: _r.winTransaction || 0,
-				winRate: _r.winRate || 0,
-				latestToken: _token
+		if (!!r?.length) {
+			for (let _trader of r) {
+				if (!_trader?._id) continue;
+				const solBalance = await getUserSolBalance(_trader._id);
+				if (solBalance < minSolBalance) continue;
+				const _latestToken = await DTransactions.find({ trader: _trader._id, isBuy: true }).sort({ created: -1 }).skip(0).limit(1).toArray();
+				const address = _latestToken?.[0]?.tokenAddress || "";
+	
+				const _token = await DTokens.findOne({ address });
+				trader = {
+					_id: _trader._id,
+					totalTransaction: _trader.totalTransaction || 0,
+					totalVolume: _trader.totalVolume || 0,
+					winTransaction: _trader.winTransaction || 0,
+					winRate: _trader.winRate || 0,
+					solBalance,
+					latestToken: _token
+				}
+				break;
 			}
 		}
 

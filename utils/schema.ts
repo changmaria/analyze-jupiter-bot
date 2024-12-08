@@ -1,6 +1,7 @@
 enum BotStatus {
 	InputWinRate = "Inputing Win Rate",
 	InputMinVolume = "Inputing Min Volume",
+	InputMinSolBalance = "Inputing Min Sol Balance",
 	InputEmail = "Inputing Email",
 	UsualMode = "Normal Mode"
 }
@@ -38,6 +39,7 @@ export interface SchemaBotClient {
 	chatId: number;
 	winRate: number;
 	minVolume: number;
+	minSolBalance: number;
 	// athPercent: number;
 	status: BotStatus;
 	isPaused: boolean;

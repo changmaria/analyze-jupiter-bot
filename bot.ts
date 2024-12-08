@@ -13,11 +13,12 @@ import {
 	checkSubscription,
 	setBotPauseStatus,
 	confirmPremium,
-	checkMembershipEmail
+	checkMembershipEmail,
+	setMinimumSolBalance
 } from './utils/bot';
 import { isNumber, validateEmail } from './utils/helper';
 import { BotClient, BotStatus } from './utils/interface';
-import { getClientData, getClients, getTraderByWinRate, open, updateClientData, updateMembershipsData } from "./utils/mongodb";
+import { getClientData, getClients, getTraderByWinRate, open, SOL_PRICE, updateClientData, updateMembershipsData } from "./utils/mongodb";
 
 dotenv.config();
 
@@ -78,6 +79,8 @@ bot.on('callback_query', async (callbackQuery) => {
 		await setWinRate(message, bot);
 	} else if (_cmd == 'setMinimumVolume') {
 		await setMinimumVolume(message, bot);
+	} else if (_cmd == 'setMinimumSolBalance') {
+		await setMinimumSolBalance(message, bot);
 	} else if (_cmd == 'confirmPremium') {
 		await confirmPremium(message, bot);
 	} else if (_cmd == 'setBotPauseStatus') {
@@ -148,6 +151,15 @@ bot.on('message', async (msg) => {
 		clientData.status = BotStatus.UsualMode;
 		await updateClientData(clientData);
 		await bot.sendMessage(msg.chat.id, `Minimum Volume is updated successfully. $${clientData.minVolume}`);
+	} else if (clientData.status == BotStatus.InputMinSolBalance) {
+		if (!isNumber(msg.text)) {
+			await bot.sendMessage(msg.chat.id, 'You have to input number as Minimum Sol Balance. Not Correct Format!!');
+			return;
+		}
+		clientData.minSolBalance = Math.abs(parseInt(msg.text));
+		clientData.status = BotStatus.UsualMode;
+		await updateClientData(clientData);
+		await bot.sendMessage(msg.chat.id, `Minimum Sol Balance is updated successfully. $${clientData.minSolBalance}`);
 	} else if (clientData.status === BotStatus.InputEmail) {
 		if (!msg.text || !validateEmail(msg.text)) {
 			await bot.sendMessage(msg.chat.id, 'Please enter a valid email address.');
@@ -177,7 +189,8 @@ const sendDataToBot = async (type: 'top-trader' | 'falling-token', chatId: numbe
 
 			const trader = await getTraderByWinRate(
 				clientData.winRate / 100,
-				(clientData.minVolume * LAMPORTS_PER_SOL) / 175,
+				(clientData.minVolume * LAMPORTS_PER_SOL) / SOL_PRICE,
+				clientData.minSolBalance / SOL_PRICE,
 				!!latestTopTraders?.[clientData.chatId] ? latestTopTraders[clientData.chatId] : []
 			)
 
@@ -226,7 +239,8 @@ const sendUpdatesToBot = async () => {
 		for (let i of clients) {
 			const trader = await getTraderByWinRate(
 				i.winRate / 100,
-				(i.minVolume * LAMPORTS_PER_SOL) / 175,
+				(i.minVolume * LAMPORTS_PER_SOL) / SOL_PRICE,
+				i.minSolBalance / SOL_PRICE,
 				[]
 			);
 
