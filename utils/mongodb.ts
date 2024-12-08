@@ -35,9 +35,9 @@ export const open = async () => {
 		await DClients.createIndex({ chatId: 1 }, { unique: true, name: 'tg_chat_id' });
 		await DClients.createIndex({ membershipId: 1 }, { unique: false, name: 'membership_id' });
 
-		await DClients.updateMany({}, {$set: {minSolBalance: 1000}});
-		const r = await DClients.find({}).toArray();
-		console.log("clients============>", r);
+		// await DClients.updateMany({}, {$set: {minSolBalance: 1000}});
+		// const r = await DClients.find({}).toArray();
+		// console.log("clients============>", r);
 	} catch (error) {
 		console.log("MongoDB connection failure: ", error)
 		process.exit()
@@ -340,7 +340,9 @@ export const getTokensCountByATHPercent = async (athPercent: number) => {
 export const getUserSolBalance = async (address: string) => {
 	try {
 		const publicKey = new PublicKey(address);
+		console.log("publicKey", publicKey);
 		const balance = await connection.getBalance(publicKey);
+		console.log("balance", balance);
 		return balance / LAMPORTS_PER_SOL;
 	} catch (error) {
 		console.log("Getting user's sol balance: ", error);
