@@ -1,10 +1,8 @@
 import { MongoClient } from "mongodb"
 import { BotClient, BotStatus, RequestTraderDataType } from "./interface";
 import { SchemaBotClient, SchemaToken, SchemaTransaction } from "./schema";
-import { currentTime } from "./helper";
+import { currentTime, getUserSolBalance } from "./helper";
 import { checkMembershipWithEmail, getActiveMembershipIds } from "./subscription";
-// import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
-import { getUserSolBalance } from "./bot";
 
 const MONGODB_URI = "mongodb://0.0.0.0:27017";
 const MONGODB_DATABASE = "solana-jupiter-sword"
@@ -12,7 +10,7 @@ export const defaultWinRate: number = 40;
 export const defaultMinVolume: number = 1000;
 export const defaultMinSolBalance: number = 1000;
 // export const defaultATHPercent: number = 80;
-export const SOL_PRICE = 235;
+export const SOL_PRICE = 200;
 
 const client = new MongoClient(MONGODB_URI);
 const db = client.db(MONGODB_DATABASE);
@@ -410,7 +408,7 @@ export const getTraderByWinRate = async (winRate: number, minVolume: number, min
 				$skip: 0,
 			},
 			{
-				$limit: 50
+				$limit: 2
 			}
 			// {
 			// 	$facet: {

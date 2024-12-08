@@ -1,3 +1,8 @@
+import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+
+// const connection: Connection = new Connection('https://proportionate-distinguished-bush.solana-mainnet.quiknode.pro/23d40a5fef0e147c06129a62e0cc0b975f38fd42', 'confirmed');
+const connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
+
 export const isNumber = (str: any) => !isNaN(str);
 export const currentTime = () => Math.round(new Date().getTime() / 1e3);
 
@@ -15,3 +20,16 @@ export const formatBigNumber = (value: number): string => {
 }
 
 export const validateEmail = (email: string) =>email.match(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)!==null;
+
+
+export const getUserSolBalance = async (address: string) => {
+	try {
+		const publicKey = new PublicKey(address);
+		const balance = await connection.getBalance(publicKey);
+		console.log("balance: ", balance)
+		return balance / LAMPORTS_PER_SOL;
+	} catch (error) {
+		console.log("Getting user's sol balance: ", error);
+	}
+	return 0;
+}
