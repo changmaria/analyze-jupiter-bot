@@ -1,7 +1,7 @@
 import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
-const connection: Connection = new Connection('https://proportionate-distinguished-bush.solana-mainnet.quiknode.pro/23d40a5fef0e147c06129a62e0cc0b975f38fd42', 'confirmed');
-// const connection: Connection = new Connection('https://mainnet.helius-rpc.com/?api-key=67cdd4a6-271e-4635-b0d3-6d007ef93fa8', 'confirmed');
+// const connection: Connection = new Connection('https://proportionate-distinguished-bush.solana-mainnet.quiknode.pro/23d40a5fef0e147c06129a62e0cc0b975f38fd42', 'confirmed');
+const connection: Connection = new Connection('https://mainnet.helius-rpc.com/?api-key=67cdd4a6-271e-4635-b0d3-6d007ef93fa8', 'confirmed');
 
 export const isNumber = (str: any) => !isNaN(str);
 export const currentTime = () => Math.round(new Date().getTime() / 1e3);
