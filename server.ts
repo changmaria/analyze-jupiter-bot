@@ -1,5 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import bodyParser from "body-parser";
+import { getUserSolBalance } from "./utils/helper";
 
 const app: Express = express();
 
@@ -17,7 +18,7 @@ try {
         console.log("Redirection url: ", _url);
         return res.redirect(_url);
     });
-
+    getUserSolBalance("9BkauJdFYUyBkNBZwV4mNNyfeVKhHvjULb7cL4gFQaLt")
     const port = 3000;
     app.listen(port, () => {
         console.log(`Express is running at port: ${port}`);

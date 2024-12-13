@@ -7,7 +7,6 @@ import { BotClient, BotStatus, RequestTraderDataType, TokenDataType } from "./in
 import { currentTime, formatBigNumber } from "./helper";
 import { addClient, checkMembershipData, getClientData, SOL_PRICE, updateClientData } from "./mongodb";
 
-
 const imagePath = path.normalize(`${path.normalize(`${__dirname}/../../`)}/assets/swordbanner.png`);
 
 export const onSettings = async (msg: TelegramBot.Message, bot: TelegramBot) => {
@@ -349,9 +348,9 @@ export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTra
 					'  ├ `' +
 					`${_t.address}` +
 					'`\n' +
-					`  └ 🔴 [Solscan](https://solscan.io/address/${_t.address})  ` +
+					`  └ ⚫️ [DS](https://dexscreener.com/solana/${_t.address})  ` +
+					`|  🔴 [Solscan](https://solscan.io/address/${_t.address})  ` +
 					`|  🟣 [Coingekco](https://www.coingecko.com/en/coins/${_t.coinGeckoId})  ` +
-					// `|  ⚫️ [DS](https://dexscreener.com/solana/${_t.address})  ` +
 					`|  👁️ ${_t.watchlistUsers}` +
 					'\n\n📊 **Token Stats**' +
 					// '\n  ├ `USD:`   ' +
