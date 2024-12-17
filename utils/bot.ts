@@ -70,7 +70,7 @@ export const onStart = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 				// { text: '👎 Falling Tokens', callback_data: 'fallingTokens' }
 			],
 			[
-				{ text: 'BULL X', url: 'https://bullx.io/veutino' },
+				{ text: 'BULL X', url: 'https://neo.bullx.io/p/veutino' },
 			],
 		]
 
@@ -316,7 +316,7 @@ export const addBot = async (msg: TelegramBot.Message, bot: TelegramBot) => {
 							// { text: '👎 Falling Tokens', callback_data: 'fallingTokens' }
 						],
 						[
-							{ text: 'BULL X', url: 'https://bullx.io/veutino' },
+							{ text: 'BULL X', url: 'https://neo.bullx.io/p/veutino' },
 						],
 						[
 							{ text: 'Buy Bot 🏆: 47€/month', callback_data: 'buyBot' }
@@ -410,7 +410,7 @@ export const showTopTradersMessage = async (bot: TelegramBot, trader: RequestTra
 				// 	{ text: '>>', callback_data: page + 1 <= totalPage ? `nextPageOfTraders_${page}` : 'page' },
 				// ],
 				[
-					{ text: 'BULL X', url: `${!!trader?.latestToken?.address ? `https://bullx.io/terminal?chainId=1399811149&address=${trader.latestToken.address}` : 'https://bullx.io/veutino'}` },
+					{ text: 'BULL X', url: `${!!trader?.latestToken?.address ? `https://bullx.io/terminal?chainId=1399811149&address=${trader.latestToken.address}` : 'https://neo.bullx.io/p/veutino'}` },
 				],
 				[
 					{ text: 'Back', callback_data: 'start' },
