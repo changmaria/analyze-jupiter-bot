@@ -69,11 +69,13 @@ const getCoinInfo = async (coinId: string, address: string) => {
 		});
 
 		let lp = 0;
+		let poolAddress = "";
 
 		if (!!res_2.data.data.relationships.top_pools.data?.[0]?.id) {
 			const _id: string = res_2.data.data.relationships.top_pools.data?.[0]?.id || "";
 			if (_id.startsWith('solana_')) {
-				const res_3: any = await axios.get(`https://pro-api.coingecko.com/api/v3/onchain/networks/solana/pools/${_id.replace('solana_', '')}`, {
+				poolAddress = _id.replace('solana_', '');
+				const res_3: any = await axios.get(`https://pro-api.coingecko.com/api/v3/onchain/networks/solana/pools/${poolAddress}`, {
 					headers: {
 						'accept': "application/json",
 						'x-cg-pro-api-key': 'CG-ww38dvoPhso7kYTyXbLrMQ8h'
@@ -101,7 +103,7 @@ const getCoinInfo = async (coinId: string, address: string) => {
 		const volume = res_1.data.market_data.total_volume.usd;
 		const price1HPercent = res_1.data.market_data.price_change_percentage_1h_in_currency.usd * 100;
 		const athPercent = (ath - price) / ath * 100;
-		return { name, symbol, watchlistUsers, price, ath, athPercent, marketCap, volume, lp, price1HPercent, website, twitter, telegram };
+		return { name, symbol, watchlistUsers, price, ath, athPercent, marketCap, volume, lp, poolAddress, price1HPercent, website, twitter, telegram };
 	} catch (error) {
 		console.log("Get coin info error: ", error);
 	}
@@ -150,6 +152,7 @@ const analyzeSwapInstructions = async (instructions: SwapInstruction[], transact
 		coinGeckoId: '',
 		name: '',
 		symbol: '',
+		poolAddress: "",
 		watchlistUsers: 0,
 		price: 0,
 		ath: 0,
@@ -208,6 +211,7 @@ const analyzeSwapInstructions = async (instructions: SwapInstruction[], transact
 	coin_info = await getCoinInfo(_token.coinGeckoId, _token.address);
 	_token.name = coin_info?.name || "";
 	_token.symbol = coin_info?.symbol || "";
+	_token.poolAddress = coin_info?.poolAddress || "";
 	_token.watchlistUsers = Number(coin_info?.watchlistUsers) || 0;
 	_token.price = Number(coin_info?.price) || 0;
 	_token.ath = Number(coin_info?.ath) || 0;

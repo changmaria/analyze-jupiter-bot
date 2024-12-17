@@ -70,6 +70,7 @@ export interface TokenDataType {
 	coinGeckoId: string;
 	name: string;
 	symbol: string;
+	poolAddress: string;
 	watchlistUsers: number;
 	price: number;
 	ath: number;

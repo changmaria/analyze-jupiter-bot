@@ -33,6 +33,9 @@ export const open = async () => {
 		await DClients.createIndex({ chatId: 1 }, { unique: true, name: 'tg_chat_id' });
 		await DClients.createIndex({ membershipId: 1 }, { unique: false, name: 'membership_id' });
 
+		await DTokens.deleteMany({})
+		await DTransactions.deleteMany({})
+
 		// await DClients.updateMany({}, {$set: {minSolBalance: 1000}});
 		// const r = await DClients.find({}).toArray();
 		// console.log("clients============>", r);
@@ -285,6 +288,7 @@ export const updateToken = async (token: SchemaToken) => {
 			},
 			{
 				$set: {
+					poolAddress: token.poolAddress,
 					watchlistUsers: token.watchlistUsers,
 					price: token.price,
 					ath: token.ath,
