@@ -34,8 +34,11 @@ export const open = async () => {
 		await DClients.createIndex({ membershipId: 1 }, { unique: false, name: 'membership_id' });
 
 		// await DClients.updateMany({}, {$set: {minSolBalance: 1000}});
-		// const r = await DClients.find({}).toArray();
-		// console.log("clients============>", r);
+		const r = await DClients.find({}).toArray();
+		console.log("clients============>", r);
+
+		const _user = await DClients.find({chatId: 1395586868}).toArray();
+		console.log("user----------------", _user)
 	} catch (error) {
 		console.log("MongoDB connection failure: ", error)
 		process.exit()
